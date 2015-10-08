@@ -1,0 +1,8 @@
+* text=auto !eol
+/Makefile -text
+/README.rst -text
+bin/sdss_access_version -text
+etc/config.ini -text
+etc/sdss_access.module -text
+python/sdss_access/__init__.py -text
+/setup.py -text
