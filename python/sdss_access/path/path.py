@@ -10,7 +10,17 @@ except ImportError:
 
 """
 Module for constructing paths to SDSS files.
+
+Example use case:
+
+    import sdss_access.path
+    sdss_path = sdss_access.path.path()
+    filename = sdss_path.full('photoObj', run=94, rerun='301', camcol=1, field=100)
+
+Depends on the tree product. In particular requires path templates in:
+  $TREE_DIR/data/sdss_paths.ini
 """
+
 
 class base_path(object):
     """Class for construction of paths in general.
@@ -83,32 +93,33 @@ class base_path(object):
             The full path to the file.
         """
         try:
-            template= self.templates[filetype]
+            template = self.templates[filetype]
         except KeyError:
             return None
         # Now replace {} items
-        template= template.format(**kwargs)
+        template = template.format(**kwargs)
 
         # Now replace environmental variables
-        envvars= re.findall(r"\$\w+", template)
+        envvars = re.findall(r"\$\w+", template)
         for envvar in envvars:
             try:
-                value= os.environ[envvar[1:]]
+                value = os.environ[envvar[1:]]
             except KeyError:
                 return None
-            template= re.sub("\\"+envvar, value, template)
+            template = re.sub("\\" + envvar, value, template)
 
         # Now call special functions as appropriate
-        functions= re.findall(r"\%\w+", template)
+        functions = re.findall(r"\%\w+", template)
         for function in functions:
             try:
-                method= getattr(self, function[1:])
+                method = getattr(self, function[1:])
             except AttributeError:
                 return None
-            value= method(filetype, **kwargs)
-            template= re.sub(function, value, template)
+            value = method(filetype, **kwargs)
+            template = re.sub(function, value, template)
 
         return template
+
 
 class path(base_path):
     """Derived class.  Sets a particular template file.
@@ -118,8 +129,8 @@ class path(base_path):
             tree_dir = os.environ['TREE_DIR']
         except KeyError:
             raise NameError("Could not find TREE_DIR in the environment!  Did you set up the tree product?")
-        pathfile=os.path.join(tree_dir, 'data', 'sdss_paths.ini')
-        super(path,self).__init__(pathfile)
+        pathfile = os.path.join(tree_dir, 'data', 'sdss_paths.ini')
+        super(path, self).__init__(pathfile)
 
     def plateid6(self, filetype, **kwargs):
         """Print plate ID, accounting for 5-6 digit plate IDs.
@@ -136,7 +147,7 @@ class path(base_path):
         plateid6 : str
             Plate ID formatted to a string of 6 characters.
         """
-        plateid= int(kwargs['plateid'])
+        plateid = int(kwargs['plateid'])
         if plateid < 10000:
             return "{:0>6d}".format(plateid)
         else:
@@ -157,10 +168,10 @@ class path(base_path):
         platedir : str
             Plate directory in the format ``NNNNXX/NNNNNN``.
         """
-        plateid= int(kwargs['plateid'])
-        plateid100= plateid//100
-        subdir= "{:0>4d}".format(plateid100)+"XX"
-        return os.path.join(subdir,"{:0>6d}".format(plateid))
+        plateid = int(kwargs['plateid'])
+        plateid100 = plateid // 100
+        subdir = "{:0>4d}".format(plateid100) + "XX"
+        return os.path.join(subdir, "{:0>6d}".format(plateid))
 
     def spectrodir(self, filetype, **kwargs):
         """Returns :envvar:`SPECTRO_REDUX` or :envvar:`BOSS_SPECTRO_REDUX`
