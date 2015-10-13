@@ -1,4 +1,4 @@
-setupRequired(sdss4install)
+setupRequired(sdss4tools)
 setupOptional(tree)
 
 envPrepend(PATH, ${PRODUCT_DIR}/bin)
