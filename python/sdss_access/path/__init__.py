@@ -1,1 +1,1 @@
-from .path import base_path, path
+from .path import BasePath, Path

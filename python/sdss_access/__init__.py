@@ -24,3 +24,5 @@ __version__ = version('$HeadURL$')
 # Clean up namespace
 #
 del version
+
+from .path import Path as SDSSPath

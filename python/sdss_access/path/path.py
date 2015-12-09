@@ -22,7 +22,7 @@ Depends on the tree product. In particular requires path templates in:
 """
 
 
-class base_path(object):
+class BasePath(object):
     """Class for construction of paths in general.
 
     Attributes
@@ -121,7 +121,7 @@ class base_path(object):
         return template
 
 
-class path(base_path):
+class Path(BasePath):
     """Derived class.  Sets a particular template file.
     """
     def __init__(self):
@@ -130,7 +130,7 @@ class path(base_path):
         except KeyError:
             raise NameError("Could not find TREE_DIR in the environment!  Did you set up the tree product?")
         pathfile = os.path.join(tree_dir, 'data', 'sdss_paths.ini')
-        super(path, self).__init__(pathfile)
+        super(Path, self).__init__(pathfile)
 
     def plateid6(self, filetype, **kwargs):
         """Print plate ID, accounting for 5-6 digit plate IDs.
