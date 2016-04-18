@@ -2,6 +2,7 @@ from __future__ import division, print_function
 
 import os
 import re
+from os.path import join
 
 try:
     from ConfigParser import RawConfigParser
@@ -13,8 +14,8 @@ Module for constructing paths to SDSS files.
 
 Example use case:
 
-    import sdss_access.path
-    sdss_path = sdss_access.path.path()
+    from sdss_access.path import Path
+    sdss_path = Path()
     filename = sdss_path.full('photoObj', run=94, rerun='301', camcol=1, field=100)
 
 Depends on the tree product. In particular requires path templates in:
@@ -120,6 +121,30 @@ class BasePath(object):
 
         return template
 
+    def sas_url(self, filetype, sas_base_url='https://data.sdss.org/sas', **kwargs):
+        """Return the sas url of a given type of file.
+
+        Parameters
+        ----------
+        filetype : str
+            File type parameter.
+
+        Returns
+        -------
+        full : str
+            The sas url to the file.
+        """
+        
+        try: sas_base_dir = join(os.environ['SAS_BASE_DIR'],'')
+        except KeyError:
+            raise NameError("Could not find SAS_BASE_DIR in the environment!  Did you set up the tree product?")
+        
+        sas_base_url = join(sas_base_url,'') if sas_base_url else None
+        
+        full = self.full(filetype, **kwargs)
+        location = full[len(sas_base_dir):] if full and full.startswith(sas_base_dir) else None
+        
+        return join(sas_base_url,location) if sas_base_url else location
 
 class Path(BasePath):
     """Derived class.  Sets a particular template file.
