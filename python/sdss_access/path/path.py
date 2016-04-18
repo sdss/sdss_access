@@ -144,7 +144,7 @@ class BasePath(object):
         full = self.full(filetype, **kwargs)
         location = full[len(sas_base_dir):] if full and full.startswith(sas_base_dir) else None
         
-        return join(sas_base_url,location) if sas_base_url else location
+        return join(sas_base_url,location) if sas_base_url and location else location
 
 class Path(BasePath):
     """Derived class.  Sets a particular template file.
