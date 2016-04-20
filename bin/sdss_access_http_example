@@ -1,0 +1,11 @@
+#!/usr/bin/env python
+from sdss_access import HttpAccess
+http_access = HttpAccess(verbose=True)
+
+#works if you have the sdss username in your ~/.netrc
+http_access.remote()
+
+#the alternative to setting the password in ~/.netrc is not recommended!
+#http_access.remote(username='sdss',password='***-******')
+
+http_access.get('mangacube', drpver='v1_5_1', plate=8485, ifu=1901)

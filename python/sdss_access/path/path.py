@@ -121,8 +121,15 @@ class BasePath(object):
 
         return template
 
-    def sas_url(self, filetype, sas_base_url='https://data.sdss.org/sas', **kwargs):
-        """Return the sas url of a given type of file.
+    def set_base_dir(self,base_dir=None):
+    
+        if base_dir: self.base_dir = base_dir
+        else:
+            try: self.base_dir = join(os.environ['SAS_BASE_DIR'],'')
+            except: pass
+
+    def url(self, filetype, base_dir=None, base_url='https://data.sdss.org/sas', **kwargs):
+        """Return the url of a given type of file.
 
         Parameters
         ----------
@@ -135,16 +142,13 @@ class BasePath(object):
             The sas url to the file.
         """
         
-        try: sas_base_dir = join(os.environ['SAS_BASE_DIR'],'')
-        except KeyError:
-            raise NameError("Could not find SAS_BASE_DIR in the environment!  Did you set up the tree product?")
-        
-        sas_base_url = join(sas_base_url,'') if sas_base_url else None
-        
         full = self.full(filetype, **kwargs)
-        location = full[len(sas_base_dir):] if full and full.startswith(sas_base_dir) else None
         
-        return join(sas_base_url,location) if sas_base_url and location else location
+        self.set_base_dir(base_dir=base_dir)
+        location = full[len(self.base_dir):] if full and full.startswith(self.base_dir) else None
+        
+        base_url = join(base_url,'') if base_url else None
+        return join(base_url,location) if base_url and location else location
 
 class Path(BasePath):
     """Derived class.  Sets a particular template file.
