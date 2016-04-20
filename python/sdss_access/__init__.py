@@ -26,3 +26,4 @@ __version__ = version('$HeadURL$')
 del version
 
 from .path import Path as SDSSPath
+from .sync import HttpAccess, Auth

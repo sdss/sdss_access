@@ -1,10 +1,14 @@
 * text=auto !eol
 /Makefile -text
 /README.rst -text
+bin/sdss_access_http_example -text
 bin/sdss_access_version -text
 etc/config.ini -text
 etc/sdss_access.module -text
 python/sdss_access/__init__.py -text
 python/sdss_access/path/__init__.py -text
+python/sdss_access/sync/__init__.py -text
+python/sdss_access/sync/auth.py -text
+python/sdss_access/sync/http.py -text
 /setup.py -text
 ups/sdss_access.table -text
