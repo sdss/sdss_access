@@ -86,7 +86,8 @@ class HttpAccess(SDSSPath):
             local path to put file in
         """
 
-        if not isfile(path) or force:
+        path_exists = isfile(path)
+        if not path_exists or force:
 
             dir = dirname(path)
             if not exists(dir):
