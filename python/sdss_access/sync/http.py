@@ -65,11 +65,12 @@ class HttpAccess(SDSSPath):
         -----
         Path templates are defined in $DIMAGE_DIR/data/dimage_paths.ini
         """
+        
         path = self.full(filetype, **kwargs)
         
-        if self._remote: return self.download_url_to_path(self.url(filetype, **kwargs), path)
-        return path
-
+        if path:
+            if self._remote: self.download_url_to_path(self.url(filetype, **kwargs), path)
+        else: print("There is no file with filetype=%r to access in the tree module loaded" % filetype)
 
     def download_url_to_path(self, url, path, force=False):
         """
@@ -85,36 +86,39 @@ class HttpAccess(SDSSPath):
             local path to put file in
         """
 
-        path_exists = isfile(path)
-        if not path_exists or force:
+        if not isfile(path) or force:
 
             dir = dirname(path)
             if not exists(dir):
                 if self.verbose: print("CREATE %s" % dir)
                 makedirs(dir)
 
-            u = urllib2.urlopen(url)
+            try: u = urllib2.urlopen(url)
+            except urllib2.HTTPError as e:
+                u = None
+                print("HTTP error code %r.  Please check you ~/.netrc has the correct authorization" % e.code)
 
-            with open(path, 'wb') as file:
-                meta = u.info()
-                meta_func = meta.getheaders \
-                    if hasattr(meta, 'getheaders') else meta.get_all
-                meta_length = meta_func("Content-Length")
-                file_size = None
-                if meta_length: file_size = int(meta_length[0])
-                if self.verbose: print("Downloading: {0} Bytes: {1}".format(url, file_size))
+            if u:
+                with open(path, 'wb') as file:
+                    meta = u.info()
+                    meta_func = meta.getheaders \
+                        if hasattr(meta, 'getheaders') else meta.get_all
+                    meta_length = meta_func("Content-Length")
+                    file_size = None
+                    if meta_length: file_size = int(meta_length[0])
+                    if self.verbose: print("Downloading: {0} Bytes: {1}".format(url, file_size))
 
-                file_size_dl = 0
-                block_sz = 8192
-                while True:
-                    buffer = u.read(block_sz)
-                    if not buffer: break
-                    file_size_dl += len(buffer)
-                    file.write(buffer)
-    
-            if self.verbose:
-                if path_exists: print("OVERWRITING %s" % path)
-                else: print("CREATE %s" % path)
+                    file_size_dl = 0
+                    block_sz = 8192
+                    while True:
+                        buffer = u.read(block_sz)
+                        if not buffer: break
+                        file_size_dl += len(buffer)
+                        file.write(buffer)
+        
+                if self.verbose:
+                    if path_exists: print("OVERWRITING %s" % path)
+                    else: print("CREATE %s" % path)
 
         elif self.verbose: print("FOUND %s (already downloaded)" % path)
 

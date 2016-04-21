@@ -1,7 +1,8 @@
 * text=auto !eol
 /Makefile -text
 /README.rst -text
-bin/sdss_access_http_example -text
+bin/sdss_access_http_example_dr12 -text
+bin/sdss_access_http_example_sdsswork -text
 bin/sdss_access_version -text
 etc/config.ini -text
 etc/sdss_access.module -text

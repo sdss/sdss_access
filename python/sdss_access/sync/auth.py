@@ -11,8 +11,10 @@ machine data.sdss.org
 class Auth:
 
     def __init__(self):
-        self.netrc = netrc()
+        try: self.netrc = netrc()
+        except: self.netrc = None
 
     def set_host(self, host='data.sdss.org'):
-        self.username, account, self.password = self.netrc.authenticators(host)
+        if self.netrc: self.username, account, self.password = self.netrc.authenticators(host)
+        else: self.username, self.password = None,None
 
