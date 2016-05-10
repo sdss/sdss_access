@@ -8,39 +8,36 @@ class HttpAccess(SDSSPath):
     """Class for providing HTTP access via urllib2 to SDSS SAS Paths
     """
 
-    def __init__(self, local_base=None, verbose=False):
+    def __init__(self, verbose=False):
         super(HttpAccess, self).__init__()
-        self.remote_base = 'https://data.sdss.org'
-        self.local_base = None
         self.verbose = verbose
         self._remote = False
 
-    def remote(self, remote_base=None, local_base=None, username=None, password=None):
+    def set_auth(self, username=None, password=None):
+        self.auth = Auth()
+        self.auth.set_username(username)
+        self.auth.set_password(password)
+        if not self.auth.ready: self.auth.set_host()
+
+    def remote(self, remote_base=None, username=None, password=None):
         """
-        Configures remote access for NASA-Sloan Atlas.
+        Configures remote access
 
         Parameters
         ----------
         remote_base : str
             base URL path for remote repository
-        local_base : str
-            base file path for local repository
         username : str
             user name for remote repository
         password : str
             password for local repository
         """
         if remote_base is not None: self.remote_base = remote_base
-        if local_base is not None: self.local_base = local_base
         self._remote = True
-        if not username or not password:
-            auth = Auth()
-            auth.set_host()
-            username = auth.username
-            password = auth.password
-        if username and password:
+        self.set_auth(username=username,password=password)
+        if self.auth.ready():
             passman = urllib2.HTTPPasswordMgrWithDefaultRealm()
-            passman.add_password(None, self.remote_base, username, password)
+            passman.add_password(None, self.remote_base, self.auth.username, self.auth.password)
             authhandler = urllib2.HTTPBasicAuthHandler(passman)
             opener = urllib2.build_opener(authhandler)
             urllib2.install_opener(opener)

@@ -31,6 +31,9 @@ class BasePath(object):
     templates : dict
         The set of templates read from the configuration file.
     """
+
+    remote_base = 'https://data.sdss.org'
+    
     def __init__(self, pathfile):
         self._pathfile = pathfile
         self._config = RawConfigParser()
@@ -131,7 +134,27 @@ class BasePath(object):
             except:
                 pass
 
-    def url(self, filetype, base_dir=None, base_url='https://data.sdss.org/sas', **kwargs):
+    def location(self, filetype, base_dir=None, **kwargs):
+        """Return the location of the relative sas path of a given type of file.
+
+        Parameters
+        ----------
+        filetype : str
+            File type parameter.
+
+        Returns
+        -------
+        full : str
+            The relative sas path to the file.
+        """
+
+        full = self.full(filetype, **kwargs)
+
+        self.set_base_dir(base_dir=base_dir)
+        location = full[len(self.base_dir):] if full and full.startswith(self.base_dir) else None
+        return location
+
+    def url(self, filetype, base_dir=None, **kwargs):
         """Return the url of a given type of file.
 
         Parameters
@@ -145,14 +168,8 @@ class BasePath(object):
             The sas url to the file.
         """
 
-        full = self.full(filetype, **kwargs)
-
-        self.set_base_dir(base_dir=base_dir)
-        location = full[len(self.base_dir):] if full and full.startswith(self.base_dir) else None
-
-        base_url = join(base_url, '') if base_url else None
-        return join(base_url, location) if base_url and location else location
-
+        location = self.location(filetype, **kwargs)
+        return join(self.remote_base, 'sas', location) if self.remote_base and location else None
 
 class Path(BasePath):
     """Derived class.  Sets a particular template file.
