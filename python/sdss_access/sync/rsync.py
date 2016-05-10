@@ -56,6 +56,7 @@ class RsyncAccess(SDSSPath):
                 for index,source in enumerate(task['source']):
                     location_depth = task['location'][index].count('/')
                     command = "rsync -R {source}".format(source=source)
+                    if self.verbose: print command
                     status, out, err = self.stream.cli.foreground_run(command)
                     if status:
                         print "====status=%r" % status
