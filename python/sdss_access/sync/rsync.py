@@ -7,8 +7,8 @@ from sdss_access.sync.stream import Stream
 
 class RsyncAccess(SDSSPath):
     
-    public_remote_base = 'rsync://data.sdss.org'
-    sdss_remote_base = 'rsync://sdss@dtn01.sdss.org'
+    public_remote_base = 'rsync://data.sdss.org:'
+    sdss_remote_base = 'rsync://sdss@dtn01.sdss.org:'
 
     def __init__(self, label='sdss_rsync', stream_count=5, verbose=False):
         super(RsyncAccess, self).__init__()
