@@ -1,4 +1,4 @@
-from sdss_access.sync import Cli
+from sdss_access.sync import Cli, CliError
 from random import shuffle
 
 class Stream:
@@ -17,6 +17,7 @@ class Stream:
         self.source = None
         self.destination = None
         self.cli = Cli()
+        self.cliError = CliError()
 
     def reset_streamlet(self):
         for index in range(0,self.stream_count): self.set_streamlet(index=index, location=[], source=[], destination=[])

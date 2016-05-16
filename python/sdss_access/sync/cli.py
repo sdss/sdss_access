@@ -147,3 +147,8 @@ class Cli:
                         logger.critical(message)
                         exit(status)
         return (status,out,err)
+
+class CliError(Exception):
+    pass
+
+

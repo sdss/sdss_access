@@ -53,9 +53,7 @@ class RsyncAccess(SDSSPath):
             if self.verbose: print "PATH %s" % source
             command = "rsync -R {source}".format(source=source)
             status, out, err = self.stream.cli.foreground_run(command)
-            if status:
-                print "====status=%r" % status
-                print "====err=%r" % err
+            if status: raise self.stream.cliError("Error: %s [code:%r]" % (err,status))
             else:
                 for result in out.split("\n"):
                     try: location = search(r"^.*\s{1,3}(.+)$",result).group(1)
