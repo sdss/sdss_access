@@ -25,5 +25,5 @@ __version__ = version('$HeadURL$')
 #
 del version
 
-from .path import Path as SDSSPath
+from .path import Path as SDSSPath, AccessError
 from .sync import HttpAccess, RsyncAccess

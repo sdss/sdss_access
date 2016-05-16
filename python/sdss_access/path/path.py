@@ -248,3 +248,5 @@ class Path(BasePath):
             return os.environ['SPECTRO_REDUX']
         else:
             return os.environ['BOSS_SPECTRO_REDUX']
+
+class AccessError(Exception): pass

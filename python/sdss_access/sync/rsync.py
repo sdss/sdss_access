@@ -1,7 +1,7 @@
 from os import makedirs
 from os.path import isfile, exists, dirname, join
 from re import search
-from sdss_access import SDSSPath
+from sdss_access import SDSSPath, AccessError
 from sdss_access.sync.auth import Auth
 from sdss_access.sync.stream import Stream
 
@@ -53,7 +53,7 @@ class RsyncAccess(SDSSPath):
             if self.verbose: print "PATH %s" % source
             command = "rsync -R {source}".format(source=source)
             status, out, err = self.stream.cli.foreground_run(command)
-            if status: raise self.stream.cliError("Error: %s [code:%r]" % (err,status))
+            if status: raise AccessError("Error: %s [code:%r]" % (err,status))
             else:
                 for result in out.split("\n"):
                     try: location = search(r"^.*\s{1,3}(.+)$",result).group(1)
