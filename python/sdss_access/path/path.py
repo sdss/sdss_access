@@ -33,9 +33,9 @@ class BasePath(object):
     """
 
     host = "data.sdss.org"
-    remote_base = "https://{host}".format(host=host)
     
     def __init__(self, pathfile):
+        self.remote_base = self.get_host_url()
         self._pathfile = pathfile
         self._config = RawConfigParser()
         self._config.optionxform = str
@@ -124,6 +124,10 @@ class BasePath(object):
             template = re.sub(function, value, template)
 
         return template
+    
+    def get_host_url(self, protocol="https"):
+        return "{protocol}://{host}".format(protocol=protocol,host=self.host)
+
 
     def set_base_dir(self, base_dir=None):
 

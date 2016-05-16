@@ -70,6 +70,17 @@ class RsyncAccess(SDSSPath):
     def get_locations(self, offset=None, limit=None):
         return self.stream.get_locations(offset=offset,limit=limit) if self.stream else None
 
+    def get_paths(self, offset=None, limit=None):
+        locations = self.get_locations(offset=offset,limit=limit)
+        paths = [join(self.base_dir, location) for location in locations] if locations else None
+        return paths
+    
+    def get_urls(self, offset=None, limit=None):
+        locations = self.get_locations(offset=offset,limit=limit)
+        host_url = self.get_host_url()
+        urls = [join(host_url, 'sas', location) for location in locations] if locations else None
+        return urls
+
     def commit(self, dryrun=False):
         self.stream.env = {'RSYNC_PASSWORD':self.auth.password} if self.auth.ready() else None
         self.stream.command = "rsync -avR --files-from={path} {source} {destination}"

@@ -18,15 +18,35 @@ for location in locations: print "- %s" % location
 
 print "="*80
 print "example ii): first 5 (limit=5)"
-for location in rsync_access.get_locations(limit=5): print "- %s" % location
+locations = rsync_access.get_locations(limit=5)
+if locations:
+    for location in locations: print "- %s" % location
 
 print "="*80
 print "example iii): next 5 (offset=5,limit=5)"
-for location in rsync_access.get_locations(offset=5,limit=5): print "- %s" % location
+rsync_access.get_locations(offset=5,limit=5)
+if locations:
+    for location in locations: print "- %s" % location
 
 print "="*80
 print "example iv): random 5 = shuffle then (limit=5)"
 rsync_access.shuffle()
-for location in rsync_access.get_locations(limit=5): print "- %s" % location
+locations = rsync_access.get_locations(limit=5)
+if locations:
+    for location in locations: print "- %s" % location
+
+print "="*80
+print "example v): random 5 as paths"
+rsync_access.shuffle()
+paths = rsync_access.get_paths(limit=5)
+if paths:
+    for path in paths: print "- %s" % path
+
+print "="*80
+print "example vi): random 5 as urls"
+rsync_access.shuffle()
+urls = rsync_access.get_urls(limit=5)
+if urls:
+    for url in urls: print "- %s" % url
 
 #rsync_access.commit(dryrun=True)
