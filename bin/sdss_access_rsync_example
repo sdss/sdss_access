@@ -8,9 +8,25 @@ rsync_access.remote()
 #the alternative to setting the password in ~/.netrc is not recommended!
 #rsync_access.remote(username='sdss',password='***-******')
 
-rsync_access.add('drpall', drpver='v1_5_1')
 rsync_access.add('mangacube', drpver='v1_5_1', plate=8485, ifu='*')
 rsync_access.set_stream()
-locations = rsync_access.get_locations_from_stream()
-for location in locations: print location
+
+print "="*80
+print "example i): expand wildcard"
+locations = rsync_access.get_locations()
+for location in locations: print "- %s" % location
+
+print "="*80
+print "example ii): first 5 (limit=5)"
+for location in rsync_access.get_locations(limit=5): print "- %s" % location
+
+print "="*80
+print "example iii): next 5 (offset=5,limit=5)"
+for location in rsync_access.get_locations(offset=5,limit=5): print "- %s" % location
+
+print "="*80
+print "example iv): random 5 = shuffle then (limit=5)"
+rsync_access.shuffle()
+for location in rsync_access.get_locations(limit=5): print "- %s" % location
+
 #rsync_access.commit(dryrun=True)

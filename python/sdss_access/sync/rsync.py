@@ -19,7 +19,7 @@ class RsyncAccess(SDSSPath):
     
     def get_stream(self):
         stream = Stream(stream_count=self.stream_count, verbose=self.verbose)
-        stream.reset_task()
+        stream.reset_streamlet()
         return stream
 
     def remote(self, public=False):
@@ -45,26 +45,30 @@ class RsyncAccess(SDSSPath):
         self.stream.source =  join(self.remote_base, 'sas') if self.remote_base else None
         self.stream.destination = self.base_dir
         if self.stream.source and self.stream.destination:
-            for task in self.initial_stream.task:
-                for index,source in enumerate(task['source']):
-                    location_depth = task['location'][index].count('/')
-                    command = "rsync -R {source}".format(source=source)
-                    if self.verbose: print command
-                    status, out, err = self.stream.cli.foreground_run(command)
-                    if status:
-                        print "====status=%r" % status
-                        print "====err=%r" % err
-                    else:
-                        for result in out.split("\n"):
-                            try: location = search(r"^.*\s{1,3}(.+)$",result).group(1)
-                            except: location = None
-                            if location and location.count('/')==location_depth:
-                                source = join(self.stream.source, location) if self.remote_base else None
-                                destination = join(self.stream.destination, location)
-                                self.stream.append_task(location=location, source=source, destination=destination)
+            for location,source,destination in self.initial_stream.task:
+                self.set_stream_task(source=source,depth=location.count('/'))
+                    
+    def set_stream_task(self,source=None,depth=None):
+        if source and depth:
+            if self.verbose: print "PATH %s" % source
+            command = "rsync -R {source}".format(source=source)
+            status, out, err = self.stream.cli.foreground_run(command)
+            if status:
+                print "====status=%r" % status
+                print "====err=%r" % err
+            else:
+                for result in out.split("\n"):
+                    try: location = search(r"^.*\s{1,3}(.+)$",result).group(1)
+                    except: location = None
+                    if location and location.count('/')==depth:
+                        source = join(self.stream.source, location) if self.remote_base else None
+                        destination = join(self.stream.destination, location)
+                        self.stream.append_task(location=location, source=source, destination=destination)
 
+    def shuffle(self): self.stream.shuffle()
 
-    def get_locations_from_stream(self): return self.stream.get_task_locations() if self.stream else None
+    def get_locations(self, offset=None, limit=None):
+        return self.stream.get_locations(offset=offset,limit=limit) if self.stream else None
 
     def commit(self, dryrun=False):
         self.stream.env = {'RSYNC_PASSWORD':self.auth.password} if self.auth.ready() else None
