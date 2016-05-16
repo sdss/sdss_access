@@ -14,10 +14,10 @@ class HttpAccess(SDSSPath):
         self._remote = False
 
     def set_auth(self, username=None, password=None):
-        self.auth = Auth()
+        self.auth = Auth(host=self.host)
         self.auth.set_username(username)
         self.auth.set_password(password)
-        if not self.auth.ready: self.auth.set_host()
+        if not self.auth.ready(): self.auth.load()
 
     def remote(self, remote_base=None, username=None, password=None):
         """

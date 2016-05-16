@@ -1,4 +1,4 @@
-from sdss_access.sync.cli import Cli
+from sdss_access.sync import Cli
 
 class Stream:
 
@@ -40,6 +40,9 @@ class Stream:
         try: task = self.task[self.index]
         except: task = None
         return task
+
+    def get_task_locations(self):
+        return [task['location'] for task in self.task] if self.task else None
 
     def append_task(self, index=None, location=None, source=None, destination=None):
         task = self.get_task(index=index)

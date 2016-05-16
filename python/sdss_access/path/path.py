@@ -32,7 +32,8 @@ class BasePath(object):
         The set of templates read from the configuration file.
     """
 
-    remote_base = 'https://data.sdss.org'
+    host = "data.sdss.org"
+    remote_base = "https://{host}".format(host=host)
     
     def __init__(self, pathfile):
         self._pathfile = pathfile

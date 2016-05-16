@@ -27,10 +27,10 @@ class RsyncAccess(SDSSPath):
         self.remote_base = self.public_remote_base if public else self.sdss_remote_base
     
     def set_auth(self, public=False, username=None, password=None):
-        self.auth = Auth(public=public)
+        self.auth = Auth(public=public, host=self.host)
         self.auth.set_username(username)
         self.auth.set_password(password)
-        if not self.auth.ready(): self.auth.set_host()
+        if not self.auth.ready(): self.auth.load()
 
     def add(self, filetype, **kwargs):
         location = self.location(filetype, **kwargs)
@@ -40,14 +40,7 @@ class RsyncAccess(SDSSPath):
             self.initial_stream.append_task(location=location, source=source, destination=destination)
         else: print("There is no file with filetype=%r to access in the tree module loaded" % filetype)
 
-    def commit(self, dryrun=False):
-        self.expand_stream()
-        self.stream.env = {'RSYNC_PASSWORD':self.auth.password} if self.auth.ready() else None
-        self.stream.command = "rsync -avR --files-from={path} {source} {destination}"
-        self.stream.commit_tasks()
-        self.stream.run_tasks()
-    
-    def expand_stream(self):
+    def set_stream(self):
         self.stream = self.get_stream()
         self.stream.source =  join(self.remote_base, 'sas') if self.remote_base else None
         self.stream.destination = self.base_dir
@@ -69,3 +62,13 @@ class RsyncAccess(SDSSPath):
                                 source = join(self.stream.source, location) if self.remote_base else None
                                 destination = join(self.stream.destination, location)
                                 self.stream.append_task(location=location, source=source, destination=destination)
+
+
+    def get_locations_from_stream(self): return self.stream.get_task_locations() if self.stream else None
+
+    def commit(self, dryrun=False):
+        self.stream.env = {'RSYNC_PASSWORD':self.auth.password} if self.auth.ready() else None
+        self.stream.command = "rsync -avR --files-from={path} {source} {destination}"
+        self.stream.commit_tasks()
+        self.stream.run_tasks()
+    
