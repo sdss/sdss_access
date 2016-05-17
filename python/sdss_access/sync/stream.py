@@ -62,7 +62,7 @@ class Stream:
         locations = self.get_locations()
         r = compile(regex)
         subset = filter(lambda i: r.search(i), locations)
-        self.task = [self.task[location.index(s)] for s in subset]
+        self.task = [self.task[locations.index(s)] for s in subset]
 
     def append_task(self, location=None, source=None, destination=None):
         if location and source and destination:
