@@ -1,5 +1,6 @@
 from sdss_access.sync import Cli
 from random import shuffle
+from re import compile
 
 class Stream:
 
@@ -50,29 +51,33 @@ class Stream:
         return streamlet
 
     def get_locations(self, offset=None, limit=None):
-        locations = [location for location,source,destination in self.task] if self.task else None
+        locations = [task['location'] for task in self.task] if self.task else None
         if offset: locations = locations[offset:]
         if limit: locations = locations[:limit]
         return locations
     
     def shuffle(self): shuffle(self.task)
-
-    """def get_streamlet_locations(self):
-        return [streamlet['location'] for streamlet in self.streamlet] if self.streamlet else None"""
+    
+    def refine_task(self, regex=None):
+        locations = self.get_locations()
+        r = compile(regex)
+        subset = filter(lambda i: r.search(i), locations)
+        self.task = [self.task[location.index(s)] for s in subset]
 
     def append_task(self, location=None, source=None, destination=None):
-        if location and source and destination: self.task.append((location,source,destination))
+        if location and source and destination:
+            task = {'location':location, 'source':source, 'destination':destination, 'exists':None}
+            self.task.append(task)
 
     def set_streamlets(self):
-        for location,source,destination in self.task: self.append_streamlet(location=location,source=source,destination=destination)
+        for task in self.task: self.append_streamlet(task=task)
     
-    def append_streamlet(self, index=None, location=None, source=None, destination=None):
+    def append_streamlet(self, index=None, task=None):
         streamlet = self.get_streamlet(index=index)
-        if streamlet:
-            if location and source and destination:
-                streamlet['location'].append(location)
-                streamlet['source'].append(source)
-                streamlet['destination'].append(destination)
+        if streamlet and task:
+                streamlet['location'].append(task['location'])
+                streamlet['source'].append(task['source'])
+                streamlet['destination'].append(task['destination'])
 
     def commit_streamlets(self):
         if self.command:

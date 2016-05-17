@@ -45,16 +45,17 @@ class RsyncAccess(SDSSPath):
         self.stream.source =  join(self.remote_base, 'sas') if self.remote_base else None
         self.stream.destination = self.base_dir
         if self.stream.source and self.stream.destination:
-            for location,source,destination in self.initial_stream.task:
-                self.set_stream_task(source=source,depth=location.count('/'))
+            for task in self.initial_stream.task: self.set_stream_task(task)
+                source=task['source'],depth=task['location'].count('/'))
                     
-    def set_stream_task(self,source=None,depth=None):
-        if source and depth:
-            if self.verbose: print "PATH %s" % source
-            command = "rsync -R {source}".format(source=source)
+    def set_stream_task(self,task=None):
+        if task:
+            if self.verbose: print "SYNC %(source)s" % task
+            command = "rsync -R %(source)s" % task
             status, out, err = self.stream.cli.foreground_run(command)
             if status: raise AccessError("Error: %s [code:%r]" % (err,status)) 
             else:
+                depth = task['location'].count('/')
                 for result in out.split("\n"):
                     try: location = search(r"^.*\s{1,3}(.+)$",result).group(1)
                     except: location = None
@@ -78,6 +79,8 @@ class RsyncAccess(SDSSPath):
         host_url = self.get_host_url()
         urls = [join(host_url, 'sas', location) for location in locations] if locations else None
         return urls
+    
+    def refine_task(self, regex=None): self.stream.refine_task(regex=regex)
 
     def commit(self, dryrun=False):
         self.stream.env = {'RSYNC_PASSWORD':self.auth.password} if self.auth.ready() else None
