@@ -1,4 +1,4 @@
-from sdss_access.sync import Cli
+from sdss_access.sync import Cli, CliError
 from random import shuffle
 
 class Stream:
@@ -9,14 +9,21 @@ class Stream:
         self.verbose = verbose
         try: self.stream_count = min(int(stream_count),self.max_stream_count)
         except: self.stream_count = 0
-        self.task = []
         self.streamlet = [{'index':index, 'location':None, 'source':None, 'destination':None}  for index in range(0,self.stream_count)]
+        self.reset()
         self.index = 0
         self.command = None
         self.env = None
         self.source = None
         self.destination = None
         self.cli = Cli()
+        self.cliError = CliError()
+
+    def reset(self):
+        self.reset_task()
+        self.reset_streamlet()
+        
+    def reset_task(self): self.task = []
 
     def reset_streamlet(self):
         for index in range(0,self.stream_count): self.set_streamlet(index=index, location=[], source=[], destination=[])
