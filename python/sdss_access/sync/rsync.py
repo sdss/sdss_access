@@ -46,7 +46,6 @@ class RsyncAccess(SDSSPath):
         self.stream.destination = self.base_dir
         if self.stream.source and self.stream.destination:
             for task in self.initial_stream.task: self.set_stream_task(task)
-                source=task['source'],depth=task['location'].count('/'))
                     
     def set_stream_task(self,task=None):
         if task:
