@@ -1,4 +1,4 @@
-from sdss_access.sync import Cli, CliError
+from sdss_access.sync import Cli
 from random import shuffle
 
 class Stream:
@@ -17,7 +17,6 @@ class Stream:
         self.source = None
         self.destination = None
         self.cli = Cli()
-        self.cliError = CliError()
 
     def reset(self):
         self.reset_task()
