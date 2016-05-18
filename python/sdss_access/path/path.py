@@ -2,7 +2,10 @@ from __future__ import division, print_function
 
 import os
 import re
+from glob import glob
 from os.path import join
+from functools import wraps
+from random import choice, sample
 
 try:
     from ConfigParser import RawConfigParser
@@ -33,7 +36,7 @@ class BasePath(object):
     """
 
     host = "data.sdss.org"
-    
+
     def __init__(self, pathfile):
         self.remote_base = self.get_host_url()
         self._pathfile = pathfile
@@ -67,7 +70,8 @@ class BasePath(object):
         dir : str
             Directory containing the file.
         """
-        return os.path.dirname(self.full(filetype, **kwargs))
+        full = kwargs.get('full', self.full(filetype, **kwargs))
+        return os.path.dirname(full)
 
     def name(self, filetype, **kwargs):
         """Return the directory containing a file of a given type.
@@ -82,7 +86,125 @@ class BasePath(object):
         name : str
             Name of a file with no directory information.
         """
-        return os.path.basename(self.full(filetype, **kwargs))
+        full = kwargs.get('full', self.full(filetype, **kwargs))
+        return os.path.basename(full)
+
+    def exists(self, filetype, **kwargs):
+        '''Checks if the given type of file exists
+
+        Parameters
+        ----------
+        filetype : str
+            File type parameter.
+
+        Returns
+        -------
+        exists : bool
+            Boolean indicating if the file exists on disk.
+
+        '''
+        full = kwargs.get('full', self.full(filetype, **kwargs))
+        return os.path.isfile(full)
+
+    def expand(self, filetype, **kwargs):
+        ''' Expand a wildcard path locally
+
+        Parameters
+        ----------
+        filetype : str
+            File type parameter.
+
+        as_url: bool
+            Boolean to return SAS urls
+
+        Returns
+        -------
+        expand : list
+            List of expanded full paths of the given type.
+
+        '''
+        full = kwargs.get('full', self.full(filetype, **kwargs))
+        assert '*' in full, 'Wildcard must be present in full path'
+        files = glob(full)
+
+        # return as urls?
+        as_url = kwargs.get('as_url', None)
+        newfiles = [self.url('', full=full) for full in files] if as_url else files
+
+        return newfiles
+
+    def any(self, filetype, **kwargs):
+        ''' Checks if the local directory contains any of the type of file
+
+        Parameters
+        ----------
+        filetype : str
+            File type parameter.
+
+        Returns
+        -------
+        any : bool
+            Boolean indicating if the any files exist in the expanded path on disk.
+
+        '''
+        expanded_files = self.expand(filetype, **kwargs)
+        return any(expanded_files)
+
+    def one(self, filetype, **kwargs):
+        ''' Returns random one of the given type of file
+
+        Parameters
+        ----------
+        filetype : str
+            File type parameter.
+
+        as_url: bool
+            Boolean to return SAS urls
+
+        Returns
+        -------
+        one : str
+            Random file selected from the expanded list of full paths on disk.
+
+        '''
+        expanded_files = self.expand(filetype, **kwargs)
+        isany = self.any(filetype, **kwargs)
+        # return as url or full path
+        as_url = kwargs.get('as_url', None)
+        new_files = [self.url('', full=full) for full in expanded_files] if as_url else expanded_files
+        return choice(new_files) if isany else None
+
+    def random(self, filetype, **kwargs):
+        ''' Returns random number of the given type of file
+
+        Parameters
+        ----------
+        filetype : str
+            File type parameter.
+
+        num : int
+            The number of files to return
+
+        as_url: bool
+            Boolean to return SAS urls
+
+        Returns
+        -------
+        random : list
+            Random file selected from the expanded list of full paths on disk.
+
+        '''
+        expanded_files = self.expand(filetype, **kwargs)
+        isany = self.any(filetype, **kwargs)
+        if isany:
+            # get the desired number
+            num = kwargs.get('num', 1)
+            # return as url or full paths
+            as_url = kwargs.get('as_url', None)
+            new_files = [self.url('', full=full) for full in expanded_files] if as_url else expanded_files
+            return sample(new_files, num)
+        else:
+            return None
 
     def full(self, filetype, **kwargs):
         """Return the full name of a given type of file.
@@ -124,10 +246,9 @@ class BasePath(object):
             template = re.sub(function, value, template)
 
         return template
-    
-    def get_host_url(self, protocol="https"):
-        return "{protocol}://{host}".format(protocol=protocol,host=self.host)
 
+    def get_host_url(self, protocol="https"):
+        return "{protocol}://{host}".format(protocol=protocol, host=self.host)
 
     def set_base_dir(self, base_dir=None):
 
@@ -153,7 +274,7 @@ class BasePath(object):
             The relative sas path to the file.
         """
 
-        full = self.full(filetype, **kwargs)
+        full = kwargs.get('full', self.full(filetype, **kwargs))
 
         self.set_base_dir(base_dir=base_dir)
         location = full[len(self.base_dir):] if full and full.startswith(self.base_dir) else None
@@ -175,6 +296,7 @@ class BasePath(object):
 
         location = self.location(filetype, **kwargs)
         return join(self.remote_base, 'sas', location) if self.remote_base and location else None
+
 
 class Path(BasePath):
     """Derived class.  Sets a particular template file.
@@ -249,4 +371,7 @@ class Path(BasePath):
         else:
             return os.environ['BOSS_SPECTRO_REDUX']
 
-class AccessError(Exception): pass
+
+class AccessError(Exception):
+    pass
+
