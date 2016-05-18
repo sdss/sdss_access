@@ -196,6 +196,7 @@ class BasePath(object):
         if isany:
             # get the desired number
             num = kwargs.get('num', 1)
+            assert num <= len(expanded_files), 'Requested number must be larger the sample.  Reduce your number.'
             return sample(expanded_files, num)
         else:
             return None
