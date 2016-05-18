@@ -169,10 +169,7 @@ class BasePath(object):
         '''
         expanded_files = self.expand(filetype, **kwargs)
         isany = self.any(filetype, **kwargs)
-        # return as url or full path
-        as_url = kwargs.get('as_url', None)
-        new_files = [self.url('', full=full) for full in expanded_files] if as_url else expanded_files
-        return choice(new_files) if isany else None
+        return choice(expanded_files) if isany else None
 
     def random(self, filetype, **kwargs):
         ''' Returns random number of the given type of file
@@ -199,10 +196,7 @@ class BasePath(object):
         if isany:
             # get the desired number
             num = kwargs.get('num', 1)
-            # return as url or full paths
-            as_url = kwargs.get('as_url', None)
-            new_files = [self.url('', full=full) for full in expanded_files] if as_url else expanded_files
-            return sample(new_files, num)
+            return sample(expanded_files, num)
         else:
             return None
 
