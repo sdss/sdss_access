@@ -2,16 +2,15 @@
 from sdss_access import RsyncAccess
 rsync_access = RsyncAccess(label='drpall',verbose=True)
 
-#works if you have the sdss username in your ~/.netrc
+#works if you have the sdss username in your ~/.netrc (or you will be prompted)
 rsync_access.remote()
-
 #the alternative to setting the password in ~/.netrc is not recommended!
 #rsync_access.remote(username='sdss',password='***-******')
 
 rsync_access.add('mangacube', drpver='v1_5_1', plate=8485, ifu='*')
 rsync_access.set_stream()
 
-print "="*80
+"""print "="*80
 print "example i): expand wildcard"
 locations = rsync_access.get_locations()
 for location in locations: print "- %s" % location
@@ -48,5 +47,6 @@ rsync_access.shuffle()
 urls = rsync_access.get_urls(limit=5)
 if urls:
     for url in urls: print "- %s" % url
+"""
 
-#rsync_access.commit(dryrun=True)
+rsync_access.commit(dryrun=True)

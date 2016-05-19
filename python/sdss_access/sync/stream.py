@@ -69,7 +69,7 @@ class Stream:
             task = {'location':location, 'source':source, 'destination':destination, 'exists':None}
             self.task.append(task)
 
-    def set_streamlets(self):
+    def append_tasks_to_streamlets(self):
         for task in self.task: self.append_streamlet(task=task)
     
     def append_streamlet(self, index=None, task=None):
@@ -90,14 +90,14 @@ class Stream:
             streamlet['path'] = self.cli.get_path(index=streamlet['index'])
             path_txt = "{0}.txt".format(streamlet['path'])
             streamlet['command'] = self.command.format(path=path_txt,source=self.source,destination=self.destination)
-            streamlet['env'] = self.env
             self.cli.write_lines(path=path_txt, lines=[location for location in streamlet['location']])
 
     def run_streamlets(self):
         for streamlet in self.streamlet:
             streamlet['logfile'] = open("{0}.log".format(streamlet['path']),"w")
             streamlet['errfile'] = open("{0}.err".format(streamlet['path']),"w")
-            streamlet['process'] = self.cli.get_background_process(streamlet['command'], env=streamlet['env'], logfile=streamlet['logfile'], errfile=streamlet['errfile'])
+            streamlet['process'] = self.cli.get_background_process(streamlet['command'], logfile=streamlet['logfile'], errfile=streamlet['errfile'])
+            if self.verbose: print "SDSS_ACCESS> rsync stream %s logging to %s" % (streamlet['index'],streamlet['logfile'].name)
         self.cli.wait_for_processes(streamlet['process'] for streamlet in self.streamlet)
-        print "return code {returncode}".format(returncode=self.cli.returncode)
+        if self.cli.returncode: print "SDSS_ACCESS> return code {returncode}".format(returncode=self.cli.returncode)
         for streamlet in self.streamlet: streamlet['logfile'].close()

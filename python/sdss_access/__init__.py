@@ -15,15 +15,16 @@ svn:keywords must be set to HeadURL on this file.
 #
 from __future__ import absolute_import, division, print_function, unicode_literals
 # The line above will help with 2to3 support.
-from sdss4tools.install import version
+#from sdss4tools.install import version
 #
 # Set version string.
 #
-__version__ = version('$HeadURL$')
+#__version__ = version('$HeadURL$')
 #
 # Clean up namespace
 #
-del version
+#del version
+__version__ = "trunk"
 
 from .path import Path as SDSSPath, AccessError
 from .sync import HttpAccess, RsyncAccess

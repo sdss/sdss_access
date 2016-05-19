@@ -1,4 +1,5 @@
 from netrc import netrc
+from getpass import getpass
 
 """ add the following username and password to your ~/.netrc file
     and remember to chmod 600 ~/.netrc
@@ -26,8 +27,8 @@ class Auth:
     def set_username(self, username=None):
         self.username = username
 
-    def set_password(self, password=None):
-        self.password = password
+    def set_password(self, password=None, inquire=False):
+        self.password = getpass("Password: ") if inquire else password
 
     def ready(self):
         return self.username and self.password

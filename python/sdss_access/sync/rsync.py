@@ -18,7 +18,8 @@ class RsyncAccess(SDSSPath):
         self.initial_stream = self.get_stream()
     
     def get_stream(self):
-        return Stream(stream_count=self.stream_count, verbose=self.verbose)
+        stream = Stream(stream_count=self.stream_count, verbose=self.verbose)
+        return stream
 
     def remote(self, public=False):
         self.set_auth(public=public)
@@ -28,8 +29,10 @@ class RsyncAccess(SDSSPath):
         self.auth = Auth(public=public, host=self.host)
         self.auth.set_username(username)
         self.auth.set_password(password)
-        if not self.auth.ready(): self.auth.load()
-
+        if not public:
+            if not self.auth.ready(): self.auth.load()
+            if not self.auth.ready(): self.auth.set_password(inquire=True)
+    
     def reset(self, filetype, **kwargs): self.stream.reset()
     
     def add(self, filetype, **kwargs):
@@ -44,15 +47,16 @@ class RsyncAccess(SDSSPath):
         self.stream = self.get_stream()
         self.stream.source =  join(self.remote_base, 'sas') if self.remote_base else None
         self.stream.destination = self.base_dir
+        self.stream.cli.env = {'RSYNC_PASSWORD':self.auth.password} if self.auth.ready() else None
         if self.stream.source and self.stream.destination:
             for task in self.initial_stream.task: self.set_stream_task(task)
-                    
+
     def set_stream_task(self,task=None):
         if task:
-            if self.verbose: print "SYNC %(source)s" % task
             command = "rsync -R %(source)s" % task
+            if self.verbose: print "rsync -R %(source)s" % task
             status, out, err = self.stream.cli.foreground_run(command)
-            if status: raise AccessError("Error: %s [code:%r]" % (err,status)) 
+            if status: raise AccessError("Return code %r\n%s" % (status,err))
             else:
                 depth = task['location'].count('/')
                 for result in out.split("\n"):
@@ -82,8 +86,8 @@ class RsyncAccess(SDSSPath):
     def refine_task(self, regex=None): self.stream.refine_task(regex=regex)
 
     def commit(self, dryrun=False):
-        self.stream.env = {'RSYNC_PASSWORD':self.auth.password} if self.auth.ready() else None
         self.stream.command = "rsync -avR --files-from={path} {source} {destination}"
-        self.stream.commit_tasks()
-        self.stream.run_tasks()
+        self.stream.append_tasks_to_streamlets()
+        self.stream.commit_streamlets()
+        self.stream.run_streamlets()
     

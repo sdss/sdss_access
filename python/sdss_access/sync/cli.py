@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from os import getenv, makedirs
 from os.path import exists, join, basename
 from math import log10
@@ -21,6 +23,7 @@ class Cli:
         self.ready = exists(self.data_dir) if self.data_dir else False
         if not self.ready and exists(self.tmp_dir): self.data_dir = self.tmp_dir
         self.now = datetime.now().strftime("%Y%m%d")
+        self.env = None
         self.verbose = verbose
 
     def set_dir(self):
@@ -35,7 +38,7 @@ class Cli:
                 maxnumber = max(maxnumber,dirnumber)
             self.dir = join(label_dir,"{now}_{number:03d}".format(now=self.now,number=maxnumber+1))
             if not exists(self.dir):
-                if self.verbose: print "CREATE {dir}".format(dir=self.dir)
+                if self.verbose: print("SDSS_ACCESS> CREATE {dir}".format(dir=self.dir))
                 makedirs(self.dir)
         else: self.dir = None
             
@@ -49,19 +52,19 @@ class Cli:
             with open(path,'w') as file:
                 file.write("\n".join(lines)+"\n")
 
-    def get_background_process(self, command=None, env=None, logfile=None, errfile=None, pause=1):
+    def get_background_process(self, command=None, logfile=None, errfile=None, pause=1):
         if command:
             stdout = logfile if logfile else STDOUT
             stderr = errfile if errfile else STDOUT
-            background_process = Popen(split(str(command)), env=env, stdout=stdout, stderr=stderr)
+            background_process = Popen(split(str(command)), env=self.env, stdout=stdout, stderr=stderr)
             if pause: sleep(pause)
         else: background_process = None
         return background_process
 
     def wait_for_processes(self, processes, pause=60):
-        while any([process.poll() is None for process in processes]):
-            if self.verbose: print "running"
-            sleep(pause)
+        print("SDSS_ACCESS> syncing... please wait")
+        while any([process.poll() is None for process in processes]): sleep(pause)
+        print("SDSS_ACCESS> Done!")
         self.returncode = tuple([process.returncode for process in processes])
 
     def foreground_run(self, command, test=False, logger=None, logall=False, message=None, outname=None, errname=None):
@@ -111,7 +114,7 @@ class Cli:
                 errfile = TemporaryFile()
             else:
                 errfile = open(errname,'w+')
-            proc = Popen(split(str(command)),stdout=outfile,stderr=errfile,env={'RSYNC_PASSWORD':'2.5-meters'})
+            proc = Popen(split(str(command)),stdout=outfile,stderr=errfile,env=self.env)
             tstart = time()
             while proc.poll() is None:
                 elapsed = time() - tstart
