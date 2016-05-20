@@ -5,6 +5,7 @@ import re
 from glob import glob
 from os.path import join
 from random import choice, sample
+from re import compile
 
 try:
     from ConfigParser import RawConfigParser
@@ -116,6 +117,10 @@ class BasePath(object):
         as_url: bool
             Boolean to return SAS urls
 
+        refine: str
+            Regular expression string to filter the list of files by
+            before random selection
+
         Returns
         -------
         expand : list
@@ -129,6 +134,11 @@ class BasePath(object):
         # return as urls?
         as_url = kwargs.get('as_url', None)
         newfiles = [self.url('', full=full) for full in files] if as_url else files
+
+        # optionally refine the results
+        refine = kwargs.get('refine', None)
+        if refine:
+            newfiles = self.refine(newfiles, refine, **kwargs)
 
         return newfiles
 
@@ -160,6 +170,10 @@ class BasePath(object):
         as_url: bool
             Boolean to return SAS urls
 
+        refine: str
+            Regular expression string to filter the list of files by
+            before random selection
+
         Returns
         -------
         one : str
@@ -184,6 +198,10 @@ class BasePath(object):
         as_url: bool
             Boolean to return SAS urls
 
+        refine: str
+            Regular expression string to filter the list of files by
+            before random selection
+
         Returns
         -------
         random : list
@@ -199,6 +217,40 @@ class BasePath(object):
             return sample(expanded_files, num)
         else:
             return None
+
+    def refine(self, filelist, regex, filterdir='out', **kwargs):
+        ''' Returns a list of files filterd by a regular expression
+
+        Parameters
+        ----------
+        filelist : list
+            A list of files to filter on.
+
+        regex : str
+            The regular expression string to filter your list
+
+        filterdir: {'in', 'out'}
+            Indicates the filter to be inclusive or exclusive
+            'out' removes the items satisfying the regular expression
+            'in' keeps the items satisfying the regular expression
+
+        Returns
+        -------
+        refine : list
+            A file list refined by an input regular expression.
+
+        '''
+        assert filelist, 'Must provide a list of filenames to refine on'
+        assert regex, 'Must provide a regular expression to refine the file list'
+        r = compile(regex)
+
+        # icheck filter direction; default is out
+        assert filterdir in ['in', 'out'], 'Filter direction must be either "in" or "out"'
+        if filterdir == 'out':
+            subset = filter(lambda i: r.search(i), filelist)
+        elif filterdir == 'in':
+            subset = filter(lambda i: not r.search(i), filelist)
+        return subset
 
     def full(self, filetype, **kwargs):
         """Return the full name of a given type of file.
