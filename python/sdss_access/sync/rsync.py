@@ -1,4 +1,3 @@
-from os import makedirs
 from os.path import isfile, exists, dirname, join
 from re import search
 from sdss_access import SDSSPath, AccessError

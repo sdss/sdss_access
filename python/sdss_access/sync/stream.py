@@ -17,7 +17,7 @@ class Stream:
         self.env = None
         self.source = None
         self.destination = None
-        self.cli = Cli()
+        self.cli = Cli(verbose=verbose)
 
     def reset(self):
         self.reset_task()
