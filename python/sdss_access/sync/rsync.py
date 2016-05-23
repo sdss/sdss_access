@@ -20,9 +20,10 @@ class RsyncAccess(SDSSPath):
         return stream
 
     def remote(self, username=None, password=None):
+        self.set_netloc(sdss=True) #simplifies things to have a single sdss machine in .netrc
         self.set_auth(username=username, password=password)
-        self.remote_base = self.get_remote_base(scheme="rsync")
-    
+        self.set_netloc(dtn=not self.public)
+        self.set_remote_base(scheme="rsync")    
     
     def set_auth(self, username=None, password=None):
         self.auth = Auth(public=self.public, netloc=self.netloc)
@@ -30,7 +31,9 @@ class RsyncAccess(SDSSPath):
         self.auth.set_password(password)
         if not self.public:
             if not self.auth.ready(): self.auth.load()
-            if not self.auth.ready(): self.auth.set_password(inquire=True)
+            if not self.auth.ready():
+                self.auth.set_username(inquire=True)
+                self.auth.set_password(inquire=True)
     
     def reset(self):
         if self.stream: self.stream.reset()

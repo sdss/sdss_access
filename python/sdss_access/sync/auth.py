@@ -24,11 +24,11 @@ class Auth:
     def set_netloc(self, netloc=None):
         self.netloc = netloc
 
-    def set_username(self, username=None):
-        self.username = username
+    def set_username(self, username=None, inquire=False):
+        self.username = raw_input("user [sdss]: ") or "sdss" if inquire else username
 
     def set_password(self, password=None, inquire=False):
-        self.password = getpass("Password: ") if inquire else password
+        self.password = getpass("password: ") if inquire else password
 
     def ready(self):
         return self.username and self.password

@@ -35,15 +35,14 @@ class BasePath(object):
         The set of templates read from the configuration file.
     """
 
-    _netloc = "data.sdss.org"
-    _mirror_netloc = "data.mirror.sdss.org"
+    _netloc = {"dtn":"sdss@dtn01.sdss.org", "sdss":"data.sdss.org", "mirror":"data.mirror.sdss.org"}
 
     def __init__(self, pathfile, mirror=False, public=False, verbose=False):
         self.mirror = mirror
         self.public = public
         self.verbose = verbose
         self.set_netloc()
-        self.remote_base = self.get_remote_base()
+        self.set_remote_base()
         self._pathfile = pathfile
         self._config = RawConfigParser()
         self._config.optionxform = str
@@ -298,9 +297,12 @@ class BasePath(object):
 
         return template
 
-    def set_netloc(self, netloc=None):
-        self.netloc =  netloc if netloc else self._netloc if not self.mirror else self._mirror_netloc
+    def set_netloc(self, netloc=None, sdss=None, dtn=None):
+        self.netloc =  netloc if netloc else self._netloc["sdss"] if sdss else self._netloc["dtn"] if dtn  else self._netloc["mirror"] if self.mirror else self._netloc["sdss"]
     
+    def set_remote_base(self, scheme=None):
+        self.remote_base = self.get_remote_base(scheme=scheme) if scheme else self.get_remote_base()
+
     def get_remote_base(self, scheme="https"):
         return "{scheme}://{netloc}".format(scheme=scheme, netloc=self.netloc)
 
@@ -356,11 +358,11 @@ class Path(BasePath):
     """Derived class.  Sets a particular template file.
     """
     def __init__(self, mirror=False, public=False, verbose=False):
-        try:
-            tree_dir = os.environ['TREE_DIR']
+        try: tree_dir = os.environ['TREE_DIR']
         except KeyError:
-            raise NameError("Could not find TREE_DIR in the environment!  Did you set up the tree product?")
+            raise NameError("Could not find TREE_DIR in the environment!  Did you load the tree product?")
         pathfile = os.path.join(tree_dir, 'data', 'sdss_paths.ini')
+        
         super(Path, self).__init__(pathfile, mirror=mirror, public=public, verbose=verbose)
 
     def plateid6(self, filetype, **kwargs):
