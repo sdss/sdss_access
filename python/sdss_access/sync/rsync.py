@@ -93,7 +93,7 @@ class RsyncAccess(SDSSPath):
     def refine_task(self, regex=None): self.stream.refine_task(regex=regex)
 
     def commit(self, dryrun=False):
-        self.stream.command = "rsync -avR --files-from={path} {source} {destination}"
+        self.stream.command = "rsync -avRK --files-from={path} {source} {destination}"
         self.stream.append_tasks_to_streamlets()
         self.stream.commit_streamlets()
         self.stream.run_streamlets()
