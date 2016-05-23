@@ -35,10 +35,15 @@ class BasePath(object):
         The set of templates read from the configuration file.
     """
 
-    host = "data.sdss.org"
+    _netloc = "data.sdss.org"
+    _mirror_netloc = "data.mirror.sdss.org"
 
-    def __init__(self, pathfile):
-        self.remote_base = self.get_host_url()
+    def __init__(self, pathfile, mirror=False, public=False, verbose=False):
+        self.mirror = mirror
+        self.public = public
+        self.verbose = verbose
+        self.set_netloc()
+        self.remote_base = self.get_remote_base()
         self._pathfile = pathfile
         self._config = RawConfigParser()
         self._config.optionxform = str
@@ -293,8 +298,11 @@ class BasePath(object):
 
         return template
 
-    def get_host_url(self, protocol="https"):
-        return "{protocol}://{host}".format(protocol=protocol, host=self.host)
+    def set_netloc(self, netloc=None):
+        self.netloc =  netloc if netloc else self._netloc if not self.mirror else self._mirror_netloc
+    
+    def get_remote_base(self, scheme="https"):
+        return "{scheme}://{netloc}".format(scheme=scheme, netloc=self.netloc)
 
     def set_base_dir(self, base_dir=None):
 
@@ -326,7 +334,7 @@ class BasePath(object):
         location = full[len(self.base_dir):] if full and full.startswith(self.base_dir) else None
         return location
 
-    def url(self, filetype, base_dir=None, **kwargs):
+    def url(self, filetype, base_dir=None, sasdir='sas', **kwargs):
         """Return the url of a given type of file.
 
         Parameters
@@ -341,19 +349,19 @@ class BasePath(object):
         """
 
         location = self.location(filetype, **kwargs)
-        return join(self.remote_base, 'sas', location) if self.remote_base and location else None
+        return join(self.remote_base, sasdir, location) if self.remote_base and location else None
 
 
 class Path(BasePath):
     """Derived class.  Sets a particular template file.
     """
-    def __init__(self):
+    def __init__(self, mirror=False, public=False, verbose=False):
         try:
             tree_dir = os.environ['TREE_DIR']
         except KeyError:
             raise NameError("Could not find TREE_DIR in the environment!  Did you set up the tree product?")
         pathfile = os.path.join(tree_dir, 'data', 'sdss_paths.ini')
-        super(Path, self).__init__(pathfile)
+        super(Path, self).__init__(pathfile, mirror=mirror, public=public, verbose=verbose)
 
     def plateid6(self, filetype, **kwargs):
         """Print plate ID, accounting for 5-6 digit plate IDs.

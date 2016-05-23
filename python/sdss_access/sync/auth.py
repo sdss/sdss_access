@@ -11,18 +11,18 @@ machine data.sdss.org
 
 class Auth:
 
-    def __init__(self, host=None, public=False, verbose=False):
+    def __init__(self, netloc=None, public=False, verbose=False):
         self.public = public
         self.verbose = verbose
-        self.set_host(host=host)
+        self.set_netloc(netloc=netloc)
         self.set_netrc()
         
     def set_netrc(self):
         try: self.netrc = netrc() if not self.public else None
         except: self.netrc = None
 
-    def set_host(self, host=None):
-        self.host = host
+    def set_netloc(self, netloc=None):
+        self.netloc = netloc
 
     def set_username(self, username=None):
         self.username = username
@@ -34,11 +34,11 @@ class Auth:
         return self.username and self.password
 
     def load(self):
-        if self.host and self.netrc:
-            authenticators = self.netrc.authenticators(self.host)
+        if self.netloc and self.netrc:
+            authenticators = self.netrc.authenticators(self.netloc)
             self.set_username(authenticators[0])
             self.set_password(authenticators[2])
-            if self.verbose: print "authentication for host=%r set for username=%r " % (self.host,self.username)
+            if self.verbose: print "authentication for netloc=%r set for username=%r " % (self.netloc,self.username)
         else:
             self.set_username()
             self.set_password()
