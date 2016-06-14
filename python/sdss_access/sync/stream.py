@@ -69,8 +69,15 @@ class Stream:
             task = {'location':location, 'source':source, 'destination':destination, 'exists':None}
             self.task.append(task)
 
-    def append_tasks_to_streamlets(self):
-        for task in self.task: self.append_streamlet(task=task)
+    def append_tasks_to_streamlets(self, offset=None, limit=None):
+        tasks = []
+        ntasks = 0
+        for index,task in enumerate(self.task):
+            if (not offset or index>=offset):
+                tasks.append(task)
+                ntasks += 1
+            if ntasks >= limit: break
+        for task in tasks: self.append_streamlet(task=task)
     
     def append_streamlet(self, index=None, task=None):
         streamlet = self.get_streamlet(index=index)
