@@ -100,4 +100,5 @@ class RsyncAccess(SDSSPath):
         self.stream.append_tasks_to_streamlets(offset=offset, limit=limit)
         self.stream.commit_streamlets()
         self.stream.run_streamlets()
+        self.stream.reset_streamlet()
     
