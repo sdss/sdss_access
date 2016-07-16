@@ -9,5 +9,5 @@ http_access = HttpAccess(verbose=True)
 #works with or without a ~/.netrc
 http_access.remote()
 
-http_access.get('spec-lite', run2d='v5_9_0', plateid=3606, mjd=55182, fiberid=1)
+http_access.get('spec-lite', run2d='v5_7_0', plateid=3606, mjd=55182, fiberid=537)
 
