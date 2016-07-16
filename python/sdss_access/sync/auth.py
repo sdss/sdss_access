@@ -36,9 +36,14 @@ class Auth:
     def load(self):
         if self.netloc and self.netrc:
             authenticators = self.netrc.authenticators(self.netloc)
-            self.set_username(authenticators[0])
-            self.set_password(authenticators[2])
-            if self.verbose: print "authentication for netloc=%r set for username=%r " % (self.netloc,self.username)
+            if authenticators and len(authenticators)==3:
+                self.set_username(authenticators[0])
+                self.set_password(authenticators[2])
+                if self.verbose: print "authentication for netloc=%r set for username=%r " % (self.netloc,self.username)
+            else:
+                if self.verbose: print "cannot find %r in ~/.netrc" % self.netloc
+                self.set_username()
+                self.set_password()
         else:
             self.set_username()
             self.set_password()

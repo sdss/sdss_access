@@ -26,7 +26,7 @@ class RsyncAccess(SDSSPath):
         self.set_remote_base(scheme="rsync")    
     
     def set_auth(self, username=None, password=None):
-        self.auth = Auth(public=self.public, netloc=self.netloc)
+        self.auth = Auth(public=self.public, netloc=self.netloc, verbose=self.verbose)
         self.auth.set_username(username)
         self.auth.set_password(password)
         if not self.public:
