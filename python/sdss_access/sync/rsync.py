@@ -1,3 +1,6 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+# The line above will help with 2to3 support.
+
 from os.path import isfile, exists, dirname, join
 from re import search
 from sdss_access import SDSSPath, AccessError
@@ -60,7 +63,7 @@ class RsyncAccess(SDSSPath):
     def set_stream_task(self,task=None):
         if task:
             command = "rsync -R %(source)s" % task
-            if self.verbose: print "rsync -R %(source)s" % task
+            if self.verbose: print("rsync -R %(source)s" % task)
             status, out, err = self.stream.cli.foreground_run(command)
             if status: raise AccessError("Return code %r\n%s" % (status,err))
             else:

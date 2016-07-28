@@ -1,3 +1,6 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+# The line above will help with 2to3 support.
+
 from netrc import netrc
 from getpass import getpass
 
@@ -39,9 +42,9 @@ class Auth:
             if authenticators and len(authenticators)==3:
                 self.set_username(authenticators[0])
                 self.set_password(authenticators[2])
-                if self.verbose: print "authentication for netloc=%r set for username=%r " % (self.netloc,self.username)
+                if self.verbose: print("authentication for netloc=%r set for username=%r " % (self.netloc,self.username))
             else:
-                if self.verbose: print "cannot find %r in ~/.netrc" % self.netloc
+                if self.verbose: print("cannot find %r in ~/.netrc" % self.netloc)
                 self.set_username()
                 self.set_password()
         else:

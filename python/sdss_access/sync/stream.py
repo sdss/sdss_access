@@ -1,3 +1,6 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+# The line above will help with 2to3 support.
+
 from sdss_access.sync import Cli
 from random import shuffle
 from re import compile
@@ -90,7 +93,7 @@ class Stream:
         if self.command:
             self.cli.set_dir()
             for streamlet in self.streamlet: self.commit_streamlet(streamlet)
-            if self.verbose: print "SDSS_ACCESS> streamlets added to {dir}".format(dir=self.cli.dir)
+            if self.verbose: print("SDSS_ACCESS> streamlets added to {dir}".format(dir=self.cli.dir))
 
     def commit_streamlet(self, streamlet=None):
         if streamlet:
@@ -104,7 +107,7 @@ class Stream:
             streamlet['logfile'] = open("{0}.log".format(streamlet['path']),"w")
             streamlet['errfile'] = open("{0}.err".format(streamlet['path']),"w")
             streamlet['process'] = self.cli.get_background_process(streamlet['command'], logfile=streamlet['logfile'], errfile=streamlet['errfile'])
-            if self.verbose: print "SDSS_ACCESS> rsync stream %s logging to %s" % (streamlet['index'],streamlet['logfile'].name)
+            if self.verbose: print("SDSS_ACCESS> rsync stream %s logging to %s" % (streamlet['index'],streamlet['logfile'].name))
         self.cli.wait_for_processes(streamlet['process'] for streamlet in self.streamlet)
-        if self.cli.returncode: print "SDSS_ACCESS> return code {returncode}".format(returncode=self.cli.returncode)
+        if self.cli.returncode: print("SDSS_ACCESS> return code {returncode}".format(returncode=self.cli.returncode))
         for streamlet in self.streamlet: streamlet['logfile'].close()
