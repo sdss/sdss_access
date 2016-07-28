@@ -1,11 +1,18 @@
-import urllib2
+import sys
+if sys.version[0] > 2:
+    from urllib.request import HTTPPasswordMgrWithDefaultRealm, HTTPBasicAuthHandler, build_opener, install_opener, urlopen
+    from urllib.error import HTTPError
+else:
+    from urllib2 import HTTPPasswordMgrWithDefaultRealm, HTTPBasicAuthHandler, build_opener, install_opener, urlopen
+    from urllib2 import HTTPError
+
 from os import makedirs
 from os.path import isfile, exists, dirname
 from sdss_access import SDSSPath
 from sdss_access.sync.auth import Auth
 
 class HttpAccess(SDSSPath):
-    """Class for providing HTTP access via urllib2 to SDSS SAS Paths
+    """Class for providing HTTP access via urllib.request (python3) or urllib2 (python2) to SDSS SAS Paths
     """
 
     def __init__(self, verbose=False):
@@ -36,11 +43,11 @@ class HttpAccess(SDSSPath):
         self._remote = True
         self.set_auth(username=username,password=password)
         if self.auth.ready():
-            passman = urllib2.HTTPPasswordMgrWithDefaultRealm()
+            passman = HTTPPasswordMgrWithDefaultRealm()
             passman.add_password(None, self.remote_base, self.auth.username, self.auth.password)
-            authhandler = urllib2.HTTPBasicAuthHandler(passman)
-            opener = urllib2.build_opener(authhandler)
-            urllib2.install_opener(opener)
+            authhandler = HTTPBasicAuthHandler(passman)
+            opener = build_opener(authhandler)
+            install_opener(opener)
 
     def local(self):
         """Configures back to local access
@@ -91,8 +98,8 @@ class HttpAccess(SDSSPath):
                 if self.verbose: print("CREATE %s" % dir)
                 makedirs(dir)
 
-            try: u = urllib2.urlopen(url)
-            except urllib2.HTTPError as e:
+            try: u = urlopen(url)
+            except HTTPError as e:
                 u = None
                 print("HTTP error code %r.  Please check you ~/.netrc has the correct authorization" % e.code)
 
