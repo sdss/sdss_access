@@ -1,10 +1,13 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+# The line above will help with 2to3 support.
+
 import sys
-if sys.version[0] > 2:
-    from urllib.request import HTTPPasswordMgrWithDefaultRealm, HTTPBasicAuthHandler, build_opener, install_opener, urlopen
-    from urllib.error import HTTPError
-else:
+try:
     from urllib2 import HTTPPasswordMgrWithDefaultRealm, HTTPBasicAuthHandler, build_opener, install_opener, urlopen
     from urllib2 import HTTPError
+except:
+    from urllib.request import HTTPPasswordMgrWithDefaultRealm, HTTPBasicAuthHandler, build_opener, install_opener, urlopen
+    from urllib.error import HTTPError
 
 from os import makedirs
 from os.path import isfile, exists, dirname
