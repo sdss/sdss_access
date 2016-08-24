@@ -60,24 +60,39 @@ class RsyncAccess(SDSSPath):
             if self.stream.source and self.stream.destination:
                 for task in self.initial_stream.task: self.set_stream_task(task)
 
-    def set_stream_task(self,task=None):
+    def get_task_out(self,task=None):
         if task:
             command = "rsync -R %(source)s" % task
             if self.verbose: print("rsync -R %(source)s" % task)
             status, out, err = self.stream.cli.foreground_run(command)
             if status: raise AccessError("Return code %r\n%s" % (status,err))
-            else:
-                release = task['location'].split('/')[0]
-                depth = task['location'].count('/')
-                for result in out.split("\n"):
-                    if result.startswith('d') or result.startswith('-') :
-                        try: location = search(r"^.*\s{1,3}(.+)$",result).group(1)
-                        except: location = None
-                        if self.public: location = join(release,location)
-                        if location and location.count('/')==depth:
-                            source = join(self.stream.source, location) if self.remote_base else None
-                            destination = join(self.stream.destination, location)
-                            self.stream.append_task(location=location, source=source, destination=destination)
+        else: out = None
+        return out
+
+    def generate_stream_task(self,task=None,out=None):
+        if task and out:
+            release = task['location'].split('/')[0]
+            depth = task['location'].count('/')
+            for result in out.split("\n"):
+                if result.startswith('d') or result.startswith('-') :
+                    try: location = search(r"^.*\s{1,3}(.+)$",result).group(1)
+                    except: location = None
+                    if self.public: location = join(release,location)
+                    if location and location.count('/')==depth:
+                        source = join(self.stream.source, location) if self.remote_base else None
+                        destination = join(self.stream.destination, location)
+                        yield (location, source, destination)
+
+    def set_stream_task(self,task=None):
+        out = self.get_task_out(task=task)
+        stream_task = self.generate_stream_task(task=task,out=out)
+        for location,source,destination in self.generate_stream_task(task=task,out=out):
+            self.stream.append_task(location=location, source=source, destination=destination)
+            """if self.verbose:
+                print("SDSS_ACCESS> Preparing to download: %s" % location)
+                print("SDSS_ACCESS> from: %s" % source)
+                print("SDSS_ACCESS> to: %s" % destination)
+                print("-"*80)"""
 
     def shuffle(self): self.stream.shuffle()
 

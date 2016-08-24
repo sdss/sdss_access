@@ -76,10 +76,10 @@ class Stream:
         tasks = []
         ntasks = 0
         for index,task in enumerate(self.task):
-            if (not offset or index>=offset):
+            if (offset is None or index>=offset):
                 tasks.append(task)
                 ntasks += 1
-            if ntasks >= limit: break
+            if limit is not None and ntasks >= limit: break
         for task in tasks: self.append_streamlet(task=task)
     
     def append_streamlet(self, index=None, task=None):
