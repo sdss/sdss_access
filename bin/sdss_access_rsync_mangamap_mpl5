@@ -1,0 +1,13 @@
+#!/usr/bin/env python
+from sdss_access import RsyncAccess, AccessError
+rsync_access = RsyncAccess(label='mangamaps',verbose=True)
+
+#works if you have the sdss username in your ~/.netrc (or you will be prompted)
+rsync_access.remote()
+#the alternative to setting the password in ~/.netrc is not recommended!
+#rsync_access.remote(username='sdss',password='***-******')
+
+rsync_access.add('mangadap5', drpver='v2_0_1', dapver='2.0.2', plate=8485, ifu=1901, mode='*', daptype='*')
+rsync_access.set_stream()
+
+rsync_access.commit()

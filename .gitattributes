@@ -7,6 +7,7 @@ bin/sdss_access_localpath_example -text
 bin/sdss_access_rsync_drpall -text
 bin/sdss_access_rsync_example -text
 bin/sdss_access_rsync_mangamap_mpl4 -text
+bin/sdss_access_rsync_mangamap_mpl5 -text
 bin/sdss_access_version -text
 etc/config.ini -text
 etc/sdss_access.module -text
