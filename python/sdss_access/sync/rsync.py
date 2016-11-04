@@ -8,7 +8,7 @@ from sdss_access.sync.auth import Auth
 from sdss_access.sync.stream import Stream
 
 class RsyncAccess(SDSSPath):
-    
+
     def __init__(self, label='sdss_rsync', stream_count=5, mirror=False, public=False, verbose=False):
         super(RsyncAccess, self).__init__(mirror=mirror,public=public,verbose=verbose)
         self.label = label
@@ -17,7 +17,7 @@ class RsyncAccess(SDSSPath):
         self.stream_count = stream_count
         self.verbose = verbose
         self.initial_stream = self.get_stream()
-    
+
     def get_stream(self):
         stream = Stream(stream_count=self.stream_count, verbose=self.verbose)
         return stream
@@ -26,8 +26,8 @@ class RsyncAccess(SDSSPath):
         self.set_netloc(sdss=True) #simplifies things to have a single sdss machine in .netrc
         self.set_auth(username=username, password=password)
         self.set_netloc(dtn=not self.public)
-        self.set_remote_base(scheme="rsync")    
-    
+        self.set_remote_base(scheme="rsync")
+
     def set_auth(self, username=None, password=None):
         self.auth = Auth(public=self.public, netloc=self.netloc, verbose=self.verbose)
         self.auth.set_username(username)
@@ -37,10 +37,10 @@ class RsyncAccess(SDSSPath):
             if not self.auth.ready():
                 self.auth.set_username(inquire=True)
                 self.auth.set_password(inquire=True)
-    
+
     def reset(self):
         if self.stream: self.stream.reset()
-    
+
     def add(self, filetype, **kwargs):
         location = self.location(filetype, **kwargs)
         source = self.url(filetype, sasdir='sas' if not self.public else '', **kwargs)
@@ -85,14 +85,19 @@ class RsyncAccess(SDSSPath):
 
     def set_stream_task(self,task=None):
         out = self.get_task_out(task=task)
-        stream_task = self.generate_stream_task(task=task,out=out)
+        stream_has_task = False
         for location,source,destination in self.generate_stream_task(task=task,out=out):
-            self.stream.append_task(location=location, source=source, destination=destination)
-            """if self.verbose:
-                print("SDSS_ACCESS> Preparing to download: %s" % location)
-                print("SDSS_ACCESS> from: %s" % source)
-                print("SDSS_ACCESS> to: %s" % destination)
-                print("-"*80)"""
+            if location and source and destination:
+                stream_has_task = True
+                self.stream.append_task(location=location, source=source, destination=destination)
+                """if self.verbose:
+                    print("SDSS_ACCESS> Preparing to download: %s" % location)
+                    print("SDSS_ACCESS> from: %s" % source)
+                    print("SDSS_ACCESS> to: %s" % destination)
+                    print("-"*80)"""
+
+        if not stream_has_task:
+            print('SDSS_ACCESS> Error: stream has nothing to do.')
 
     def shuffle(self): self.stream.shuffle()
 
@@ -103,14 +108,14 @@ class RsyncAccess(SDSSPath):
         locations = self.get_locations(offset=offset,limit=limit)
         paths = [join(self.base_dir, location) for location in locations] if locations else None
         return paths
-    
+
     def get_urls(self, offset=None, limit=None):
         locations = self.get_locations(offset=offset,limit=limit)
         remote_base = self.get_remote_base()
         sasdir = 'sas' if not self.public else ''
         urls = [join(remote_base, sasdir, location) for location in locations] if locations else None
         return urls
-    
+
     def refine_task(self, regex=None): self.stream.refine_task(regex=regex)
 
     def commit(self, offset=None, limit=None, dryrun=False):
@@ -119,4 +124,3 @@ class RsyncAccess(SDSSPath):
         self.stream.commit_streamlets()
         self.stream.run_streamlets()
         self.stream.reset_streamlet()
-    

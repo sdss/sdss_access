@@ -299,7 +299,7 @@ class BasePath(object):
 
     def set_netloc(self, netloc=None, sdss=None, dtn=None):
         self.netloc =  netloc if netloc else self._netloc["sdss"] if sdss else self._netloc["dtn"] if dtn  else self._netloc["mirror"] if self.mirror else self._netloc["sdss"]
-    
+
     def set_remote_base(self, scheme=None):
         self.remote_base = self.get_remote_base(scheme=scheme) if scheme else self.get_remote_base()
 
@@ -334,6 +334,10 @@ class BasePath(object):
 
         self.set_base_dir(base_dir=base_dir)
         location = full[len(self.base_dir):] if full and full.startswith(self.base_dir) else None
+
+        if '//' in location:
+            location = location.replace('//', '/')
+
         return location
 
     def url(self, filetype, base_dir=None, sasdir='sas', **kwargs):
@@ -362,7 +366,7 @@ class Path(BasePath):
         except KeyError:
             raise NameError("Could not find TREE_DIR in the environment!  Did you load the tree product?")
         pathfile = os.path.join(tree_dir, 'data', 'sdss_paths.ini')
-        
+
         super(Path, self).__init__(pathfile, mirror=mirror, public=public, verbose=verbose)
 
     def plateid6(self, filetype, **kwargs):
@@ -430,4 +434,3 @@ class Path(BasePath):
 
 class AccessError(Exception):
     pass
-
