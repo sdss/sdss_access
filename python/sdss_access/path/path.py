@@ -251,9 +251,9 @@ class BasePath(object):
         # icheck filter direction; default is out
         assert filterdir in ['in', 'out'], 'Filter direction must be either "in" or "out"'
         if filterdir == 'out':
-            subset = filter(lambda i: r.search(i), filelist)
+            subset = list(filter(lambda i: r.search(i), filelist))
         elif filterdir == 'in':
-            subset = filter(lambda i: not r.search(i), filelist)
+            subset = list(filter(lambda i: not r.search(i), filelist))
         return subset
 
     def full(self, filetype, **kwargs):
