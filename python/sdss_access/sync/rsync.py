@@ -73,7 +73,8 @@ class RsyncAccess(SDSSPath):
         if task and out:
             release = task['location'].split('/')[0]
             depth = task['location'].count('/')
-            for result in out.split("\n"):
+            for result in out.split(b"\n"):
+                result = result.decode('utf-8')
                 if result.startswith('d') or result.startswith('-') :
                     try: location = search(r"^.*\s{1,3}(.+)$",result).group(1)
                     except: location = None
