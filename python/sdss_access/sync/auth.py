@@ -1,8 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 # The line above will help with 2to3 support.
 
-from netrc import netrc
-from getpass import getpass
 
 """ add the following username and password to your ~/.netrc file
     and remember to chmod 600 ~/.netrc
@@ -21,8 +19,12 @@ class Auth:
         self.set_netrc()
         
     def set_netrc(self):
-        try: self.netrc = netrc() if not self.public else None
-        except: self.netrc = None
+        try:
+            from netrc import netrc
+            self.netrc = netrc() if not self.public else None
+        except Exception as e:
+            if self.verbose: print("SDSS_ACCESS> AUTH NETRC: %r" % e)
+            self.netrc = None
 
     def set_netloc(self, netloc=None):
         self.netloc = netloc
@@ -31,7 +33,12 @@ class Auth:
         self.username = raw_input("user [sdss]: ") or "sdss" if inquire else username
 
     def set_password(self, password=None, inquire=False):
-        self.password = getpass("password: ") if inquire else password
+        try:
+            from getpass import getpass
+            self.password = getpass("password: ") if inquire else password
+        except Exception as e:
+            if self.verbose: print("SDSS_ACCESS> AUTH PASSWORD: %r" % e)
+            self.password = None
 
     def ready(self):
         return self.username and self.password
