@@ -6,7 +6,7 @@
 # @Author: Brian Cherinka
 # @Date:   2017-03-24 12:22:30
 # @Last modified by:   Brian Cherinka
-# @Last Modified time: 2017-03-24 15:41:18
+# @Last Modified time: 2017-03-29 17:36:37
 
 from __future__ import print_function, division, absolute_import
 import os
@@ -14,14 +14,106 @@ import pytest
 
 from sdss_access import RsyncAccess
 
+releases = ['MPL-4']
+plateifus = ['8485-1901']
+mpldict = {'MPL-4': ('v1_5_1', '1.1.1'), 'MPL-5': ('v2_0_1', '2.0.2')}
+surveys = ['manga']
+
+
+@pytest.fixture(scope='session', params=releases)
+def get_release(request):
+    ''' MaNGA release fixture '''
+    return request.param
+
+
+@pytest.fixture(scope='session', params=plateifus)
+def get_plateifu(request):
+    ''' MaNGA plateifu fixture '''
+    return request.param
+
+
+class Survey(object):
+    ''' Survey class '''
+    def __init__(self, survey):
+        self.survey = survey
+        if self.survey == 'manga':
+            self.setup_manga()
+
+    def setup_manga(self):
+        self.rsync_kwargs = self.get_rsync_kwargs()
+
+    def get_rsync_kwargs(self):
+        if self.survey == 'manga':
+            rkwargs = {'plate': None, 'ifu': None, 'drpver': None, 'dapver': None, 'dir3d': None,
+                       'mpl': None, 'bintype': '*', 'n': '**', 'mode': '*', 'daptype': '*'}
+        return rkwargs
+
+
+@pytest.fixture(scope='session', params=surveys)
+def survey(request):
+    ''' fixture to generate a survey'''
+    survey = Survey(request.param)
+    yield survey
+    survey = None
+
+
+@pytest.fixture(scope='session')
+def init_survey(survey, get_release, get_plateifu):
+    ''' create different surveys with different parameters '''
+    drpver, dapver = mpldict[get_release]
+    plate, ifu = get_plateifu.split('-')
+    survey.rsync_kwargs['drpver'] = drpver
+    survey.rsync_kwargs['dapver'] = dapver
+    survey.rsync_kwargs['plate'] = plate
+    survey.rsync_kwargs['ifu'] = ifu
+    yield survey
+
+
+@pytest.fixture(scope='module', params=['mangadefault', 'mangamap'])
+def data(request, init_survey):
+    ''' fixture to generate data '''
+    fillkwargs = {'plate': init_survey.rsync_kwargs['plate'], 'ifu': init_survey.rsync_kwargs['ifu'],
+                  'drpver': init_survey.rsync_kwargs['drpver'], 'dapver': init_survey.rsync_kwargs['dapver']}
+    data_dict = {'mangadefault': {'files': 'mangadap-{plate}-{ifu}-default.fits.gz'.format(**fillkwargs),
+                                  'loc': 'mangawork/manga/spectro/analysis/{drpver}/{dapver}/default/{plate}/'.format(**fillkwargs),
+                                  'single': 'mangadap-{plate}-{ifu}-default.fits.gz'.format(**fillkwargs),
+                                  'count': 1},
+                 'mangamap': {'files': 'manga-{plate}-{ifu}-LOGCUBE_MAPS-*-0**.fits.gz'.format(**fillkwargs),
+                              'loc': 'mangawork/manga/spectro/analysis/{drpver}/{dapver}/full/{plate}/{ifu}/'.format(**fillkwargs),
+                              'single': 'manga-{plate}-{ifu}-LOGCUBE_MAPS-NONE-003.fits.gz'.format(**fillkwargs),
+                              'count': 21}
+                 }
+    return (request.param, data_dict[request.param])
+
 
 @pytest.fixture(scope='function')
-def rsync(request):
+def rsync():
+    ''' fixture to create generic rsync object '''
     rsync = RsyncAccess(label='test_rsync')
     rsync.remote()
+    yield rsync
 
-    def teardown():
-        rsync.reset()
-        rsync = None
+    # teardown
+    rsync.reset()
+    rsync = None
 
-    return rsync
+
+@pytest.fixture(scope='function')
+def rsync_add(rsync, data, init_survey):
+    ''' fixture to add data to an rsync object '''
+    name, paths = data
+    rsync.add(name, **init_survey.rsync_kwargs)
+    rsync.location = os.path.join(paths['loc'], paths['files'])
+    yield rsync
+
+
+@pytest.fixture(scope='function')
+def rsync_set(rsync_add, data):
+    ''' fixture to set the stream of an rsync object '''
+    name, paths = data
+    rsync_add.location = os.path.join(paths['loc'], paths['single'])
+    rsync_add.count = paths['count']
+    rsync_add.set_stream()
+    yield rsync_add
+
+
