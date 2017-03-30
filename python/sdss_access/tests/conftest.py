@@ -6,7 +6,7 @@
 # @Author: Brian Cherinka
 # @Date:   2017-03-24 12:22:30
 # @Last modified by:   Brian Cherinka
-# @Last Modified time: 2017-03-29 17:36:37
+# @Last Modified time: 2017-03-30 10:13:02
 
 from __future__ import print_function, division, absolute_import
 import os
@@ -48,6 +48,15 @@ class Survey(object):
                        'mpl': None, 'bintype': '*', 'n': '**', 'mode': '*', 'daptype': '*'}
         return rkwargs
 
+    def set_data(self, release):
+        if self.survey == 'manga':
+            self.release = release
+            self.names = ['mangacube']
+            if '4' in release:
+                self.names.extend(['mangadefault', 'mangamap'])
+            elif '5' in release:
+                self.names.extend(['mangadap5'])
+
 
 @pytest.fixture(scope='session', params=surveys)
 def survey(request):
@@ -58,22 +67,24 @@ def survey(request):
 
 
 @pytest.fixture(scope='session')
-def init_survey(survey, get_release, get_plateifu):
+def init_manga_survey(survey, get_release, get_plateifu):
     ''' create different surveys with different parameters '''
+
     drpver, dapver = mpldict[get_release]
     plate, ifu = get_plateifu.split('-')
     survey.rsync_kwargs['drpver'] = drpver
     survey.rsync_kwargs['dapver'] = dapver
     survey.rsync_kwargs['plate'] = plate
     survey.rsync_kwargs['ifu'] = ifu
+    survey.set_data(get_release)
     yield survey
 
 
-@pytest.fixture(scope='module', params=['mangadefault', 'mangamap'])
-def data(request, init_survey):
+@pytest.fixture(scope='module', params=['mangadefault', 'mangamap', 'mangacube'])
+def data(request, init_manga_survey):
     ''' fixture to generate data '''
-    fillkwargs = {'plate': init_survey.rsync_kwargs['plate'], 'ifu': init_survey.rsync_kwargs['ifu'],
-                  'drpver': init_survey.rsync_kwargs['drpver'], 'dapver': init_survey.rsync_kwargs['dapver']}
+    fillkwargs = {'plate': init_manga_survey.rsync_kwargs['plate'], 'ifu': init_manga_survey.rsync_kwargs['ifu'],
+                  'drpver': init_manga_survey.rsync_kwargs['drpver'], 'dapver': init_manga_survey.rsync_kwargs['dapver']}
     data_dict = {'mangadefault': {'files': 'mangadap-{plate}-{ifu}-default.fits.gz'.format(**fillkwargs),
                                   'loc': 'mangawork/manga/spectro/analysis/{drpver}/{dapver}/default/{plate}/'.format(**fillkwargs),
                                   'single': 'mangadap-{plate}-{ifu}-default.fits.gz'.format(**fillkwargs),
@@ -81,7 +92,15 @@ def data(request, init_survey):
                  'mangamap': {'files': 'manga-{plate}-{ifu}-LOGCUBE_MAPS-*-0**.fits.gz'.format(**fillkwargs),
                               'loc': 'mangawork/manga/spectro/analysis/{drpver}/{dapver}/full/{plate}/{ifu}/'.format(**fillkwargs),
                               'single': 'manga-{plate}-{ifu}-LOGCUBE_MAPS-NONE-003.fits.gz'.format(**fillkwargs),
-                              'count': 21}
+                              'count': 21},
+                 'mangadap5': {'files': 'manga-{plate}-{ifu}-*-SPX-GAU-MILESHC.fits.gz'.format(**fillkwargs),
+                               'loc': 'mangawork/manga/spectro/analysis/{drpver}/{dapver}/*/{plate}/{ifu}/'.format(**fillkwargs),
+                               'single': 'manga-{plate}-{ifu}-MAPS-SPX-GAU-MILESHC.fits.gz'.format(**fillkwargs),
+                               'count': 2},
+                 'mangacube': {'files': 'manga-{plate}-{ifu}-LOGCUBE.fits.gz'.format(**fillkwargs),
+                               'loc': 'mangawork/manga/spectro/redux/{drpver}/{plate}/stack/'.format(**fillkwargs),
+                               'single': 'manga-{plate}-{ifu}-LOGCUBE.fits.gz'.format(**fillkwargs),
+                               'count': 1}
                  }
     return (request.param, data_dict[request.param])
 
@@ -99,10 +118,10 @@ def rsync():
 
 
 @pytest.fixture(scope='function')
-def rsync_add(rsync, data, init_survey):
+def rsync_add(rsync, data, init_manga_survey):
     ''' fixture to add data to an rsync object '''
     name, paths = data
-    rsync.add(name, **init_survey.rsync_kwargs)
+    rsync.add(name, **init_manga_survey.rsync_kwargs)
     rsync.location = os.path.join(paths['loc'], paths['files'])
     yield rsync
 
