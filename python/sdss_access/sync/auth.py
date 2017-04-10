@@ -1,6 +1,5 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
-# The line above will help with 2to3 support.
-
+from sdss_access.utils.six.moves import input
 
 """ add the following username and password to your ~/.netrc file
     and remember to chmod 600 ~/.netrc
@@ -30,7 +29,7 @@ class Auth:
         self.netloc = netloc
 
     def set_username(self, username=None, inquire=False):
-        self.username = raw_input("user [sdss]: ") or "sdss" if inquire else username
+        self.username = input("user [sdss]: ") or "sdss" if inquire else username
 
     def set_password(self, password=None, inquire=False):
         try:
