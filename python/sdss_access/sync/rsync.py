@@ -60,6 +60,8 @@ class RsyncAccess(SDSSPath):
             self.stream = self.get_stream()
             self.stream.source = join(self.remote_base, 'sas') if self.remote_base and not self.public else self.remote_base
             self.stream.destination = self.base_dir
+            if self.verbose:
+                print("SDSS_ACCESS> Stream destination: %s" % self.stream.destination)
             self.stream.cli.env = {'RSYNC_PASSWORD': self.auth.password} if self.auth.ready() else None
             if self.stream.source and self.stream.destination:
                 for task in self.initial_stream.task:
@@ -69,7 +71,7 @@ class RsyncAccess(SDSSPath):
         if task:
             command = "rsync -R %(source)s" % task
             if self.verbose:
-                print("rsync -R %(source)s" % task)
+                print("SDSS_ACCESS> %s" % command)
             status, out, err = self.stream.cli.foreground_run(command)
             if status:
                 raise AccessError("Return code %r\n%s" % (status, err))
