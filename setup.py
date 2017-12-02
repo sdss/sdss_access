@@ -1,74 +1,101 @@
 #!/usr/bin/env python
-# License information goes here
+# encoding: utf-8
 #
-# Imports
+# setup.py
 #
-import glob
-import os
-import sys
+
+
+from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
 from setuptools import setup, find_packages
-setup_keywords = dict()
-#
-# THESE SETTINGS NEED TO BE CHANGED FOR EVERY PRODUCT.
-#
-setup_keywords['name'] = 'sdss_access'
-setup_keywords['description'] = 'sdss_access package'
-setup_keywords['author'] = 'Michael Blanton'
-setup_keywords['author_email'] = 'michael.blanton@nyu.edu'
-setup_keywords['license'] = 'BSD-3'
-setup_keywords['url'] = 'https://svn.sdss.org/repo/sdss/sdss_access'
-#
-# END OF SETTINGS THAT NEED TO BE CHANGED.
-#
-#
-# Import this module to get __doc__ and __version__.
-#
-sys.path.insert(int(sys.path[0] == ''), './python')
-try:
-    from importlib import import_module
-    product = import_module(setup_keywords['name'])
-    setup_keywords['long_description'] = product.__doc__
-    setup_keywords['version'] = product.__version__
-except ImportError:
-    #
-    # Try to get the long description from the README.rst file.
-    #
-    if os.path.exists('README.rst'):
-        with open('README.rst') as readme:
-            setup_keywords['long_description'] = readme.read()
+
+import os
+import argparse
+import sys
+
+NAME = 'sdss-access'
+VERSION = '0.1.0dev'
+RELEASE = 'dev' in VERSION
+
+
+def run(packages, install_requires):
+
+    setup(name=NAME,
+          version=VERSION,
+          license='BSD3',
+          description='Description of your project.',
+          long_description=open('README.rst').read(),
+          author='Brian Cherinka',
+          author_email='bcherin1@jhu.edu',
+          keywords='astronomy software',
+          url='https://github.com/sdss/sdss_access',
+          include_package_data=True,
+          packages=packages,
+          install_requires=install_requires,
+          package_dir={'': 'python'},
+          scripts=[],
+          classifiers=[
+              'Development Status :: 4 - Beta',
+              'Intended Audience :: Science/Research',
+              'License :: OSI Approved :: BSD License',
+              'Natural Language :: English',
+              'Operating System :: OS Independent',
+              'Programming Language :: Python',
+              'Programming Language :: Python :: 2.6',
+              'Programming Language :: Python :: 2.7',
+              'Topic :: Documentation :: Sphinx',
+              'Topic :: Software Development :: Libraries :: Python Modules',
+          ],
+          )
+
+
+def get_requirements(opts):
+    ''' Get the proper requirements file based on the optional argument '''
+
+    if opts.dev:
+        name = 'requirements_dev.txt'
+    elif opts.doc:
+        name = 'requirements_doc.txt'
     else:
-        setup_keywords['long_description'] = ''
-    setup_keywords['version'] = '0.0.1.dev'
-#
-# Indicates if this version is a release version.
-#
-if setup_keywords['version'].endswith('dev'):
-    #
-    # Try to obtain svn information.
-    #
-    try:
-        from sdss4tools.install import get_svn_devstr
-        setup_keywords['version'] += get_svn_devstr()
-    except ImportError:
-        pass
-#
-# Set other keywords for the setup function.  These are automated, & should
-# be left alone unless you are an expert.
-#
-# Treat everything in bin/ except *.rst as a script to be installed.
-#
-if os.path.isdir('bin'):
-    setup_keywords['scripts'] = \
-        [fname for fname in glob.glob(os.path.join('bin', '*'))
-         if not os.path.basename(fname).endswith('.rst')]
-setup_keywords['provides'] = [setup_keywords['name']]
-setup_keywords['requires'] = ['Python (>2.6.0)']
-# setup_keywords['install_requires'] = ['Python (>2.6.0)']
-setup_keywords['zip_safe'] = False
-setup_keywords['use_2to3'] = True
-setup_keywords['packages'] = find_packages('py')
-setup_keywords['package_dir'] = {'': 'py'}
-#
-# Run setup command.
-#
-setup(**setup_keywords)
+        name = 'requirements.txt'
+
+    requirements_file = os.path.join(os.path.dirname(__file__), name)
+    install_requires = [line.strip().replace('==', '>=') for line in open(requirements_file)
+                        if not line.strip().startswith('#') and line.strip() != '']
+    return install_requires
+
+
+def remove_args(parser):
+    ''' Remove custom arguments from the parser '''
+
+    arguments = []
+    for action in list(parser._get_optional_actions()):
+        if '--help' not in action.option_strings:
+            arguments += action.option_strings
+
+    for arg in arguments:
+        if arg in sys.argv:
+            sys.argv.remove(arg)
+
+if __name__ == '__main__':
+
+    # Custom parser to decide whether which requirements to install
+    parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]))
+    parser.add_argument('-d', '--dev', dest='dev', default=False, action='store_true', help='Install all packages for development')
+    parser.add_argument('-o', '--doc', dest='doc', default=False, action='store_true', help='Install only core + documentation packages')
+
+    # We use parse_known_args because we want to leave the remaining args for distutils
+    args = parser.parse_known_args()[0]
+
+    # Get the proper requirements file
+    install_requires = get_requirements(args)
+
+    # Now we remove all our custom arguments to make sure they don't interfere with distutils
+    remove_args(parser)
+
+    # Have distutils find the packages
+    packages = find_packages(where='python')
+
+    # Runs distutils
+    run(packages, install_requires)
