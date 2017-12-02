@@ -60,12 +60,12 @@ def system_call(command,test=False,logger=None,logall=False,message=None,outname
         if outname is None:
             outfile = TemporaryFile()
         else:
-            outfile = open(outname,'w+')
+            outfile = open(outname, 'w+')
         if errname is None:
             errfile = TemporaryFile()
         else:
-            errfile = open(errname,'w+')
-        proc = Popen(split(str(command)),stdout=outfile,stderr=errfile)
+            errfile = open(errname, 'w+')
+        proc = Popen(split(str(command)), stdout=outfile, stderr=errfile)
         tstart = time()
         while proc.poll() is None:
             elapsed = time() - tstart
@@ -73,7 +73,7 @@ def system_call(command,test=False,logger=None,logall=False,message=None,outname
                 message = "Process still running after more than 5 days!"
                 proc.kill()
                 break
-            tsleep = 10**(int(log10(elapsed))-1)
+            tsleep = 10**(int(log10(elapsed)) - 1)
             if tsleep < 1:
                 tsleep = 1
             sleep(tsleep)
@@ -100,4 +100,4 @@ def system_call(command,test=False,logger=None,logall=False,message=None,outname
                 if message is not None:
                     logger.critical(message)
                     exit(status)
-    return (status,out,err)
+    return (status, out, err)

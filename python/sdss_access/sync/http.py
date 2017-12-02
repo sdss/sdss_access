@@ -14,6 +14,7 @@ from os.path import isfile, exists, dirname
 from sdss_access import SDSSPath
 from sdss_access.sync.auth import Auth
 
+
 class HttpAccess(SDSSPath):
     """Class for providing HTTP access via urllib.request (python3) or urllib2 (python2) to SDSS SAS Paths
     """
@@ -24,10 +25,11 @@ class HttpAccess(SDSSPath):
         self._remote = False
 
     def set_auth(self, username=None, password=None):
-        self.auth = Auth(netloc=self.netloc,verbose=self.verbose)
+        self.auth = Auth(netloc=self.netloc, verbose=self.verbose)
         self.auth.set_username(username)
         self.auth.set_password(password)
-        if not self.auth.ready(): self.auth.load()
+        if not self.auth.ready():
+            self.auth.load()
 
     def remote(self, remote_base=None, username=None, password=None):
         """
@@ -42,9 +44,10 @@ class HttpAccess(SDSSPath):
         password : str
             password for local repository
         """
-        if remote_base is not None: self.remote_base = remote_base
+        if remote_base is not None:
+            self.remote_base = remote_base
         self._remote = True
-        self.set_auth(username=username,password=password)
+        self.set_auth(username=username, password=password)
         if self.auth.ready():
             passman = HTTPPasswordMgrWithDefaultRealm()
             passman.add_password(None, self.remote_base, self.auth.username, self.auth.password)
@@ -72,12 +75,14 @@ class HttpAccess(SDSSPath):
         -----
         Path templates are defined in $DIMAGE_DIR/data/dimage_paths.ini
         """
-        
+
         path = self.full(filetype, **kwargs)
-        
+
         if path:
-            if self._remote: self.download_url_to_path(self.url(filetype, **kwargs), path)
-        else: print("There is no file with filetype=%r to access in the tree module loaded" % filetype)
+            if self._remote:
+                self.download_url_to_path(self.url(filetype, **kwargs), path)
+        else:
+            print("There is no file with filetype=%r to access in the tree module loaded" % filetype)
 
     def download_url_to_path(self, url, path, force=False):
         """
@@ -98,10 +103,12 @@ class HttpAccess(SDSSPath):
 
             dir = dirname(path)
             if not exists(dir):
-                if self.verbose: print("CREATE %s" % dir)
+                if self.verbose:
+                    print("CREATE %s" % dir)
                 makedirs(dir)
 
-            try: u = urlopen(url)
+            try:
+                u = urlopen(url)
             except HTTPError as e:
                 u = None
                 print("HTTP error code %r.  Please check you ~/.netrc has the correct authorization" % e.code)
@@ -113,20 +120,26 @@ class HttpAccess(SDSSPath):
                         if hasattr(meta, 'getheaders') else meta.get_all
                     meta_length = meta_func("Content-Length")
                     file_size = None
-                    if meta_length: file_size = int(meta_length[0])
-                    if self.verbose: print("Downloading: {0} Bytes: {1}".format(url, file_size))
+                    if meta_length:
+                        file_size = int(meta_length[0])
+                    if self.verbose:
+                        print("Downloading: {0} Bytes: {1}".format(url, file_size))
 
                     file_size_dl = 0
                     block_sz = 8192
                     while True:
                         buffer = u.read(block_sz)
-                        if not buffer: break
+                        if not buffer:
+                            break
                         file_size_dl += len(buffer)
                         file.write(buffer)
-        
-                if self.verbose:
-                    if path_exists: print("OVERWRITING %s" % path)
-                    else: print("CREATE %s" % path)
 
-        elif self.verbose: print("FOUND %s (already downloaded)" % path)
+                if self.verbose:
+                    if path_exists:
+                        print("OVERWRITING %s" % path)
+                    else:
+                        print("CREATE %s" % path)
+
+        elif self.verbose:
+            print("FOUND %s (already downloaded)" % path)
 

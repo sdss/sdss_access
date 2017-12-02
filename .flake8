@@ -1,0 +1,7 @@
+[flake8]
+
+ignore =
+    # H101: Use TODO(NAME)
+    H101
+
+max-line-length = 99

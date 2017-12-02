@@ -1,5 +1,5 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
-from sdss_access.utils.six.moves import input
+from six.moves import input
 
 """ add the following username and password to your ~/.netrc file
     and remember to chmod 600 ~/.netrc
@@ -9,14 +9,15 @@ machine data.sdss.org
     password ***-******
 """
 
-class Auth:
+
+class Auth(object):
 
     def __init__(self, netloc=None, public=False, verbose=False):
         self.public = public
         self.verbose = verbose
         self.set_netloc(netloc=netloc)
         self.set_netrc()
-        
+
     def set_netrc(self):
         try:
             from netrc import netrc

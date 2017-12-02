@@ -1,0 +1,4 @@
+-r requirements_doc.txt
+pytest>=3.0.7
+pytest-cov>=2.4.0
+pytest-sugar>=0.8.0

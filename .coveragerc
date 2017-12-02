@@ -1,0 +1,8 @@
+[run]
+branch = true
+
+[report]
+omit =
+    python/sdss_access/etc/*
+    python/sdss_access/misc/*
+    python/sdss_access/test/*

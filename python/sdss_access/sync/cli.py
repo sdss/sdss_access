@@ -11,59 +11,70 @@ from time import time, sleep
 from glob import iglob
 from datetime import datetime
 
-class Cli:
+
+class Cli(object):
     """Class for providing command line interface (cli) sync scripts, and logs to local disk
     """
-    
+
     tmp_dir = '/tmp'
 
     def __init__(self, label=None, data_dir=None, verbose=False):
         self.label = label if label else 'sdss_access'
         self.data_dir = data_dir if data_dir else getenv('SDSS_ACCESS_DATA_DIR')
         self.ready = exists(self.data_dir) if self.data_dir else False
-        if not self.ready and exists(self.tmp_dir): self.data_dir = self.tmp_dir
+        if not self.ready and exists(self.tmp_dir):
+            self.data_dir = self.tmp_dir
         self.now = datetime.now().strftime("%Y%m%d")
         self.env = None
         self.verbose = verbose
 
     def set_dir(self):
         if exists(self.data_dir) and self.label:
-            label_dir = join(self.data_dir,self.label)
-            position = len(self.now)+1
+            label_dir = join(self.data_dir, self.label)
+            position = len(self.now) + 1
             maxnumber = 0
-            for dir in iglob(join(label_dir,"{now}_*".format(now=self.now))):
+            for dir in iglob(join(label_dir, "{now}_*".format(now=self.now))):
                 dirname = basename(dir)
-                try: dirnumber = int(dirname[position:])
-                except: dirnumber = 0
-                maxnumber = max(maxnumber,dirnumber)
-            self.dir = join(label_dir,"{now}_{number:03d}".format(now=self.now,number=maxnumber+1))
+                try:
+                    dirnumber = int(dirname[position:])
+                except:
+                    dirnumber = 0
+                maxnumber = max(maxnumber, dirnumber)
+            self.dir = join(label_dir, "{now}_{number:03d}".format(now=self.now, number=maxnumber + 1))
             if not exists(self.dir):
-                if self.verbose: print("SDSS_ACCESS> CREATE {dir}".format(dir=self.dir))
+                if self.verbose:
+                    print("SDSS_ACCESS> CREATE {dir}".format(dir=self.dir))
                 makedirs(self.dir)
-        else: self.dir = None
-            
-    def get_path(self,index=None):
-        try: index = int(index)
-        except: index = 0
-        return join(self.dir,"{label}_{index:02d}".format(label=self.label,index=index)) if self.dir and self.label else None
-    
+        else:
+            self.dir = None
+
+    def get_path(self, index=None):
+        try:
+            index = int(index)
+        except:
+            index = 0
+        return join(self.dir, "{label}_{index:02d}".format(label=self.label, index=index)) if self.dir and self.label else None
+
     def write_lines(self, path=None, lines=None):
         if path and lines:
-            with open(path,'w') as file:
-                file.write("\n".join(lines)+"\n")
+            with open(path, 'w') as file:
+                file.write("\n".join(lines) + "\n")
 
     def get_background_process(self, command=None, logfile=None, errfile=None, pause=1):
         if command:
             stdout = logfile if logfile else STDOUT
             stderr = errfile if errfile else STDOUT
             background_process = Popen(split(str(command)), env=self.env, stdout=stdout, stderr=stderr)
-            if pause: sleep(pause)
-        else: background_process = None
+            if pause:
+                sleep(pause)
+        else:
+            background_process = None
         return background_process
 
     def wait_for_processes(self, processes, pause=60):
         print("SDSS_ACCESS> syncing... please wait")
-        while any([process.poll() is None for process in processes]): sleep(pause)
+        while any([process.poll() is None for process in processes]):
+            sleep(pause)
         print("SDSS_ACCESS> Done!")
         self.returncode = tuple([process.returncode for process in processes])
 
@@ -109,12 +120,12 @@ class Cli:
             if outname is None:
                 outfile = TemporaryFile()
             else:
-                outfile = open(outname,'w+')
+                outfile = open(outname, 'w+')
             if errname is None:
                 errfile = TemporaryFile()
             else:
-                errfile = open(errname,'w+')
-            proc = Popen(split(str(command)),stdout=outfile,stderr=errfile,env=self.env)
+                errfile = open(errname, 'w+')
+            proc = Popen(split(str(command)), stdout=outfile, stderr=errfile, env=self.env)
             tstart = time()
             while proc.poll() is None:
                 elapsed = time() - tstart
@@ -122,7 +133,7 @@ class Cli:
                     message = "Process still running after more than 5 days!"
                     proc.kill()
                     break
-                tsleep = 10**(int(log10(elapsed))-1)
+                tsleep = 10**(int(log10(elapsed)) - 1)
                 if tsleep < 1:
                     tsleep = 1
                 sleep(tsleep)
@@ -149,7 +160,8 @@ class Cli:
                     if message is not None:
                         logger.critical(message)
                         exit(status)
-        return (status,out,err)
+        return (status, out, err)
+
 
 class CliError(Exception):
     pass

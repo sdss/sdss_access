@@ -35,7 +35,7 @@ class BasePath(object):
         The set of templates read from the configuration file.
     """
 
-    _netloc = {"dtn":"sdss@dtn01.sdss.org", "sdss":"data.sdss.org", "mirror":"data.mirror.sdss.org"}
+    _netloc = {"dtn": "sdss@dtn01.sdss.org", "sdss": "data.sdss.org", "mirror": "data.mirror.sdss.org"}
 
     def __init__(self, pathfile, mirror=False, public=False, verbose=False):
         self.mirror = mirror
@@ -298,7 +298,7 @@ class BasePath(object):
         return template
 
     def set_netloc(self, netloc=None, sdss=None, dtn=None):
-        self.netloc =  netloc if netloc else self._netloc["sdss"] if sdss else self._netloc["dtn"] if dtn  else self._netloc["mirror"] if self.mirror else self._netloc["sdss"]
+        self.netloc = netloc if netloc else self._netloc["sdss"] if sdss else self._netloc["dtn"] if dtn else self._netloc["mirror"] if self.mirror else self._netloc["sdss"]
 
     def set_remote_base(self, scheme=None):
         self.remote_base = self.get_remote_base(scheme=scheme) if scheme else self.get_remote_base()
@@ -362,7 +362,8 @@ class Path(BasePath):
     """Derived class.  Sets a particular template file.
     """
     def __init__(self, mirror=False, public=False, verbose=False):
-        try: tree_dir = os.environ['TREE_DIR']
+        try:
+            tree_dir = os.environ['TREE_DIR']
         except KeyError:
             raise NameError("Could not find TREE_DIR in the environment!  Did you load the tree product?")
         pathfile = os.path.join(tree_dir, 'data', 'sdss_paths.ini')

@@ -5,15 +5,18 @@ from sdss_access.sync import Cli
 from random import shuffle
 from re import compile
 
-class Stream:
+
+class Stream(object):
 
     max_stream_count = 5
 
     def __init__(self, stream_count=None, verbose=False):
         self.verbose = verbose
-        try: self.stream_count = min(int(stream_count),self.max_stream_count)
-        except: self.stream_count = 0
-        self.streamlet = [{'index':index, 'location':None, 'source':None, 'destination':None}  for index in range(0,self.stream_count)]
+        try:
+            self.stream_count = min(int(stream_count), self.max_stream_count)
+        except:
+            self.stream_count = 0
+        self.streamlet = [{'index': index, 'location': None, 'source': None, 'destination': None} for index in range(0, self.stream_count)]
         self.reset()
         self.index = 0
         self.command = None
@@ -25,11 +28,13 @@ class Stream:
     def reset(self):
         self.reset_task()
         self.reset_streamlet()
-        
-    def reset_task(self): self.task = []
+
+    def reset_task(self):
+        self.task = []
 
     def reset_streamlet(self):
-        for index in range(0,self.stream_count): self.set_streamlet(index=index, location=[], source=[], destination=[])
+        for index in range(0, self.stream_count):
+            self.set_streamlet(index=index, location=[], source=[], destination=[])
 
     def set_streamlet(self, index=None, location=None, source=None, destination=None):
         streamlet = self.get_streamlet(index=index)
@@ -41,26 +46,33 @@ class Stream:
             except:
                 streamlet['location'], streamlet['source'], streamlet['destination'] = (None, None, None)
 
-
-    def get_streamlet(self,index=None,increment=1):
+    def get_streamlet(self, index=None, increment=1):
         if index is None:
             self.index += increment
-            if self.index >= self.stream_count: self.index = 0
+            if self.index >= self.stream_count:
+                self.index = 0
         else:
-            try: self.index = int(index)
-            except: self.index = 0
-        try: streamlet = self.streamlet[self.index]
-        except: streamlet = None
+            try:
+                self.index = int(index)
+            except:
+                self.index = 0
+        try:
+            streamlet = self.streamlet[self.index]
+        except:
+            streamlet = None
         return streamlet
 
     def get_locations(self, offset=None, limit=None):
         locations = [task['location'] for task in self.task] if self.task else None
-        if offset: locations = locations[offset:]
-        if limit: locations = locations[:limit]
+        if offset:
+            locations = locations[offset:]
+        if limit:
+            locations = locations[:limit]
         return locations
-    
-    def shuffle(self): shuffle(self.task)
-    
+
+    def shuffle(self):
+        shuffle(self.task)
+
     def refine_task(self, regex=None):
         locations = self.get_locations()
         r = compile(regex)
@@ -69,19 +81,21 @@ class Stream:
 
     def append_task(self, location=None, source=None, destination=None):
         if location and source and destination:
-            task = {'location':location, 'source':source, 'destination':destination, 'exists':None}
+            task = {'location': location, 'source': source, 'destination': destination, 'exists': None}
             self.task.append(task)
 
     def append_tasks_to_streamlets(self, offset=None, limit=None):
         tasks = []
         ntasks = 0
-        for index,task in enumerate(self.task):
-            if (offset is None or index>=offset):
+        for index, task in enumerate(self.task):
+            if (offset is None or index >= offset):
                 tasks.append(task)
                 ntasks += 1
-            if limit is not None and ntasks >= limit: break
-        for task in tasks: self.append_streamlet(task=task)
-    
+            if limit is not None and ntasks >= limit:
+                break
+        for task in tasks:
+            self.append_streamlet(task=task)
+
     def append_streamlet(self, index=None, task=None):
         streamlet = self.get_streamlet(index=index)
         if streamlet and task:
@@ -92,22 +106,27 @@ class Stream:
     def commit_streamlets(self):
         if self.command:
             self.cli.set_dir()
-            for streamlet in self.streamlet: self.commit_streamlet(streamlet)
-            if self.verbose: print("SDSS_ACCESS> streamlets added to {dir}".format(dir=self.cli.dir))
+            for streamlet in self.streamlet:
+                self.commit_streamlet(streamlet)
+            if self.verbose:
+                print("SDSS_ACCESS> streamlets added to {dir}".format(dir=self.cli.dir))
 
     def commit_streamlet(self, streamlet=None):
         if streamlet:
             streamlet['path'] = self.cli.get_path(index=streamlet['index'])
             path_txt = "{0}.txt".format(streamlet['path'])
-            streamlet['command'] = self.command.format(path=path_txt,source=self.source,destination=self.destination)
+            streamlet['command'] = self.command.format(path=path_txt, source=self.source, destination=self.destination)
             self.cli.write_lines(path=path_txt, lines=[location for location in streamlet['location']])
 
     def run_streamlets(self):
         for streamlet in self.streamlet:
-            streamlet['logfile'] = open("{0}.log".format(streamlet['path']),"w")
-            streamlet['errfile'] = open("{0}.err".format(streamlet['path']),"w")
+            streamlet['logfile'] = open("{0}.log".format(streamlet['path']), "w")
+            streamlet['errfile'] = open("{0}.err".format(streamlet['path']), "w")
             streamlet['process'] = self.cli.get_background_process(streamlet['command'], logfile=streamlet['logfile'], errfile=streamlet['errfile'])
-            if self.verbose: print("SDSS_ACCESS> rsync stream %s logging to %s" % (streamlet['index'],streamlet['logfile'].name))
+            if self.verbose:
+                print("SDSS_ACCESS> rsync stream %s logging to %s" % (streamlet['index'], streamlet['logfile'].name))
         self.cli.wait_for_processes(streamlet['process'] for streamlet in self.streamlet)
-        if self.cli.returncode: print("SDSS_ACCESS> return code {returncode}".format(returncode=self.cli.returncode))
-        for streamlet in self.streamlet: streamlet['logfile'].close()
+        if self.cli.returncode:
+            print("SDSS_ACCESS> return code {returncode}".format(returncode=self.cli.returncode))
+        for streamlet in self.streamlet:
+            streamlet['logfile'].close()
