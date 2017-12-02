@@ -9,17 +9,20 @@
 
 This is the Sphinx documentation for the SDSS Python product sdss_access
 
-- :ref:`What's new in sdss_access? <changelog>`
+Introduction
+------------
 
-A description of the package can go here.
+* :ref:`What's new in sdss_access? <changelog>`
+* :ref:`Installation <install>`
+* :ref:`Introduction to the sdss_access <intro>`
+
+Reference
+---------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   intro
    api
-
-
 
 Indices and tables
 ==================
