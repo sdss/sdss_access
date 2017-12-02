@@ -53,8 +53,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'sdss_access'
-copyright = '{0}, {1}'.format('2017', 'John Doe')
-author = 'John Doe'
+copyright = '{0}, {1}'.format('2017', 'Brian Cherinka')
+author = 'Brian Cherinka'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
