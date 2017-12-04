@@ -24,6 +24,9 @@ notifications:
 branches:
 - master
 
+before_install:
+- openssl aes-256-cbc -K $encrypted_f18bc033d6dd_key -iv $encrypted_f18bc033d6dd_iv -in etc/.netrc.enc -out ~/.netrc -d
+
 install:
 - pip install -U pip wheel --quiet
 - pip install --upgrade setuptools --quiet
