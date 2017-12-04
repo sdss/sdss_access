@@ -359,7 +359,7 @@ class BasePath(object):
 
 
 class Path(BasePath):
-    """Derived class.  Sets a particular template file.
+    """Class for construction of paths in general.  Sets a particular template file.
     """
     def __init__(self, mirror=False, public=False, verbose=False):
         try:

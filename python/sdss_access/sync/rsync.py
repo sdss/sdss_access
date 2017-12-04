@@ -9,6 +9,8 @@ from sdss_access.sync.stream import Stream
 
 
 class RsyncAccess(SDSSPath):
+    """Class for providing Rsync access to SDSS SAS Paths
+    """
 
     def __init__(self, label='sdss_rsync', stream_count=5, mirror=False, public=False, verbose=False):
         super(RsyncAccess, self).__init__(mirror=mirror, public=public, verbose=verbose)
@@ -24,6 +26,7 @@ class RsyncAccess(SDSSPath):
         return stream
 
     def remote(self, username=None, password=None):
+        """ Configures remote access """
         self.set_netloc(sdss=True)  # simplifies things to have a single sdss machine in .netrc
         self.set_auth(username=username, password=password)
         self.set_netloc(dtn=not self.public)
@@ -45,6 +48,7 @@ class RsyncAccess(SDSSPath):
             self.stream.reset()
 
     def add(self, filetype, **kwargs):
+        """ Adds a filepath into the list of tasks to download"""
         location = self.location(filetype, **kwargs)
         source = self.url(filetype, sasdir='sas' if not self.public else '', **kwargs)
         destination = self.full(filetype, **kwargs)
@@ -54,6 +58,7 @@ class RsyncAccess(SDSSPath):
             print("There is no file with filetype=%r to access in the tree module loaded" % filetype)
 
     def set_stream(self):
+        """ Sets the download streams """
         if not self.auth:
             raise AccessError("Please use the remote() method to set rsync authorization or use remote(public=True) for public data")
         else:
@@ -133,6 +138,7 @@ class RsyncAccess(SDSSPath):
         self.stream.refine_task(regex=regex)
 
     def commit(self, offset=None, limit=None, dryrun=False):
+        """ Start the rsync download """
         self.stream.command = "rsync -avRK --files-from={path} {source} {destination}"
         self.stream.append_tasks_to_streamlets(offset=offset, limit=limit)
         self.stream.commit_streamlets()
