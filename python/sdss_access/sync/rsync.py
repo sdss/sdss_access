@@ -27,6 +27,7 @@ class RsyncAccess(SDSSPath):
 
     def remote(self, username=None, password=None):
         """ Configures remote access """
+
         self.set_netloc(sdss=True)  # simplifies things to have a single sdss machine in .netrc
         self.set_auth(username=username, password=password)
         self.set_netloc(dtn=not self.public)
@@ -49,6 +50,7 @@ class RsyncAccess(SDSSPath):
 
     def add(self, filetype, **kwargs):
         """ Adds a filepath into the list of tasks to download"""
+
         location = self.location(filetype, **kwargs)
         source = self.url(filetype, sasdir='sas' if not self.public else '', **kwargs)
         destination = self.full(filetype, **kwargs)
@@ -59,6 +61,7 @@ class RsyncAccess(SDSSPath):
 
     def set_stream(self):
         """ Sets the download streams """
+
         if not self.auth:
             raise AccessError("Please use the remote() method to set rsync authorization or use remote(public=True) for public data")
         else:
@@ -139,6 +142,7 @@ class RsyncAccess(SDSSPath):
 
     def commit(self, offset=None, limit=None, dryrun=False):
         """ Start the rsync download """
+
         self.stream.command = "rsync -avRK --files-from={path} {source} {destination}"
         self.stream.append_tasks_to_streamlets(offset=offset, limit=limit)
         self.stream.commit_streamlets()

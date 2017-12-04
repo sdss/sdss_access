@@ -56,11 +56,4 @@ System Call
    :undoc-members:
    :show-inheritance:
 
-Utils
------
-
-.. automodule:: sdss_access.utils
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
