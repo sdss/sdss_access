@@ -2,7 +2,7 @@
 sdss_access
 ===========
 
-This repository supports access to the SDSS data set.
+This repository supports access to the SDSS data set.  See the documentation at http://sdss-access.readthedocs.io/en/latest/
 
 | |Build Status|
 | |Coverage Status|
