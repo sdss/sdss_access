@@ -432,6 +432,27 @@ class Path(BasePath):
         else:
             return os.environ['BOSS_SPECTRO_REDUX']
 
+    def definitiondir(self, filetype, **kwargs):
+        """Returns definition subdirectory in :envvar:`PLATELIST_DIR` of the form: ``NNNNXX``.
+
+        Parameters
+        ----------
+        filetype : str
+            File type parameter.
+        designid : int or str
+            Design ID number.  Will be converted to int internally.
+
+        Returns
+        -------
+        definitiondir : str
+            Definition directory in the format ``NNNNXX``.
+        """
+
+        designid = int(kwargs['designid'])
+        designid100 = designid // 100
+        subdir = "{:0>4d}".format(designid100) + "XX"
+        return subdir
+
 
 class AccessError(Exception):
     pass
