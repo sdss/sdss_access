@@ -6,7 +6,7 @@
 # @Author: Brian Cherinka
 # @Date:   2017-03-24 12:22:30
 # @Last modified by:   Brian Cherinka
-# @Last Modified time: 2017-12-04 12:50:00
+# @Last Modified time: 2017-12-04 15:11:20
 
 from __future__ import print_function, division, absolute_import
 import os
@@ -109,7 +109,7 @@ def data(request, init_manga_survey):
 def rsync():
     ''' fixture to create generic rsync object '''
     rsync = RsyncAccess(label='test_rsync')
-    rsync.remote(username='sdss', inquire=False)
+    rsync.remote()
     yield rsync
 
     # teardown
