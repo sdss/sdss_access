@@ -34,7 +34,7 @@ install:
 - python setup.py install
 
 script:
-- pytest python/tree/tests --cov python/sdss_access --cov-report html
+- pytest python/sdss_access/tests --cov python/sdss_access --cov-report html
 
 after_success:
 - coveralls
