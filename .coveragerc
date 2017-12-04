@@ -5,4 +5,4 @@ branch = true
 omit =
     python/sdss_access/etc/*
     python/sdss_access/misc/*
-    python/sdss_access/test/*
+    python/sdss_access/tests/*
