@@ -23,7 +23,8 @@ class Auth(object):
             from netrc import netrc
             self.netrc = netrc() if not self.public else None
         except Exception as e:
-            if self.verbose: print("SDSS_ACCESS> AUTH NETRC: %r" % e)
+            if self.verbose:
+                print("SDSS_ACCESS> AUTH NETRC: %r" % e)
             self.netrc = None
 
     def set_netloc(self, netloc=None):
@@ -37,7 +38,8 @@ class Auth(object):
             from getpass import getpass
             self.password = getpass("password: ") if inquire else password
         except Exception as e:
-            if self.verbose: print("SDSS_ACCESS> AUTH PASSWORD: %r" % e)
+            if self.verbose:
+                print("SDSS_ACCESS> AUTH PASSWORD: %r" % e)
             self.password = None
 
     def ready(self):
@@ -49,9 +51,11 @@ class Auth(object):
             if authenticators and len(authenticators)==3:
                 self.set_username(authenticators[0])
                 self.set_password(authenticators[2])
-                if self.verbose: print("authentication for netloc=%r set for username=%r " % (self.netloc,self.username))
+                if self.verbose:
+                    print("authentication for netloc=%r set for username=%r " % (self.netloc, self.username))
             else:
-                if self.verbose: print("cannot find %r in ~/.netrc" % self.netloc)
+                if self.verbose:
+                    print("cannot find %r in ~/.netrc" % self.netloc)
                 self.set_username()
                 self.set_password()
         else:
