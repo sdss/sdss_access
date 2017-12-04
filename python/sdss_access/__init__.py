@@ -24,3 +24,10 @@ config = yaml.load(open(os.path.dirname(__file__) + '/etc/{0}.cfg'.format(NAME))
 
 __version__ = '0.2.4dev'
 
+
+# set up the TREE if it is not already
+if 'TREE_DIR' not in os.environ:
+    from tree import Tree
+    the_tree = Tree()
+
+
