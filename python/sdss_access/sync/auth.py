@@ -48,7 +48,7 @@ class Auth(object):
     def load(self):
         if self.netloc and self.netrc:
             authenticators = self.netrc.authenticators(self.netloc)
-            if authenticators and len(authenticators)==3:
+            if authenticators and len(authenticators) == 3:
                 self.set_username(authenticators[0])
                 self.set_password(authenticators[2])
                 if self.verbose:
