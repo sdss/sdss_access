@@ -15,6 +15,7 @@ Introduction
 * :ref:`What's new in sdss_access? <changelog>`
 * :ref:`Installation <install>`
 * :ref:`Introduction to sdss_access <intro>`
+* :ref:`sdss-access path definitions <paths>`
 
 Reference
 ---------

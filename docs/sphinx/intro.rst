@@ -20,21 +20,39 @@ You can generate full paths to files easily with `Path.full`::
     path.full('mangacube', drpver='v2_3_1', plate='8485', ifu='1901')
     '/Users/Brian/Work/sdss/sas/mangawork/manga/spectro/redux/v2_3_1/8485/stack/manga-8485-1902-LOGCUBE.fits.gz'
 
-
-Note that this only generates a path. The file may not actually exist locally.  If you want to generate a URL path to
-the file at Utah, you can use `Path.url`::
+Note that this only generates a path. The file may not actually exist locally.  If you want to generate a URL path to the file at Utah, you can use `Path.url`::
 
     # generate a http path to the file
     path.url('mangacube', drpver='v2_3_1', plate='8485', ifu='1901')
     'https://data.sdss.org/sas/mangawork/manga/spectro/redux/v2_3_1/8485/stack/manga-8485-1902-LOGCUBE.fits.gz'
 
 
-You can download files from the SAS and place them in your local SAS.  `sdss_access` expects a local SAS filesystem that mimics
-the real SAS at Utah.  If you do not already have a `SAS_BASE_DIR` set, one will be defined in your home directory, as a new `sas`
-directory.
+Path Names
+^^^^^^^^^^
+
+The syntax for all paths defined in `sdss_access`, for most methods, is ``(name, **kwargs)``.  Each path is defined by a **name** and several **keyword arguments**, indicated in the template filepath by **{keyword_name}**.  For example, the path to a MaNGA data cube has **name** ``mangacube`` and path keywords, **plate**, **drpver**, and **ifu**, defined in the path ``$MANGA_SPECTRO_REDUX/{drpver}/{plate}/stack/manga-{plate}-{ifu}-LOGCUBE.fits.gz``.  All paths are defined inside the SDSS `tree` product, within the `sdss_paths.ini` file, and
+available to you as a dictionary, ``path.templates``::
+
+    from sdss_access import SDSSPath
+    path = SDSSPath()
+
+    # show the dictionary of available paths
+    path.templates
+
+To look up what keywords are needed for a given path, you can use ``path.lookup_keys``::
+
+    # look up the keyword arguments needed to define a MaNGA cube path
+    path.lookup_keys('mangacube')
+    ['plate', 'drpver', 'ifu']
+
+The full list of paths can also be found :ref:`here <paths>`.
 
 Downloading Files
 ^^^^^^^^^^^^^^^^^
+
+You can download files from the SAS and place them in your local SAS.  `sdss_access` expects a local SAS filesystem that mimics
+the real SAS at Utah.  If you do not already have a `SAS_BASE_DIR` set, one will be defined in your home directory, as a new `sas`
+directory.
 
 Using the `HttpAccess` package.
 
@@ -88,6 +106,7 @@ Reference/API
 
     sdss_access.SDSSPath.full
     sdss_access.SDSSPath.url
+    sdss_access.SDSSPath.lookup_keys
     sdss_access.HttpAccess.remote
     sdss_access.HttpAccess.get
     sdss_access.RsyncAccess.remote

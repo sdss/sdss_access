@@ -5,7 +5,8 @@ import re
 from glob import glob
 from os.path import join
 from random import choice, sample
-from re import compile
+from collections import OrderedDict
+import re
 
 try:
     from ConfigParser import RawConfigParser
@@ -46,7 +47,7 @@ class BasePath(object):
         self._pathfile = pathfile
         self._config = RawConfigParser()
         self._config.optionxform = str
-        self.templates = dict()
+        self.templates = OrderedDict()
         self._input_templates()
         return
 
@@ -60,6 +61,22 @@ class BasePath(object):
         else:
             raise ValueError("Could not read {0}!".format(self._pathfile))
         return
+
+    def lookup_keys(self, name):
+        ''' Lookup the keyword arguments needed for a given path name
+
+        Parameters:
+            name (str):
+                The name of the path
+
+        Returns:
+            A list of keywords needed for filepath generation
+
+        '''
+
+        assert name in self.templates.keys(), '{0} must be defined in the path templates'.format(name)
+        keys = list(set(re.findall(r'{(.*?)}', self.templates[name])))
+        return keys
 
     def dir(self, filetype, **kwargs):
         """Return the directory containing a file of a given type.
@@ -246,7 +263,7 @@ class BasePath(object):
         '''
         assert filelist, 'Must provide a list of filenames to refine on'
         assert regex, 'Must provide a regular expression to refine the file list'
-        r = compile(regex)
+        r = re.compile(regex)
 
         # icheck filter direction; default is out
         assert filterdir in ['in', 'out'], 'Filter direction must be either "in" or "out"'
