@@ -22,7 +22,7 @@ NAME = 'sdss_access'
 config = yaml.load(open(os.path.dirname(__file__) + '/etc/{0}.cfg'.format(NAME)))
 
 
-__version__ = '0.2.4'
+__version__ = '0.2.5dev'
 
 
 # set up the TREE if it is not already
