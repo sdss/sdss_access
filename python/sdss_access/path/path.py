@@ -38,9 +38,10 @@ class BasePath(object):
 
     _netloc = {"dtn": "sdss@dtn01.sdss.org", "sdss": "data.sdss.org", "mirror": "data.mirror.sdss.org"}
 
-    def __init__(self, pathfile, mirror=False, public=False, verbose=False):
+    def __init__(self, pathfile, mirror=False, public=False, release=None, verbose=False):
         self.mirror = mirror
         self.public = public
+        self.release = release
         self.verbose = verbose
         self.set_netloc()
         self.set_remote_base()
@@ -286,31 +287,38 @@ class BasePath(object):
         full : str
             The full path to the file.
         """
-        try:
+        
+        if filetype in self.templates:
             template = self.templates[filetype]
-        except KeyError:
-            return None
+        else:
+            template = None
+            print("There is no template entry with filetype=%r to access in the tree module loaded" % filetype)
+
         # Now replace {} items
-        template = template.format(**kwargs)
+        try:
+            if template: template = template.format(**kwargs)
+        except KeyError:
+            print("KeyError in template=%r kwargs=%r" % (filetype, kwargs))
 
-        # Now replace environmental variables
-        envvars = re.findall(r"\$\w+", template)
-        for envvar in envvars:
-            try:
-                value = os.environ[envvar[1:]]
-            except KeyError:
-                return None
-            template = re.sub("\\" + envvar, value, template)
+        if template:
+            # Now replace environmental variables
+            envvars = re.findall(r"\$\w+", template)
+            for envvar in envvars:
+                try:
+                    value = os.environ[envvar[1:]]
+                except KeyError:
+                    return None
+                template = re.sub("\\" + envvar, value, template)
 
-        # Now call special functions as appropriate
-        functions = re.findall(r"\%\w+", template)
-        for function in functions:
-            try:
-                method = getattr(self, function[1:])
-            except AttributeError:
-                return None
-            value = method(filetype, **kwargs)
-            template = re.sub(function, value, template)
+            # Now call special functions as appropriate
+            functions = re.findall(r"\%\w+", template)
+            for function in functions:
+                try:
+                    method = getattr(self, function[1:])
+                except AttributeError:
+                    return None
+                value = method(filetype, **kwargs)
+                template = re.sub(function, value, template)
 
         return template
 
@@ -352,7 +360,7 @@ class BasePath(object):
         self.set_base_dir(base_dir=base_dir)
         location = full[len(self.base_dir):] if full and full.startswith(self.base_dir) else None
 
-        if '//' in location:
+        if location and '//' in location:
             location = location.replace('//', '/')
 
         return location
@@ -378,14 +386,14 @@ class BasePath(object):
 class Path(BasePath):
     """Class for construction of paths in general.  Sets a particular template file.
     """
-    def __init__(self, mirror=False, public=False, verbose=False):
+    def __init__(self, mirror=False, public=False, release=None, verbose=False):
         try:
             tree_dir = os.environ['TREE_DIR']
         except KeyError:
             raise NameError("Could not find TREE_DIR in the environment!  Did you load the tree product?")
         pathfile = os.path.join(tree_dir, 'data', 'sdss_paths.ini')
 
-        super(Path, self).__init__(pathfile, mirror=mirror, public=public, verbose=verbose)
+        super(Path, self).__init__(pathfile, mirror=mirror, public=public, release=release, verbose=verbose)
 
     def plateid6(self, filetype, **kwargs):
         """Print plate ID, accounting for 5-6 digit plate IDs.

@@ -12,8 +12,8 @@ class RsyncAccess(SDSSPath):
     """Class for providing Rsync access to SDSS SAS Paths
     """
 
-    def __init__(self, label='sdss_rsync', stream_count=5, mirror=False, public=False, verbose=False):
-        super(RsyncAccess, self).__init__(mirror=mirror, public=public, verbose=verbose)
+    def __init__(self, label='sdss_rsync', stream_count=5, mirror=False, public=False, release=None, verbose=False):
+        super(RsyncAccess, self).__init__(mirror=mirror, public=public, release=release, verbose=verbose)
         self.label = label
         self.auth = None
         self.stream = None
@@ -64,14 +64,22 @@ class RsyncAccess(SDSSPath):
 
         if not self.auth:
             raise AccessError("Please use the remote() method to set rsync authorization or use remote(public=True) for public data")
+        elif not self.initial_stream.task:
+            raise AccessError("No files to download.")
         else:
             self.stream = self.get_stream()
-            self.stream.source = join(self.remote_base, 'sas') if self.remote_base and not self.public else self.remote_base
-            self.stream.destination = self.base_dir
+            self.stream.source = join(self.remote_base, 'sas') if self.remote_base and not self.public else join(self.remote_base, self.release) if self.release else self.remote_base
+            self.stream.destination = join(self.base_dir, self.release) if self.public and self.release else self.base_dir
             self.stream.cli.env = {'RSYNC_PASSWORD': self.auth.password} if self.auth.ready() else None
             if self.stream.source and self.stream.destination:
                 for task in self.initial_stream.task:
                     self.set_stream_task(task)
+            ntask = len(self.stream.task)
+            if self.stream.stream_count > ntask:
+                if self.verbose:
+                    print("SDSS_ACCESS> Reducing the number of streams from %r to %r, the number of download tasks." % (self.stream.stream_count, ntask))
+                self.stream.stream_count = ntask
+                self.stream.streamlet = self.stream.streamlet[:ntask]
 
     def get_task_out(self, task=None):
         if task:
@@ -87,8 +95,8 @@ class RsyncAccess(SDSSPath):
 
     def generate_stream_task(self, task=None, out=None):
         if task and out:
-            release = task['location'].split('/')[0]
             depth = task['location'].count('/')
+            if self.public: depth -= 1
             for result in out.split(b"\n"):
                 result = result.decode('utf-8')
                 if result.startswith(('d', '-', 'l')):
@@ -96,8 +104,6 @@ class RsyncAccess(SDSSPath):
                         location = search(r"^.*\s{1,3}(.+)$", result).group(1)
                     except:
                         location = None
-                    if self.public:
-                        location = join(release, location)
                     if location and location.count('/') == depth:
                         source = join(self.stream.source, location) if self.remote_base else None
                         destination = join(self.stream.destination, location)
