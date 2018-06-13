@@ -7,7 +7,7 @@ rsync_access.remote()
 #the alternative to setting the password in ~/.netrc is not recommended!
 #rsync_access.remote(username='sdss',password='***-******')
 
-rsync_access.add('mangacube', drpver='v2_4_3', plate=8485, ifu=1901)
+rsync_access.add('mangacube', drpver='v2_4_3', plate=8485, ifu='19*')
 rsync_access.set_stream()
 
 rsync_access.commit()
