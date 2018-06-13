@@ -24,11 +24,10 @@ config = yaml.load(open(os.path.dirname(__file__) + '/etc/{0}.cfg'.format(NAME))
 
 __version__ = '0.2.5dev'
 
-release = os.environ['TREE_VER'] if 'TREE_VER' in os.environ else None
 
 # set up the TREE, but match the TREE_VER if it is already there
 from tree import Tree
-tree = Tree(config=release)
+tree = Tree(config=os.environ['TREE_VER'] if 'TREE_VER' in os.environ else None)
 print("SDSS_ACCESS> Using %r" % tree)
 
 
