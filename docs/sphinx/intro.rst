@@ -39,6 +39,12 @@ available to you as a dictionary, ``path.templates``::
     # show the dictionary of available paths
     path.templates
 
+To look up what path names are available, you can use ``path.lookup_names``::
+
+    # look up the available path names
+    path.lookup_names()
+    ['BOSSLyaDR_cat', ..., 'mangacube', ..., 'xdqso_index']
+
 To look up what keywords are needed for a given path, you can use ``path.lookup_keys``::
 
     # look up the keyword arguments needed to define a MaNGA cube path
@@ -88,6 +94,13 @@ across multiple continuous rsync download streams.
 
     # start the download(s)
     rsync.commit()
+
+The default mode of `RsyncAccess` is for collaboration access.  You can also access data from publicly available SDSS data releases, by specifying the `public` and `release` keyword arguments on init.
+
+::
+
+    # setup rsync access to download public data from DR14
+    rsync = RsyncAccess(public=True, release='dr14')
 
 .. _sdss-access-api:
 
