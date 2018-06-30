@@ -75,9 +75,22 @@ class BasePath(object):
 
         '''
 
+        assert name, 'Must specify a path name'
         assert name in self.templates.keys(), '{0} must be defined in the path templates'.format(name)
         keys = list(set(re.findall(r'{(.*?)}', self.templates[name])))
         return keys
+
+    def lookup_names(self):
+        ''' Lookup what path names are available
+
+        Returns a list of the available path names in sdss_access.
+        Use with lookup_keys to find the required keyword arguments for a
+        given path name.
+
+        Returns:
+            A list of the available path names.
+        '''
+        return self.templates.keys()
 
     def dir(self, filetype, **kwargs):
         """Return the directory containing a file of a given type.
@@ -287,18 +300,22 @@ class BasePath(object):
         full : str
             The full path to the file.
         """
-        
-        if filetype in self.templates:
-            template = self.templates[filetype]
-        else:
-            template = None
-            print("There is no template entry with filetype=%r to access in the tree module loaded" % filetype)
+
+        # check for filetype in template
+        assert filetype in self.templates, ('No entry {0} found. Filetype must '
+                                            'be one of the designated templates '
+                                            'in the currently loaded tree'.format(filetype))
+        template = self.templates[filetype]
 
         # Now replace {} items
-        try:
-            if template: template = template.format(**kwargs)
-        except KeyError:
-            print("KeyError in template=%r kwargs=%r" % (filetype, kwargs))
+        if template:
+            # check for missing keyword arguments
+            keys = self.lookup_keys(filetype)
+            missing_keys = set(keys) - set(kwargs.keys())
+            if missing_keys:
+                raise KeyError('Missing required keyword arguments: {0}'.format(list(missing_keys)))
+            else:
+                template = template.format(**kwargs)
 
         if template:
             # Now replace environmental variables
