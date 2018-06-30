@@ -70,7 +70,7 @@ Using the `HttpAccess` package.
     # set to use remote
     http_access.remote()
 
-    # get th file
+    # get the file
     http_access.get('mangacube', drpver='v2_3_1', plate='8485', ifu='1901')
 
 Using the `RsyncAccess` package.  `RsyncAccess` is generally much faster then `HttpAccess` as it spreads multiple file downloads
@@ -119,6 +119,7 @@ Reference/API
 
     sdss_access.SDSSPath.full
     sdss_access.SDSSPath.url
+    sdss_access.SDSSPath.lookup_names
     sdss_access.SDSSPath.lookup_keys
     sdss_access.HttpAccess.remote
     sdss_access.HttpAccess.get
