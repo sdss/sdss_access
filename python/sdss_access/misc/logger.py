@@ -75,12 +75,12 @@ def colored_formatter(record):
 
     message = '{0}'.format(record.msg)
 
-    warning_category = re.match('^(\w+Warning\:).*', message)
+    warning_category = re.match(r'^(\w+Warning:).*', message)
     if warning_category is not None:
         warning_category_colour = color_text(warning_category.groups()[0], 'cyan')
         message = message.replace(warning_category.groups()[0], warning_category_colour)
 
-    sub_level = re.match('(\[.+\]:)(.*)', message)
+    sub_level = re.match(r'(\[.+\]:)(.*)', message)
     if sub_level is not None:
         sub_level_name = color_text(sub_level.groups()[0], 'red')
         message = '{}{}'.format(sub_level_name, ''.join(sub_level.groups()[1:]))
