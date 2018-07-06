@@ -10,27 +10,28 @@
 # Adapted from astropy's logging system.
 
 
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import datetime
 import logging
 import os
 import re
 import shutil
-import traceback
 import sys
+import traceback
 import warnings
-
 from logging.handlers import TimedRotatingFileHandler
-# from textwrap import TextWrapper
 
 from pygments import highlight
-from pygments.lexers import get_lexer_by_name
 from pygments.formatters import TerminalFormatter
+from pygments.lexers import get_lexer_by_name
 
 from .color_print import color_text
+
+
+# from textwrap import TextWrapper
+
+
 
 
 # Adds custom log level for print and twisted messages
@@ -228,7 +229,7 @@ class MyLogger(Logger):
 
         self.sh.setLevel(log_level)
 
-        warnings.showwarning = self._show_warning
+        # warnings.showwarning = self._show_warning
 
         # Redirects all stdout to the logger
         if redirect_stdout:
