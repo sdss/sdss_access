@@ -10,27 +10,28 @@
 # Adapted from astropy's logging system.
 
 
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import datetime
 import logging
 import os
 import re
 import shutil
-import traceback
 import sys
+import traceback
 import warnings
-
 from logging.handlers import TimedRotatingFileHandler
-# from textwrap import TextWrapper
 
 from pygments import highlight
-from pygments.lexers import get_lexer_by_name
 from pygments.formatters import TerminalFormatter
+from pygments.lexers import get_lexer_by_name
 
 from .color_print import color_text
+
+
+# from textwrap import TextWrapper
+
+
 
 
 # Adds custom log level for print and twisted messages
@@ -74,12 +75,12 @@ def colored_formatter(record):
 
     message = '{0}'.format(record.msg)
 
-    warning_category = re.match('^(\w+Warning\:).*', message)
+    warning_category = re.match(r'^(\w+Warning:).*', message)
     if warning_category is not None:
         warning_category_colour = color_text(warning_category.groups()[0], 'cyan')
         message = message.replace(warning_category.groups()[0], warning_category_colour)
 
-    sub_level = re.match('(\[.+\]:)(.*)', message)
+    sub_level = re.match(r'(\[.+\]:)(.*)', message)
     if sub_level is not None:
         sub_level_name = color_text(sub_level.groups()[0], 'red')
         message = '{}{}'.format(sub_level_name, ''.join(sub_level.groups()[1:]))
@@ -228,7 +229,7 @@ class MyLogger(Logger):
 
         self.sh.setLevel(log_level)
 
-        warnings.showwarning = self._show_warning
+        # warnings.showwarning = self._show_warning
 
         # Redirects all stdout to the logger
         if redirect_stdout:
