@@ -6,17 +6,19 @@
 # @Author: Brian Cherinka
 # @Date:   2017-03-24 12:22:30
 # @Last modified by:   Brian Cherinka
-# @Last Modified time: 2017-12-04 15:11:20
+# @Last Modified time: 2018-07-08 16:34:37
 
 from __future__ import print_function, division, absolute_import
 import os
 import pytest
 
 from sdss_access import RsyncAccess
+from sdss_access.path import Path
 
-releases = ['MPL-4']
+
+releases = ['MPL-5']
 plateifus = ['8485-1901']
-mpldict = {'MPL-4': ('v1_5_1', '1.1.1'), 'MPL-5': ('v2_0_1', '2.0.2')}
+mpldict = {'MPL-6': ('v2_3_1', '2.1.3'), 'MPL-5': ('v2_0_1', '2.0.2')}
 surveys = ['manga']
 
 
@@ -54,7 +56,7 @@ class Survey(object):
             self.names = ['mangacube']
             if '4' in release:
                 self.names.extend(['mangadefault', 'mangamap'])
-            elif '5' in release:
+            else:
                 self.names.extend(['mangadap5'])
 
 
@@ -80,7 +82,7 @@ def init_manga_survey(survey, get_release, get_plateifu):
     yield survey
 
 
-@pytest.fixture(scope='module', params=['mangadefault', 'mangamap', 'mangacube'])
+@pytest.fixture(scope='module', params=['mangadap5', 'mangacube'])
 def data(request, init_manga_survey):
     ''' fixture to generate data '''
     fillkwargs = {'plate': init_manga_survey.rsync_kwargs['plate'], 'ifu': init_manga_survey.rsync_kwargs['ifu'],
@@ -105,6 +107,14 @@ def data(request, init_manga_survey):
     return (request.param, data_dict[request.param])
 
 
+@pytest.fixture()
+def path():
+    ''' Fixture to create a generic Path object '''
+    path = Path()
+    yield path
+    path = None
+
+
 @pytest.fixture(scope='function')
 def rsync():
     ''' fixture to create generic rsync object '''
@@ -122,7 +132,7 @@ def rsync_add(rsync, data, init_manga_survey):
     ''' fixture to add data to an rsync object '''
     name, paths = data
     rsync.add(name, **init_manga_survey.rsync_kwargs)
-    rsync.location = os.path.join(paths['loc'], paths['files'])
+    rsync.location = paths['loc']
     yield rsync
 
 
@@ -130,7 +140,7 @@ def rsync_add(rsync, data, init_manga_survey):
 def rsync_set(rsync_add, data):
     ''' fixture to set the stream of an rsync object '''
     name, paths = data
-    rsync_add.location = os.path.join(paths['loc'], paths['single'])
+    rsync_add.location = os.path.join(paths['loc'].replace('*', 'SPX-GAU-MILESHC'), paths['single'])
     rsync_add.count = paths['count']
     rsync_add.set_stream()
     yield rsync_add

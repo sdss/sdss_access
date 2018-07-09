@@ -6,7 +6,8 @@ from glob import glob
 from os.path import join
 from random import choice, sample
 from collections import OrderedDict
-import re
+from sdss_access import tree
+
 
 try:
     from ConfigParser import RawConfigParser
@@ -50,7 +51,12 @@ class BasePath(object):
         self._config.optionxform = str
         self.templates = OrderedDict()
         self._input_templates()
-        return
+        if release != tree.config_name:
+            self.replant_tree()
+
+    def replant_tree(self):
+        ''' replants the tree based on release '''
+        tree.replant_tree(self.release)
 
     def _input_templates(self):
         """Read the path template file.
@@ -105,7 +111,11 @@ class BasePath(object):
         dir : str
             Directory containing the file.
         """
-        full = kwargs.get('full', self.full(filetype, **kwargs))
+
+        full = kwargs.get('full', None)
+        if not full:
+            full = self.full(filetype, **kwargs)
+
         return os.path.dirname(full)
 
     def name(self, filetype, **kwargs):
@@ -121,7 +131,11 @@ class BasePath(object):
         name : str
             Name of a file with no directory information.
         """
-        full = kwargs.get('full', self.full(filetype, **kwargs))
+
+        full = kwargs.get('full', None)
+        if not full:
+            full = self.full(filetype, **kwargs)
+
         return os.path.basename(full)
 
     def exists(self, filetype, **kwargs):
@@ -138,7 +152,11 @@ class BasePath(object):
             Boolean indicating if the file exists on disk.
 
         '''
-        full = kwargs.get('full', self.full(filetype, **kwargs))
+
+        full = kwargs.get('full', None)
+        if not full:
+            full = self.full(filetype, **kwargs)
+
         return os.path.isfile(full)
 
     def expand(self, filetype, **kwargs):
@@ -162,7 +180,11 @@ class BasePath(object):
             List of expanded full paths of the given type.
 
         '''
-        full = kwargs.get('full', self.full(filetype, **kwargs))
+
+        full = kwargs.get('full', None)
+        if not full:
+            full = self.full(filetype, **kwargs)
+
         assert '*' in full, 'Wildcard must be present in full path'
         files = glob(full)
 
@@ -372,7 +394,9 @@ class BasePath(object):
             The relative sas path to the file.
         """
 
-        full = kwargs.get('full', self.full(filetype, **kwargs))
+        full = kwargs.get('full', None)
+        if not full:
+            full = self.full(filetype, **kwargs)
 
         self.set_base_dir(base_dir=base_dir)
         location = full[len(self.base_dir):] if full and full.startswith(self.base_dir) else None

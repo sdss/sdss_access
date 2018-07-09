@@ -17,7 +17,7 @@ from .misc import log
 from tree import Tree
 config = os.environ.get('TREE_VER', 'sdsswork')
 tree = Tree(config=config)
-print("SDSS_ACCESS> Using %r" % tree)
+log.debug("SDSS_ACCESS> Using %r" % tree)
 
 
 from .path import Path as SDSSPath, AccessError

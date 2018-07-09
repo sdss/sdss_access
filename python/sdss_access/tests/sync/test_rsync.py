@@ -6,7 +6,7 @@
 # @Author: Brian Cherinka
 # @Date:   2017-03-24 12:22:07
 # @Last modified by:   Brian Cherinka
-# @Last Modified time: 2017-04-04 10:30:54
+# @Last Modified time: 2018-07-08 15:47:42
 
 from __future__ import print_function, division, absolute_import
 
@@ -22,6 +22,5 @@ class TestRsyncStream(object):
 
     def test_rsync_setstream_task(self, rsync_set):
         tasks = rsync_set.stream.task
-        task = tasks[0]
-        assert rsync_set.location in task['location']
-        assert len(tasks) == rsync_set.count
+        locations = rsync_set.get_locations()
+        assert rsync_set.location in locations

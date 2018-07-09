@@ -6,7 +6,6 @@ from re import search
 from sdss_access import SDSSPath, AccessError
 from sdss_access.sync.auth import Auth
 from sdss_access.sync.stream import Stream
-from sdss_access import tree
 
 
 class RsyncAccess(SDSSPath):
@@ -21,12 +20,6 @@ class RsyncAccess(SDSSPath):
         self.stream_count = stream_count
         self.verbose = verbose
         self.initial_stream = self.get_stream()
-        if release != tree.config_name:
-            self.replant_tree()
-
-    def replant_tree(self):
-        ''' replants the tree based on release '''
-        tree.replant_tree(self.release)
 
     def get_stream(self):
         stream = Stream(stream_count=self.stream_count, verbose=self.verbose)
