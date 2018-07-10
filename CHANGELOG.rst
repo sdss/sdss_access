@@ -6,7 +6,7 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
-0.2.6 ()
+0.2.6 (2018-07-10)
 --------
 Fixed
 ^^^^^
