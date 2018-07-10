@@ -15,7 +15,7 @@ import argparse
 import sys
 
 NAME = 'sdss-access'
-VERSION = '0.2.5'
+VERSION = '0.2.6dev'
 RELEASE = 'dev' in VERSION
 
 
