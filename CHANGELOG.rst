@@ -6,8 +6,12 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
+0.2.7 (unreleased)
+------------------
+
 0.2.6 (2018-07-10)
---------
+------------------
+
 Fixed
 ^^^^^
 * Bug when checking for missing keys; removes key format from variable name
