@@ -333,6 +333,8 @@ class BasePath(object):
         if template:
             # check for missing keyword arguments
             keys = self.lookup_keys(filetype)
+            # split keys to remove :format from any "key:format"
+            keys = [k.split(':')[0] for k in keys]
             missing_keys = set(keys) - set(kwargs.keys())
             if missing_keys:
                 raise KeyError('Missing required keyword arguments: {0}'.format(list(missing_keys)))
