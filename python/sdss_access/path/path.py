@@ -185,7 +185,7 @@ class BasePath(object):
         if not full:
             full = self.full(filetype, **kwargs)
 
-        assert '*' in full, 'Wildcard must be present in full path'
+        # assert '*' in full, 'Wildcard must be present in full path'
         files = glob(full)
 
         # return as urls?
