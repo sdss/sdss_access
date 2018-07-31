@@ -45,8 +45,15 @@ class RsyncAccess(SDSSPath):
                 self.auth.set_password(inquire=inquire)
 
     def reset(self):
+        ''' Reset all streams '''
+
+        # reset the main stream
         if self.stream:
             self.stream.reset()
+
+        # reset the initial stream (otherwise old 'adds' remain in the new stream)
+        if self.initial_stream:
+            self.initial_stream.reset()
 
     def add(self, filetype, **kwargs):
         """ Adds a filepath into the list of tasks to download"""
