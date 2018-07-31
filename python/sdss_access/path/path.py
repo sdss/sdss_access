@@ -146,6 +146,7 @@ class BasePath(object):
         ----------
         filetype : str
             File type parameter.
+
         remote : bool
             If True, checks for remote existence of the file
 
@@ -335,6 +336,10 @@ class BasePath(object):
         full : str
             The full path to the file.
         """
+
+        # check if full already in kwargs
+        if 'full' in kwargs:
+            return kwargs.get('full')
 
         # check for filetype in template
         assert filetype in self.templates, ('No entry {0} found. Filetype must '

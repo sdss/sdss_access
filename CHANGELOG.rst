@@ -16,6 +16,8 @@ Added
 Changed
 ^^^^^^^
 * rsync.reset now resets both the initial stream and the real stream
+* rsync.add now accepts the full keyword argument
+* rsync.full now checks for itself in kwargs and returns that
 
 0.2.6 (2018-07-10)
 ------------------

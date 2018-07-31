@@ -60,7 +60,11 @@ class RsyncAccess(SDSSPath):
 
         location = self.location(filetype, **kwargs)
         source = self.url(filetype, sasdir='sas' if not self.public else '', **kwargs)
-        destination = self.full(filetype, **kwargs)
+        if 'full' not in kwargs:
+            destination = self.full(filetype, **kwargs)
+        else:
+            destination = kwargs.get('full')
+
         if location and source and destination:
             self.initial_stream.append_task(location=location, source=source, destination=destination)
         else:
