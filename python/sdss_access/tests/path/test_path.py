@@ -6,7 +6,7 @@
 # @Author: Brian Cherinka
 # @Date:   2018-07-08 16:31:45
 # @Last modified by:   Brian Cherinka
-# @Last Modified time: 2018-07-09 10:20:35
+# @Last Modified time: 2018-07-31 15:39:47
 
 from __future__ import print_function, division, absolute_import
 import pytest
@@ -29,4 +29,10 @@ class TestPath(object):
         path = Path(public=True, release=release)
         url = path.url('mangacube', drpver='v2_3_1', plate=8485, ifu='1901')
         assert release in url
+
+    @pytest.mark.parametrize('place, exp', [('local', False), ('remote', True)])
+    def test_existence(self, path, place, exp):
+        full = path.full('mangaimage', drpver='v2_4_3', plate=8116, ifu=1901, dir3d='mastar')
+        exists = path.exists('', full=full, remote=(place == 'remote'))
+        assert exp == exists
 

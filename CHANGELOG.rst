@@ -9,6 +9,14 @@ This document records the main changes to the sdss_access code.
 0.2.7 (unreleased)
 ------------------
 
+Added
+^^^^^
+* Ability to check for a remote file existence on the SAS
+
+Changed
+^^^^^^^
+* rsync.reset now resets both the initial stream and the real stream
+
 0.2.6 (2018-07-10)
 ------------------
 

@@ -2,6 +2,7 @@ from __future__ import division, print_function
 
 import os
 import re
+import requests
 from glob import glob
 from os.path import join
 from random import choice, sample
@@ -138,18 +139,20 @@ class BasePath(object):
 
         return os.path.basename(full)
 
-    def exists(self, filetype, **kwargs):
-        '''Checks if the given type of file exists
+    def exists(self, filetype, remote=None, **kwargs):
+        '''Checks if the given type of file exists locally
 
         Parameters
         ----------
         filetype : str
             File type parameter.
+        remote : bool
+            If True, checks for remote existence of the file
 
         Returns
         -------
         exists : bool
-            Boolean indicating if the file exists on disk.
+            Boolean indicating if the file exists.
 
         '''
 
@@ -157,7 +160,17 @@ class BasePath(object):
         if not full:
             full = self.full(filetype, **kwargs)
 
-        return os.path.isfile(full)
+        if remote:
+            # check for remote existence using a HEAD request
+            url = self.url('', full=full)
+            try:
+                resp = requests.head(url)
+            except Exception as e:
+                raise AccessError('Cannot check for remote file existence for {0}: {1}'.format(url, e))
+            else:
+                return resp.ok
+        else:
+            return os.path.isfile(full)
 
     def expand(self, filetype, **kwargs):
         ''' Expand a wildcard path locally
