@@ -6,7 +6,7 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
-0.2.7 (unreleased)
+0.2.7 (2018-09-06)
 ------------------
 
 Added
