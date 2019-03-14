@@ -1,0 +1,8 @@
+#!/usr/bin/env python3
+from sdss_access import RsyncAccess, AccessError
+rsync_access = RsyncAccess(label='mangacube_dr14',public=True,release='dr14',verbose=True)
+rsync_access.remote()
+rsync_access.add('mangacube', drpver='v2_1_2', plate=8485, ifu='19*')
+rsync_access.set_stream()
+
+rsync_access.commit()
