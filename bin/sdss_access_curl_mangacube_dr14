@@ -6,3 +6,4 @@ rsync_access.add('mangacube', drpver='v2_1_2', plate=8485, ifu='19*')
 rsync_access.set_stream()
 
 rsync_access.commit()
+
