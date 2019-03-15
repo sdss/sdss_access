@@ -129,10 +129,13 @@ class CurlAccess(SDSSPath):
                 if system() == 'Windows': source = source.replace(sep,'/')
                 destination = join(self.stream.destination, location)
                 print('----curl---filename', filename, 'location',location, 'source', source, 'destination', destination)
+                '''Below was an attempt to see if an existing in directory file was identical to the minute.
+                    However, the times of the downloaded file differs by a few hours, the size is largely different.
+                    I suspect the database time and size stamps vary from downloaded, since I tried with a second method as well.
                 #Online vs local file check to see if needs updating (time difference only accurate to the minute)
-                if exists(destination) and getsize(destination) == int(file_size) and abs(datetime.strptime(file_date, "%y-%m-%d %H:%M") - datetime.datetime.fromtimestamp(path.getmtime(destination))).minutes == 0: print('Already Downloaded at %s'%destination)
-                else:
-                    yield (location, source, destination)
+                if exists(destination) and getsize(destination) == int(file_size) and abs(datetime.strptime(file_date, "%Y-%b-%d %H:%M") - datetime.fromtimestamp(getmtime(destination))).minutes == 0: print('Already Downloaded at %s'%destination)
+                else:'''
+                yield (location, source, destination)
 
     def set_stream_task(self, task=None):
         status, out = self.get_task_out(task=task)
@@ -174,7 +177,7 @@ class CurlAccess(SDSSPath):
 
     def commit(self, offset=None, limit=None, dryrun=False):
         """ Start the curl download """
-        self.stream.command = "cd {destination} && xargs -n 1 curl -ORL < {path} --create-dirs --fail"
+        self.stream.command = "cd {destination} && xargs -n1 curl -ORL < {path} --create-dirs --fail"
         self.stream.append_tasks_to_streamlets(offset=offset, limit=limit)
         self.stream.commit_streamlets()
         self.stream.run_streamlets()
