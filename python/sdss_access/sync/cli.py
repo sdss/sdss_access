@@ -16,7 +16,7 @@ class Cli(object):
     """Class for providing command line interface (cli) sync scripts, and logs to local disk
     """
 
-    tmp_dir = '/tmp'
+    tmp_dir = '/tmp' #MT does not work for windows this simple
 
     def __init__(self, label=None, data_dir=None, verbose=False):
         self.label = label if label else 'sdss_access'
@@ -64,7 +64,7 @@ class Cli(object):
         if command:
             stdout = logfile if logfile else STDOUT
             stderr = errfile if errfile else STDOUT
-            background_process = Popen(split(str(command)), env=self.env, stdout=stdout, stderr=stderr)
+            background_process = Popen(str(command).split(' ')), env=self.env, stdout=stdout, stderr=stderr) #MT check new split option
             if pause:
                 sleep(pause)
         else:
@@ -125,7 +125,7 @@ class Cli(object):
                 errfile = TemporaryFile()
             else:
                 errfile = open(errname, 'w+')
-            proc = Popen(split(str(command)), stdout=outfile, stderr=errfile, env=self.env)
+            proc = Popen(str(command).split(' ')), stdout=outfile, stderr=errfile, env=self.env) #MT check new split method
             tstart = time()
             while proc.poll() is None:
                 elapsed = time() - tstart

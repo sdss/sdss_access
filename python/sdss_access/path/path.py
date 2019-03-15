@@ -4,10 +4,11 @@ import os
 import re
 import requests
 from glob import glob
-from os.path import join
+from os.path import join, sep
 from random import choice, sample
 from collections import OrderedDict
 from sdss_access import tree
+import platform
 
 
 try:
@@ -346,6 +347,7 @@ class BasePath(object):
                                             'be one of the designated templates '
                                             'in the currently loaded tree'.format(filetype))
         template = self.templates[filetype]
+        if platform.system() == 'Windows': template = template.replace('/',sep)
 
         # Now replace {} items
         if template:
@@ -367,7 +369,8 @@ class BasePath(object):
                     value = os.environ[envvar[1:]]
                 except KeyError:
                     return None
-                template = re.sub("\\" + envvar, value, template)
+                template = template.replace(envvar,value)
+                #template = re.sub("\\" + envvar, value, template)
 
             # Now call special functions as appropriate
             functions = re.findall(r"\%\w+", template)
@@ -377,7 +380,8 @@ class BasePath(object):
                 except AttributeError:
                     return None
                 value = method(filetype, **kwargs)
-                template = re.sub(function, value, template)
+                #template = re.sub(function, value, template)
+                template = template.replace(function,value)
 
         return template
 
@@ -441,7 +445,9 @@ class BasePath(object):
         """
 
         location = self.location(filetype, **kwargs)
-        return join(self.remote_base, sasdir, location) if self.remote_base and location else None
+        url = join(self.remote_base, sasdir, location) if self.remote_base and location else None
+        if platform.system() == 'Windows': url = url.replace(sep,'/')
+        return url
 
 
 class Path(BasePath):

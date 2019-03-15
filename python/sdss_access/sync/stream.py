@@ -4,6 +4,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from sdss_access.sync import Cli
 from random import shuffle
 from re import compile
+from os.path import dirname, sep, join
+from platform import system
 
 
 class Stream(object):
@@ -68,6 +70,10 @@ class Stream(object):
             locations = locations[offset:]
         if limit:
             locations = locations[:limit]
+        if system() == 'Windows':
+            locations = [loc.replace('/',sep) for loc in locations]
+        else:
+            locations = [loc.replace('/',sep) for loc in locations]
         return locations
 
     def shuffle(self):
@@ -115,8 +121,16 @@ class Stream(object):
         if streamlet:
             streamlet['path'] = self.cli.get_path(index=streamlet['index'])
             path_txt = "{0}.txt".format(streamlet['path'])
-            streamlet['command'] = self.command.format(path=path_txt, source=self.source, destination=self.destination)
-            self.cli.write_lines(path=path_txt, lines=[location for location in streamlet['location']])
+            if 'rsync -avRK' in self.command:
+                streamlet['command'] = self.command.format(path=path_txt, source=self.source, destination=self.destination)
+                self.cli.write_lines(path=path_txt, lines=[location for location in streamlet['location']])
+            else:
+                streamlet['command'] = self.command.format(path=path_txt, destination=join(self.destination,dirname(streamlet['location'][0])))
+                if system() == 'Windows':
+                    self.cli.write_lines(path=path_txt, lines=[join(self.source, location).replace(sep,'/') for location in streamlet['location']], rsync = False)
+                else:
+                    self.cli.write_lines(path=path_txt, lines=[join(self.source, location) for location in streamlet['location']], rsync = False)
+                print('----stream---written lines', streamlet['location'], [join(self.source, location).replace(sep,'/') for location in streamlet['location']])
 
     def run_streamlets(self):
         for streamlet in self.streamlet:
