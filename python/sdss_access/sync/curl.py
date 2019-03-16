@@ -133,7 +133,7 @@ class CurlAccess(SDSSPath):
                 password_mgr.add_password(None, url_directory, self.auth.username, self.auth.password)
                 handler = urllib.request.HTTPBasicAuthHandler(password_mgr)
                 opener = urllib.request.build_opener(handler)
-                opener.open(a_url)
+                opener.open(url_directory)
                 urllib.request.install_opener(opener)
                 
             for file_size, file_date, filename in re.findall(r'<td>          (\d*)</td><td>(.*)</td></tr>\r\n<tr><td><a.*title="(%s)">'%query_string, urllib.request.urlopen(url_directory).read().decode('utf-8')):
