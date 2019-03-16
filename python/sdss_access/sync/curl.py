@@ -6,7 +6,7 @@ from re import search
 from sdss_access import SDSSPath, AccessError
 from sdss_access.sync.auth import Auth
 from sdss_access.sync.stream import Stream
-from urllib.request import urlopen
+from urllib.request import urlopen, urlencode
 import re
 from platform import system
 from os import makedirs
@@ -116,6 +116,7 @@ class CurlAccess(SDSSPath):
                 raise AccessError("Return code %r\n%s" % (status, err))
         else:
             out = None
+        print('---curl curl -I command', status, out, err)
         return status, out
 
     def generate_stream_task(self, task=None):
@@ -126,6 +127,7 @@ class CurlAccess(SDSSPath):
             url_directory = join(self.stream.source, directory,'')
             if 'win' in system().lower(): url_directory = url_directory.replace(sep,'/')
             print('---curl---url', url_directory)
+            if not self.public: urlencode({ 'username': self.auth.username,'password': self.auth.password}) if self.auth.username and self.auth.password
             for file_size, file_date, filename in re.findall(r'<td>          (\d*)</td><td>(.*)</td></tr>\r\n<tr><td><a.*title="(%s)">'%query_string, urlopen(url_directory).read().decode('utf-8')):
                 location = join(directory, filename)
                 source = join(self.stream.source, location) if self.remote_base else None
