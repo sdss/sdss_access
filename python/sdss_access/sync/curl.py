@@ -104,7 +104,10 @@ class CurlAccess(SDSSPath):
 
     def get_task_out(self, task=None):
         if task:
-            command = "curl -I %s --fail" % task['source']
+            if self.public:
+                command = "curl -I %s --fail" % ['source']
+            else:
+                command = "curl %s-I %s --fail" % (('-u %s:%s'%(self.auth.username, self.auth.password)) if self.auth.username and self.auth.password else '', task['source'])
             print('---curl---command', command)
             if self.verbose:
                 print(command)
@@ -177,7 +180,10 @@ class CurlAccess(SDSSPath):
 
     def commit(self, offset=None, limit=None, dryrun=False):
         """ Start the curl download """
-        self.stream.command = "cd {destination} && xargs -n1 curl -ORL < {path} --create-dirs --fail"
+        if self.public:
+            self.stream.command = "cd {destination} && xargs -n1 curl %s-ORL < {path} --create-dirs --fail"
+        else:
+            self.stream.command = "cd {destination} && xargs -n1 curl %s-ORL < {path} --create-dirs --fail" % (('-u %s:%s'%('username', 'password')) if True and True else '')
         self.stream.append_tasks_to_streamlets(offset=offset, limit=limit)
         self.stream.commit_streamlets()
         self.stream.run_streamlets()

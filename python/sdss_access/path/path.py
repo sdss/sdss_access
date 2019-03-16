@@ -386,7 +386,6 @@ class BasePath(object):
         return template
 
     def set_netloc(self, netloc=None, sdss=None, dtn=None):
-        print('---path netloc info', netloc, sdss, dtn)
         self.netloc = netloc if netloc else self._netloc["sdss"] if sdss else self._netloc["dtn"] if dtn else self._netloc["mirror"] if self.mirror else self._netloc["sdss"]
 
     def set_remote_base(self, scheme=None):
