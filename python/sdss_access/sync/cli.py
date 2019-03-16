@@ -10,7 +10,7 @@ from tempfile import TemporaryFile
 from time import time, sleep
 from glob import iglob
 from datetime import datetime
-import platform import system
+from platform import system
 from tempfile import gettempdir
 
 
