@@ -6,7 +6,7 @@ from re import search
 from sdss_access import SDSSPath, AccessError
 from sdss_access.sync.auth import Auth
 from sdss_access.sync.stream import Stream
-from urllib.request import urlopen
+import urllib
 import re
 from platform import system
 from os import makedirs
