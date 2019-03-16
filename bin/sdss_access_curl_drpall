@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from sdss_access import CurlAccess, AccessError
 curl_access = CurlAccess(label='mangamap',verbose=True)
 
