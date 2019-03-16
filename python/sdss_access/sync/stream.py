@@ -70,7 +70,7 @@ class Stream(object):
             locations = locations[offset:]
         if limit:
             locations = locations[:limit]
-        if system() == 'Windows':
+        if 'win' in system().lower():
             locations = [loc.replace('/',sep) for loc in locations]
         else:
             locations = [loc.replace('/',sep) for loc in locations]
@@ -126,7 +126,7 @@ class Stream(object):
                 self.cli.write_lines(path=path_txt, lines=[location for location in streamlet['location']])
             else:
                 streamlet['command'] = self.command.format(path=path_txt, destination=join(self.destination,dirname(streamlet['location'][0])))
-                if system() == 'Windows':
+                if 'win' in system().lower():
                     self.cli.write_lines(path=path_txt, lines=[join(self.source, location).replace(sep,'/') for location in streamlet['location']], rsync = False)
                 else:
                     self.cli.write_lines(path=path_txt, lines=[join(self.source, location) for location in streamlet['location']], rsync = False)

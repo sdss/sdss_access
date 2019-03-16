@@ -8,7 +8,7 @@ from os.path import join, sep
 from random import choice, sample
 from collections import OrderedDict
 from sdss_access import tree
-import platform
+from platform import system()
 
 
 try:
@@ -347,7 +347,7 @@ class BasePath(object):
                                             'be one of the designated templates '
                                             'in the currently loaded tree'.format(filetype))
         template = self.templates[filetype]
-        if platform.system() == 'Windows': template = template.replace('/',sep)
+        if 'win' in system().lower(): template = template.replace('/',sep)
 
         # Now replace {} items
         if template:
@@ -446,7 +446,7 @@ class BasePath(object):
 
         location = self.location(filetype, **kwargs)
         url = join(self.remote_base, sasdir, location) if self.remote_base and location else None
-        if platform.system() == 'Windows': url = url.replace(sep,'/')
+        if 'win' in system().lower(): url = url.replace(sep,'/')
         return url
 
 

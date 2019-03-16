@@ -88,7 +88,7 @@ class CurlAccess(SDSSPath):
         else:
             self.stream = self.get_stream()
             self.stream.source = join(self.remote_base, 'sas')
-            if system() == 'Windows': self.stream.source = self.stream.source.replace(sep,'/')
+            if 'win' in system().lower(): self.stream.source = self.stream.source.replace(sep,'/')
             self.stream.destination = self.base_dir
             print('-----curl---stream source', self.stream.source,'stream destination', self.stream.destination)
             self.stream.cli.env = {'CURL_PASSWORD': self.auth.password} if self.auth.ready() else None
@@ -121,12 +121,12 @@ class CurlAccess(SDSSPath):
             query_string = basename(location).replace('*','.*') if basename(location) else '.*'
             directory = dirname(location)
             url_directory = join(self.stream.source, directory,'')
-            if system() == 'Windows': url_directory = url_directory.replace(sep,'/')
+            if 'win' in system().lower(): url_directory = url_directory.replace(sep,'/')
             print('---curl---url', url_directory)
             for file_size, file_date, filename in re.findall(r'<td>          (\d*)</td><td>(.*)</td></tr>\r\n<tr><td><a.*title="(%s)">'%query_string, urlopen(url_directory).read().decode('utf-8')):
                 location = join(directory, filename)
                 source = join(self.stream.source, location) if self.remote_base else None
-                if system() == 'Windows': source = source.replace(sep,'/')
+                if 'win' in system().lower(): source = source.replace(sep,'/')
                 destination = join(self.stream.destination, location)
                 print('----curl---filename', filename, 'location',location, 'source', source, 'destination', destination)
                 '''Below was an attempt to see if an existing in directory file was identical to the minute.

@@ -10,13 +10,18 @@ from tempfile import TemporaryFile
 from time import time, sleep
 from glob import iglob
 from datetime import datetime
+import platform import system
+from tempfile import gettempdir
 
 
 class Cli(object):
     """Class for providing command line interface (cli) sync scripts, and logs to local disk
     """
 
-    tmp_dir = '/tmp' #MT does not work for windows this simple
+    #tmp_dir = '/tmp'
+    tmp_dir = gettempdir()
+    if 'win' in system().lower():
+        tmp_dir = tmp_dir.split(':')[-1]
 
     def __init__(self, label=None, data_dir=None, verbose=False):
         self.label = label if label else 'sdss_access'
@@ -34,7 +39,8 @@ class Cli(object):
             position = len(self.now) + 1
             maxnumber = 0
             for dir in iglob(join(label_dir, "{now}_*".format(now=self.now))):
-                dirname = basename(dir)
+                    if 'win' in system().lower():
+        tmp_dir = tmp_dir.split(':')[-1]dirname = basename(dir)
                 try:
                     dirnumber = int(dirname[position:])
                 except:
@@ -64,7 +70,7 @@ class Cli(object):
         if command:
             stdout = logfile if logfile else STDOUT
             stderr = errfile if errfile else STDOUT
-            background_process = Popen(str(command).split(' ')), env=self.env, stdout=stdout, stderr=stderr) #MT check new split option
+            background_process = Popen(split(str(command), posix='win' not in system().lower()), env=self.env, stdout=stdout, stderr=stderr)
             if pause:
                 sleep(pause)
         else:
@@ -125,7 +131,7 @@ class Cli(object):
                 errfile = TemporaryFile()
             else:
                 errfile = open(errname, 'w+')
-            proc = Popen(str(command).split(' ')), stdout=outfile, stderr=errfile, env=self.env) #MT check new split method
+            proc = Popen(split(str(command), posix='win' not in system().lower()), stdout=outfile, stderr=errfile, env=self.env)
             tstart = time()
             while proc.poll() is None:
                 elapsed = time() - tstart
