@@ -136,7 +136,7 @@ class CurlAccess(SDSSPath):
                 opener.open(a_url)
                 urllib.request.install_opener(opener)
                 
-            for file_size, file_date, filename in re.findall(r'<td>          (\d*)</td><td>(.*)</td></tr>\r\n<tr><td><a.*title="(%s)">'%query_string, urlopen(url_directory).read().decode('utf-8')):
+            for file_size, file_date, filename in re.findall(r'<td>          (\d*)</td><td>(.*)</td></tr>\r\n<tr><td><a.*title="(%s)">'%query_string, urllib.request.urlopen(url_directory).read().decode('utf-8')):
                 location = join(directory, filename)
                 source = join(self.stream.source, location) if self.remote_base else None
                 if 'win' in system().lower(): source = source.replace(sep,'/')
