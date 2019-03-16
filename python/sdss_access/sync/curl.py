@@ -35,7 +35,7 @@ class CurlAccess(SDSSPath):
 
         self.set_netloc(sdss=True)  # simplifies things to have a single sdss machine in .netrc
         self.set_auth(username=username, password=password, inquire=inquire)
-        self.set_netloc(dtn=not self.public)
+        #self.set_netloc(dtn=not self.public)
         self.set_remote_base(scheme="https")
         print('---curl--remote--self.remote_base', self.remote_base)
 
