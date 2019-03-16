@@ -8,7 +8,7 @@ from os.path import join, sep
 from random import choice, sample
 from collections import OrderedDict
 from sdss_access import tree
-from platform import system()
+from platform import system
 
 
 try:
