@@ -39,8 +39,7 @@ class Cli(object):
             position = len(self.now) + 1
             maxnumber = 0
             for dir in iglob(join(label_dir, "{now}_*".format(now=self.now))):
-                    if 'win' in system().lower():
-        tmp_dir = tmp_dir.split(':')[-1]dirname = basename(dir)
+                dirname = basename(dir)
                 try:
                     dirnumber = int(dirname[position:])
                 except:
