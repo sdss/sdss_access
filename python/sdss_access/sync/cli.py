@@ -69,6 +69,7 @@ class Cli(object):
         if command:
             stdout = logfile if logfile else STDOUT
             stderr = errfile if errfile else STDOUT
+            print('---cli command', command)
             background_process = Popen(split(str(command), posix='win' not in system().lower()), env=self.env, stdout=stdout, stderr=stderr)
             if pause:
                 sleep(pause)
