@@ -73,7 +73,7 @@ class Stream(object):
         if 'win' in system().lower():
             locations = [loc.replace('/',sep) for loc in locations]
         else:
-            locations = [loc.replace('/',sep) for loc in locations]
+            locations = [loc for loc in locations]
         return locations
 
     def shuffle(self):
