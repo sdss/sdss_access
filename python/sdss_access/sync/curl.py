@@ -199,6 +199,7 @@ class CurlAccess(SDSSPath):
             self.stream.command = "cd {destination} && xargs -n1 curl %s-ORL < {path} --create-dirs --fail"
         else:
             self.stream.command = "cd {destination} && xargs -n1 curl %s-ORL < {path} --create-dirs --fail" % (('-u %s:%s '%('username', 'password')) if True and True else '')
+        print('---curl command', self.stream.command)
         self.stream.append_tasks_to_streamlets(offset=offset, limit=limit)
         self.stream.commit_streamlets()
         self.stream.run_streamlets()
