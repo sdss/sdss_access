@@ -34,7 +34,6 @@ class Cli(object):
         self.verbose = verbose
 
     def set_dir(self):
-        print('----cli set_dir', self.data_dir, self.label)
         if exists(self.data_dir) and self.label:
             label_dir = join(self.data_dir, self.label)
             position = len(self.now) + 1
