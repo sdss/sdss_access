@@ -9,7 +9,6 @@ from sdss_access.sync.stream import Stream
 import urllib
 import re
 from platform import system
-from os import makedirs
 
 class CurlAccess(SDSSPath):
     """Class for providing Curl access to SDSS SAS Paths
