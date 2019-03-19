@@ -11,6 +11,8 @@ import re
 from platform import system
 from os import makedirs
 
+import sys
+
 class CurlAccess(SDSSPath):
     """Class for providing Curl access to SDSS SAS Paths
     """
@@ -22,6 +24,7 @@ class CurlAccess(SDSSPath):
         self.stream = None
         self.stream_count = stream_count
         self.verbose = verbose
+        print('python version',sys.version)
         print('-----curl.py--init--label',self.label,'stream_count',self.stream_count,'verbose',verbose,'setting initial stream')
         self.initial_stream = self.get_stream()
         print('self.initial_stream',self.initial_stream)
