@@ -125,7 +125,7 @@ class Stream(object):
                 streamlet['command'] = self.command.format(path=path_txt, source=self.source, destination=self.destination)
                 self.cli.write_lines(path=path_txt, lines=[location for location in streamlet['location']])
             else:
-                streamlet['command'] = self.command.format(tasks = ' '.join('-oRL ' + join(self.destination, location) + ' ' + join(self.source,location).replace(sep,'/') in streamlet['location']))
+                streamlet['command'] = self.command.format(tasks = ' '.join('-oRL ' + join(self.destination, location) + ' ' + join(self.source,location).replace(sep,'/') for location in streamlet['location']))
                 if 'win' in system().lower():
                     self.cli.write_lines(path=path_txt, lines=[join(self.source, location).replace(sep,'/') for location in streamlet['location']], rsync = False)
                 else:
