@@ -168,7 +168,7 @@ class CurlAccess(SDSSPath):
                         if self.verbose:
                             print("CREATE %s" % destination_directory)
                         makedirs(destination_directory)
-                    chdir(destination_directory)
+                    #chdir(destination_directory)
                     """if self.verbose:
                         print("SDSS_ACCESS> Preparing to download: %s" % location)
                         print("SDSS_ACCESS> from: %s" % source)
