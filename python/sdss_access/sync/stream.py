@@ -121,11 +121,11 @@ class Stream(object):
         if streamlet:
             streamlet['path'] = self.cli.get_path(index=streamlet['index'])
             path_txt = "{0}.txt".format(streamlet['path'])
-            if 'rsync -avRK' in self.command:
+            if 'rsync -' in self.command:
                 streamlet['command'] = self.command.format(path=path_txt, source=self.source, destination=self.destination)
                 self.cli.write_lines(path=path_txt, lines=[location for location in streamlet['location']])
             else:
-                streamlet['command'] = self.command.format(path=path_txt, destination=join(self.destination,dirname(streamlet['location'][0])))
+                streamlet['command'] = self.command.format(tasks = ' '.join('-oRL ' + join(self.destination, location) + ' ' + join(self.source,location).replace(sep,'/') in streamlet['location']))
                 if 'win' in system().lower():
                     self.cli.write_lines(path=path_txt, lines=[join(self.source, location).replace(sep,'/') for location in streamlet['location']], rsync = False)
                 else:

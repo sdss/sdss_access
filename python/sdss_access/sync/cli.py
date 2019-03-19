@@ -4,7 +4,7 @@ from os import getenv, makedirs
 from os.path import exists, join, basename
 from math import log10
 from sys import exit
-from subprocess import Popen, STDOUT
+from subprocess import Popen, STDOUT, PIPE
 from shlex import split
 from tempfile import TemporaryFile
 from time import time, sleep
