@@ -1,7 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 # The line above will help with 2to3 support.
 
-from os.path import isfile, exists, dirname, join, basename, getsize, sep
+from os.path import isfile, exists, dirname, join, basename, getsize, getmtime, sep
 from re import search
 from sdss_access import SDSSPath, AccessError
 from sdss_access.sync.auth import Auth
@@ -9,10 +9,8 @@ from sdss_access.sync.stream import Stream
 import urllib
 import re
 from platform import system
-from os import makedirs
-import os
-
-import sys
+from os import makedirs, popen
+from numpy import transpose
 
 class CurlAccess(SDSSPath):
     """Class for providing Curl access to SDSS SAS Paths
@@ -25,7 +23,6 @@ class CurlAccess(SDSSPath):
         self.stream = None
         self.stream_count = stream_count
         self.verbose = verbose
-        print('python version',sys.version)
         print('-----curl.py--init--label',self.label,'stream_count',self.stream_count,'verbose',verbose,'setting initial stream')
         self.initial_stream = self.get_stream()
         print('self.initial_stream',self.initial_stream)
@@ -108,6 +105,7 @@ class CurlAccess(SDSSPath):
 
     def get_task_status(self, task=None):
         if task:
+            print(
             try: 
                 file_size, file_date, file_line = self.get_url_list(url_directory = dirname(task['source']), query_string = basename(task['source']))
                 print('----get_task_status input', url_directory = dirname(task['source']), query_string = basename(task['source']))
@@ -134,10 +132,10 @@ class CurlAccess(SDSSPath):
             urllib.request.install_opener(opener)
             
         query_string = query_string.replace('*','.*') if query_string else '.*'
-        file_size, file_date, file_line = re.findall(r'<td>(.*)</td><td>(.*)</td></tr>\r\n<tr><td><a href="(%s)"'%query_string, urllib.request.urlopen(url_directory).read().decode('utf-8'))
-        file_line = [f.split('"') for f in file_line]
+        file_line, file_size, file_date = transpose(re.findall(r'<a href="(%s)".*</a></td><td>\s*(\d*)</td><td>(.*)</td></tr>\r'%query_string, urllib.request.urlopen(url_directory).read().decode('utf-8'))).tolist()
+        file_line = [f.split('"')[0] for f in file_line]       
         return file_size, file_date, file_line
-        
+                
     def generate_stream_task(self, task=None):
         if task:
             location = task['location']
@@ -146,20 +144,16 @@ class CurlAccess(SDSSPath):
             url_directory = join(self.stream.source, directory,'')
             print('---curl---url', url_directory)
                 
-            for file_size, file_date, file_line in self.get_url_list(url_directory, query_string):
+            for file_line, file_size, file_date in self.get_url_list(url_directory, query_string):
                 filename=file_line.split('"')[0]
                 location = join(directory, filename)
                 source = join(self.stream.source, location) if self.remote_base else None
                 if 'win' in system().lower(): source = source.replace(sep,'/')
                 destination = join(self.stream.destination, location)
                 print('----curl---filename', filename, 'location',location, 'source', source, 'destination', destination)
-                '''Below was an attempt to see if an existing in directory file was identical to the minute.
-                    However, the times of the downloaded file differs by a few hours, the size is largely different.
-                    I suspect the database time and size stamps vary from downloaded, since I tried with a second method as well.
-                #Online vs local file check to see if needs updating (time difference only accurate to the minute)
-                if exists(destination) and getsize(destination) == int(file_size) and abs(datetime.strptime(file_date, "%Y-%b-%d %H:%M") - datetime.fromtimestamp(getmtime(destination))).minutes == 0: print('Already Downloaded at %s'%destination)
-                else:'''
-                yield (location, source, destination)
+                
+                if exists(destination) and int(popen('gzip -l %s' % directory).readlines()[1].split()[0]) == int(file_size) and abs(datetime.strptime(file_date, "%Y-%b-%d %H:%M") - datetime.fromtimestamp(getmtime(destination))).minutes == 0: print('Already Downloaded at %s'%destination)
+                else: yield (location, source, destination)
 
     def set_stream_task(self, task=None):
         status = self.get_task_status(task=task)
