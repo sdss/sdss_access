@@ -200,13 +200,13 @@ class CurlAccess(SDSSPath):
     def commit(self, offset=None, limit=None, dryrun=False):
         """ Start the curl download """
         if self.public:
-            self.stream.command = "curl %s -RL{tasks}"
+            self.stream.command = "curl %s -RL {tasks}"
             #self.stream.command = "cd {destination} && xargs -n1 curl %s-ORL < {path} --create-dirs --fail"
         else:
             #self.stream.command="curl %s-O https://data.sdss.org/sas/mangawork/manga/spectro/redux/v1_5_1/drpall-v1_5_1.fits" % (('-u %s:%s '%(self.auth.username, self.auth.password)) if self.auth.username and self.auth.password else '')
             #self.stream.command = "cd {destination} && xargs -n1 curl %s-ORL < {path} --create-dirs --fail" % (('-u %s:%s '%(self.auth.username, self.auth.password)) if self.auth.username and self.auth.password else '')
             #self.stream.command = "curl %s-RL -O < {path} --create-dirs --fail" % (('-u %s:%s '%(self.auth.username, self.auth.password)) if self.auth.username and self.auth.password else '')
-            self.stream.command = "curl %s -RL{tasks}" % (('-u %s:%s'%(self.auth.username, self.auth.password)) if self.auth.username and self.auth.password else '')
+            self.stream.command = "curl %s -RL {tasks}" % (('-u %s:%s'%(self.auth.username, self.auth.password)) if self.auth.username and self.auth.password else '')
         self.stream.append_tasks_to_streamlets(offset=offset, limit=limit)
         self.stream.commit_streamlets()
         self.stream.run_streamlets()
