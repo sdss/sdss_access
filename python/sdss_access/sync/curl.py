@@ -105,7 +105,6 @@ class CurlAccess(SDSSPath):
 
     def get_task_status(self, task=None):
         if task:
-            print(
             try: 
                 file_size, file_date, file_line = self.get_url_list(url_directory = dirname(task['source']), query_string = basename(task['source']))
                 print('----get_task_status input', url_directory = dirname(task['source']), query_string = basename(task['source']))
