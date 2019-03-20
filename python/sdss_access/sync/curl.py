@@ -109,7 +109,7 @@ class CurlAccess(SDSSPath):
     def get_task_status(self, task=None):
         if task:
             try: 
-                file_size, file_date, file_line = self.get_url_list(dirname(url_directory = task['source']), query_string = basename(task['source']))
+                file_size, file_date, file_line = self.get_url_list(url_directory = dirname(task['source']), query_string = basename(task['source']))
                 is_there_any_files = len(file_line) > 0
                 err = 'Found no files' if not is_there_any_files else ''
             except Exception as e:
@@ -122,7 +122,7 @@ class CurlAccess(SDSSPath):
             is_there_any_files = False
         return is_there_any_files
         
-    def get_url_list(self, url_directory, query_string):
+    def get_url_list(self, url_directory = None, query_string = None):
         if 'win' in system().lower(): url_directory = url_directory.replace(sep,'/')
         if not self.public:
             password_mgr = urllib.request.HTTPPasswordMgrWithDefaultRealm()
