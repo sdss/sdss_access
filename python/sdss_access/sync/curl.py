@@ -110,16 +110,17 @@ class CurlAccess(SDSSPath):
         if task:
             try: 
                 file_size, file_date, file_line = self.get_url_list(dirname(url_directory = task['source']), query_string = basename(task['source']))
-                is_there_any_files = len(file_line) == 0
-                err = 'Found %r urls related to query' %is_there_any_files
+                is_there_any_files = len(file_line) > 0
+                err = 'Found no files' if not is_there_any_files else ''
             except Exception as e:
                 err = e
-                is_there_any_files = 0
+                is_there_any_files = False
+                
             if not is_there_any_files:
                 raise AccessError("Return code %r\n" % err)
         else:
-            out = None
-        return len(file_line) == 0
+            is_there_any_files = False
+        return is_there_any_files
         
     def get_url_list(self, url_directory, query_string):
         if 'win' in system().lower(): url_directory = url_directory.replace(sep,'/')
