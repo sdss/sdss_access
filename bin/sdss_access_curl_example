@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # The line above will help with 2to3 support.
 
 from sdss_access import CurlAccess, AccessError
-curl_access = CurlAccess(label='spZbest',mirror=True,public=True,verbose=True)
+curl_access = CurlAccess(label='spZbest',mirror=True,public=False,verbose=True)
 
 #works if you have the sdss username in your ~/.netrc (or you will be prompted)
 curl_access.remote()
