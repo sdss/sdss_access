@@ -108,36 +108,43 @@ class CurlAccess(SDSSPath):
 
     def get_task_out(self, task=None):
         if task:
-            command = "curl %s-I %s --fail" % (('-u %s:%s '%(self.auth.username, self.auth.password)) if self.auth.username and self.auth.password else '', task['source'])
-            print('---curl---command', command)
-            if self.verbose:
-                print(command)
-            status, out, err = self.stream.cli.foreground_run(command)
-            if status:
-                raise AccessError("Return code %r\n%s" % (status, err))
+            try: 
+                file_size, file_date, file_line = self.get_url_list(dirname(url_directory = task['source']), query_string = basename(task['source']))
+                is_there_any_files = len(file_line) == 0
+                err = 'Found %r urls related to query' %is_there_any_files
+            except Exception as e:
+                err = e
+                is_there_any_files = 0
+            if not is_there_any_files:
+                raise AccessError("Return code %r\n" % err)
         else:
             out = None
-        print('---curl curl -I command', status, out, err)
-        return status, out
-
+        return len(file_line) == 0
+        
+    def get_url_list(self, url_directory, query_string):
+        if 'win' in system().lower(): url_directory = url_directory.replace(sep,'/')
+        if not self.public:
+            password_mgr = urllib.request.HTTPPasswordMgrWithDefaultRealm()
+            password_mgr.add_password(None, url_directory, self.auth.username, self.auth.password)
+            handler = urllib.request.HTTPBasicAuthHandler(password_mgr)
+            opener = urllib.request.build_opener(handler)
+            opener.open(url_directory)
+            urllib.request.install_opener(opener)
+            
+        query_string = query_string.replace('*','.*') if query_string else '.*'
+        file_size, file_date, file_line = re.findall(r'<td>(.*)</td><td>(.*)</td></tr>\r\n<tr><td><a href="(%s)"'%query_string, urllib.request.urlopen(url_directory).read().decode('utf-8'))
+        file_line = [f.split('"') for f in file_line]
+        return file_size, file_date, file_line
+        
     def generate_stream_task(self, task=None):
         if task:
             location = task['location']
-            query_string = basename(location).replace('*','.*') if basename(location) else '.*'
+            query_string = basename(location)
             directory = dirname(location)
             url_directory = join(self.stream.source, directory,'')
-            if 'win' in system().lower(): url_directory = url_directory.replace(sep,'/')
             print('---curl---url', url_directory)
-            
-            if not self.public:
-                password_mgr = urllib.request.HTTPPasswordMgrWithDefaultRealm()
-                password_mgr.add_password(None, url_directory, self.auth.username, self.auth.password)
-                handler = urllib.request.HTTPBasicAuthHandler(password_mgr)
-                opener = urllib.request.build_opener(handler)
-                opener.open(url_directory)
-                urllib.request.install_opener(opener)
                 
-            for file_size, file_date, file_line in re.findall(r'<td>(.*)</td><td>(.*)</td></tr>\r\n<tr><td><a href="(%s)"'%query_string, urllib.request.urlopen(url_directory).read().decode('utf-8')):
+            for file_size, file_date, file_line in self.get_url_list(url_directory, query_string):
                 filename=file_line.split('"')[0]
                 location = join(directory, filename)
                 source = join(self.stream.source, location) if self.remote_base else None
