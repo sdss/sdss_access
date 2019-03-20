@@ -109,7 +109,7 @@ class CurlAccess(SDSSPath):
     def get_task_out(self, task=None):
         if task:
             if self.public:
-                command = "curl -I %s --fail" % ['source']
+                command = "curl -I %s --fail" % task['source']
             else:
                 command = "curl %s-I %s --fail" % (('-u %s:%s '%(self.auth.username, self.auth.password)) if self.auth.username and self.auth.password else '', task['source'])
             print('---curl---command', command)
