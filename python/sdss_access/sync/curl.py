@@ -106,7 +106,7 @@ class CurlAccess(SDSSPath):
                 self.stream.stream_count = ntask
                 self.stream.streamlet = self.stream.streamlet[:ntask]
 
-    def get_task_out(self, task=None):
+    def get_task_status(self, task=None):
         if task:
             try: 
                 file_size, file_date, file_line = self.get_url_list(dirname(url_directory = task['source']), query_string = basename(task['source']))
@@ -161,9 +161,9 @@ class CurlAccess(SDSSPath):
                 yield (location, source, destination)
 
     def set_stream_task(self, task=None):
-        status, out = self.get_task_out(task=task)
+        status = self.get_task_status(task=task)
         stream_has_task = False
-        if status == 0:
+        if status:
             for location, source, destination in self.generate_stream_task(task=task):
                 if location and source and destination:
                     stream_has_task = True
