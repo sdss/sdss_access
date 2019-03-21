@@ -151,7 +151,7 @@ class CurlAccess(SDSSPath):
                 if 'win' in system().lower(): source = source.replace(sep,'/')
                 destination = join(self.stream.destination, location)
                 print('----curl---filename', filename, 'location',location, 'source', source, 'destination', destination)
-
+                print('----file_date', file_date)
                 if exists(destination):
                     existing_file_size = int(popen('gzip -l %s' % destination).readlines()[1].split()[0]) if '.gz' in destination else getsize(destination)
                     
