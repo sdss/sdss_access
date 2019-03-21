@@ -11,6 +11,7 @@ import re
 from platform import system
 from os import makedirs, popen
 from numpy import transpose
+from datetime import datetime
 
 class CurlAccess(SDSSPath):
     """Class for providing Curl access to SDSS SAS Paths
