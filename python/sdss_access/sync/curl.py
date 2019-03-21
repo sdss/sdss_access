@@ -155,7 +155,7 @@ class CurlAccess(SDSSPath):
                 if exists(destination):
                     existing_file_size = int(popen('gzip -l %s' % destination).readlines()[1].split()[0]) if '.gz' in destination else getsize(destination)
                     
-                    if existing_file_size == int(file_size) and abs(datetime.strptime(file_date, "%Y-%b-%d %H:%M" if len(file_date.split('-')[0] == 4 else "%d-%b-%Y %H:%M")) - datetime.fromtimestamp(getmtime(destination))).minutes == 0: print('Already Downloaded at %s'%destination)
+                    if existing_file_size == int(file_size) and abs(datetime.strptime(file_date, "%Y-%b-%d %H:%M" if len(file_date.split('-')[0]) == 4 else "%d-%b-%Y %H:%M") - datetime.fromtimestamp(getmtime(destination))).minutes == 0: print('Already Downloaded at %s'%destination)
                     else: yield (location, source, destination)
                 else: yield (location, source, destination)
 
