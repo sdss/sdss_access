@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # The line above will help with 2to3 support.
 
 from sdss_access import RsyncAccess, AccessError
-rsync_access = RsyncAccess(label='spZbest',mirror=True,public=True,verbose=True)
+rsync_access = RsyncAccess(label='mangacube',mirror=True,public=True,verbose=True)
 
 #works if you have the sdss username in your ~/.netrc (or you will be prompted)
 rsync_access.remote()
