@@ -26,10 +26,9 @@ locations = curl_access.get_locations(limit=5)
 if locations:
     for location in locations: print("- %s" % location)
 
-#MT check WHY offset not working!!!!
 print("="*80)
 print("example iii): next 5 (offset=5,limit=5)")
-curl_access.get_locations(offset=5,limit=5)
+locations = curl_access.get_locations(offset=5,limit=5)
 if locations:
     for location in locations: print("- %s" % location)
 

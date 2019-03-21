@@ -65,20 +65,15 @@ class Stream(object):
         return streamlet
 
     def get_locations(self, offset=None, limit=None):
-        print('offset and limit', offset, limit)
         locations = [task['location'] for task in self.task] if self.task else None
-        print('locations', len(locations))
         if offset:
             locations = locations[offset:]
-            print('offset', len(locations), locations)
         if limit:
             locations = locations[:limit]
-            print('limit', len(locations))
         if 'win' in system().lower():
             locations = [loc.replace('/',sep) for loc in locations]
         else:
             locations = [loc for loc in locations]
-        print('result locations',locations)
         return locations
 
     def shuffle(self):
@@ -136,6 +131,7 @@ class Stream(object):
                 else:
                     self.cli.write_lines(path=path_txt, lines=[join(self.source, location) for location in streamlet['location']], rsync = False)
                 print('----stream---written lines', streamlet['location'], [join(self.source, location).replace(sep,'/') for location in streamlet['location']])
+                print('PATH=',path_txt)
 
     def run_streamlets(self):
         for streamlet in self.streamlet:
