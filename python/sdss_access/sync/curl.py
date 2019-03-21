@@ -108,8 +108,8 @@ class CurlAccess(SDSSPath):
             try: 
                 file_size, file_date, file_line = self.get_url_list(url_directory = dirname(task['source']), query_string = basename(task['source']))
                 print('----get_task_status input', dirname(task['source']), basename(task['source']))
-            is_there_any_files = len(file_line) > 0
-            err = 'Found no files' if not is_there_any_files else ''
+                is_there_any_files = len(file_line) > 0
+                err = 'Found no files' if not is_there_any_files else ''
             except Exception as e:
                 err = e
                 is_there_any_files = False
