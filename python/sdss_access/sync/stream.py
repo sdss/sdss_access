@@ -67,6 +67,7 @@ class Stream(object):
     def get_locations(self, offset=None, limit=None):
         print('offset and limit', offset, limit)
         locations = [task['location'] for task in self.task] if self.task else None
+        print('locations', locations)
         if offset:
             locations = locations[offset:]
         if limit:
