@@ -150,8 +150,9 @@ class CurlAccess(SDSSPath):
                 if 'win' in system().lower(): source = source.replace(sep,'/')
                 destination = join(self.stream.destination, location)
                 print('----curl---filename', filename, 'location',location, 'source', source, 'destination', destination)
-                
-                if exists(destination) and int(popen('gzip -l %s' % directory).readlines()[1].split()[0]) == int(file_size) and abs(datetime.strptime(file_date, "%Y-%b-%d %H:%M") - datetime.fromtimestamp(getmtime(destination))).minutes == 0: print('Already Downloaded at %s'%destination)
+
+                try: if exists(destination) and int(popen('gzip -l %s' % directory).readlines()[1].split()[0]) == int(file_size) and abs(datetime.strptime(file_date, "%Y-%b-%d %H:%M") - datetime.fromtimestamp(getmtime(destination))).minutes == 0: print('Already Downloaded at %s'%destination)
+                except: print(popen('gzip -l %s' % directory))
                 else: yield (location, source, destination)
 
     def set_stream_task(self, task=None):
