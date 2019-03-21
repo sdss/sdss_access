@@ -70,13 +70,15 @@ class Stream(object):
         print('locations', len(locations))
         if offset:
             locations = locations[offset:]
-            print('offset', len(locations))
+            print('offset', len(locations), locations)
         if limit:
             locations = locations[:limit]
+            print('limit', len(locations))
         if 'win' in system().lower():
             locations = [loc.replace('/',sep) for loc in locations]
         else:
             locations = [loc for loc in locations]
+        print('result locations',locations)
         return locations
 
     def shuffle(self):
