@@ -132,6 +132,7 @@ class CurlAccess(SDSSPath):
             urllib.request.install_opener(opener)
             
         query_string = query_string.replace('*','.*') if query_string else '.*'
+        url_directory = url_directory.replace('*','.*')
         file_line, file_size, file_date = transpose(re.findall(r'<a href="(%s)".*</a></td><td>\s*(\d*)</td><td>(.*)</td></tr>\r'%query_string, urllib.request.urlopen(url_directory).read().decode('utf-8'))).tolist()
         file_line = [f.split('"')[0] for f in file_line]       
         return  file_line, file_size, file_date
