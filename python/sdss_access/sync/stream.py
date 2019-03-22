@@ -121,15 +121,15 @@ class Stream(object):
         if streamlet:
             streamlet['path'] = self.cli.get_path(index=streamlet['index'])
             path_txt = "{0}.txt".format(streamlet['path'])
+            streamlet['command'] = self.command.format(path=path_txt, source=self.source, destination=self.destination)
+
             if 'rsync -' in self.command:
-                streamlet['command'] = self.command.format(path=path_txt, source=self.source, destination=self.destination)
                 self.cli.write_lines(path=path_txt, lines=[location for location in streamlet['location']])
             else:
-                streamlet['command'] = self.command.format(tasks = ' '.join('-o ' + join(self.destination, location) + ' ' + join(self.source,location).replace(sep,'/') for location in streamlet['location']))
                 if 'win' in system().lower():
-                    self.cli.write_lines(path=path_txt, lines=[join(self.source, location).replace(sep,'/') for location in streamlet['location']], rsync = False)
+                    self.cli.write_lines(path=path_txt, lines=['url '+join(self.source, location).replace(sep,'/')+'\n'+'output '+join(self.destination, location) for location in streamlet['location']])
                 else:
-                    self.cli.write_lines(path=path_txt, lines=[join(self.source, location) for location in streamlet['location']], rsync = False)
+                    self.cli.write_lines(path=path_txt, lines=['url '+join(self.source, location)+'\n'+'output '+join(self.destination, location) for location in streamlet['location']])
                 print('----stream---written lines', streamlet['location'], [join(self.source, location).replace(sep,'/') for location in streamlet['location']])
                 print('PATH=',path_txt)
 

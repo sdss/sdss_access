@@ -9,7 +9,7 @@ from sdss_access.sync.stream import Stream
 import urllib
 import re
 from platform import system
-from os import makedirs, popen
+from os import popen
 from numpy import transpose
 from datetime import datetime
 
@@ -166,11 +166,6 @@ class CurlAccess(SDSSPath):
                 if location and source and destination:
                     stream_has_task = True
                     self.stream.append_task(location=location, source=source, destination=destination)
-                    destination_directory = dirname(destination)
-                    if not exists(destination_directory):
-                        if self.verbose:
-                            print("CREATE %s" % destination_directory)
-                        makedirs(destination_directory)
                     """if self.verbose:
                         print("SDSS_ACCESS> Preparing to download: %s" % location)
                         print("SDSS_ACCESS> from: %s" % source)
@@ -202,7 +197,7 @@ class CurlAccess(SDSSPath):
 
     def commit(self, offset=None, limit=None, dryrun=False):
         """ Start the curl download """
-        self.stream.command = "curl %s -RL {tasks}" % (('-u %s:%s'%(self.auth.username, self.auth.password)) if self.auth.username and self.auth.password else '')
+        self.stream.command = "curl %s --create-dirs -RLK {path}" % (('-u %s:%s'%(self.auth.username, self.auth.password)) if self.auth.username and self.auth.password else '')
         self.stream.append_tasks_to_streamlets(offset=offset, limit=limit)
         self.stream.commit_streamlets()
         self.stream.run_streamlets()

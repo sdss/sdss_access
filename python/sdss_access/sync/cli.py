@@ -60,10 +60,10 @@ class Cli(object):
             index = 0
         return join(self.dir, "{label}_{index:02d}".format(label=self.label, index=index)) if self.dir and self.label else None
 
-    def write_lines(self, path=None, lines=None, rsync = True):
+    def write_lines(self, path=None, lines=None):
         if path and lines:
             with open(path, 'w') as file:
-                file.write("\n".join(lines) + "\n") if rsync else file.write(" ".join(lines))
+                file.write("\n".join(lines) + "\n")
 
     def get_background_process(self, command=None, logfile=None, errfile=None, pause=1):
         if command:
