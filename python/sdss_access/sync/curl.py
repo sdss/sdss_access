@@ -121,19 +121,77 @@ class CurlAccess(SDSSPath):
             is_there_any_files = False
         return is_there_any_files
         
-    def get_url_list(self, url_directory = None, query_string = None):
-        if 'win' in system().lower(): url_directory = url_directory.replace(sep,'/')
-        if not self.public:
-            password_mgr = urllib.request.HTTPPasswordMgrWithDefaultRealm()
-            password_mgr.add_password(None, url_directory, self.auth.username, self.auth.password)
-            handler = urllib.request.HTTPBasicAuthHandler(password_mgr)
-            opener = urllib.request.build_opener(handler)
-            opener.open(url_directory)
-            urllib.request.install_opener(opener)
+    def set_url_password(self, url_directory):
+        url_directory = url_directory.split('sas')[0]
+        password_mgr = urllib.request.HTTPPasswordMgrWithDefaultRealm()
+        password_mgr.add_password(None, url_directory, self.auth.username, self.auth.password)
+        handler = urllib.request.HTTPBasicAuthHandler(password_mgr)
+        opener = urllib.request.build_opener(handler)
+        opener.open(url_directory)
+        urllib.request.install_opener(opener)
+        
+    def get_query_list(self, url_query):
+        query_objects = [{'segment_number':index, 'query_directory':'', 'query_list_index':0, 'query_list':[], 'query':query.replace('*','.*')} for index, query in enumerate(url_query.split('/')) if '*' in query or index == len(url_query.split('/'))-1]
+        segment_numbers = [query_object['segment_number'] for query_object in query_objects]
+        max_depth = len(query_objects)-1
+        query_results = []
+
+        query_depth = 9999
+        while query_depth > 0:
+            if query_depth == 9999: query_depth = 0
+            print('url_query_raw',  url_query)            
+            query_objects[query_depth]['query_directory'] = ''
+            for segment_index, segment in enumerate(url_query.split('/')[:query_objects[query_depth]['segment_number']]):
+                if segment_index not in segment_numbers:
+                    query_objects[query_depth]['query_directory'] = '/'.join([query_objects[query_depth]['query_directory'], segment] if query_objects[query_depth]['query_directory'] else [segment])
+                else:
+                    query_object = query_objects[segment_numbers.index(segment_index)]
+                    query_branch = query_object['query_list'][query_object['query_list_index']]
+                    query_objects[query_depth]['query_directory'] = '/'.join([query_objects[query_depth]['query_directory'], query_branch])
+            print('query depth directory', query_objects[query_depth]['query_directory'], 'and query', query_objects[query_depth]['query'])
             
+            try:
+                query_objects[query_depth]['query_list'] = [item.split('"')[0] for item in re.findall(r'<a href="(%s)%s".*</a></td><td>'%(query_objects[query_depth]['query'], '/' if query_depth != max_depth else ''), urllib.request.urlopen(query_objects[query_depth]['query_directory']).read().decode('utf-8'))]
+            except:
+                query_objects[query_depth]['query_list'] = []
+                print('Failed', query_objects[query_depth]['query_directory'])
+                
+            if query_depth == max_depth and len(query_objects[query_depth]['query_list']):
+                for item in query_objects[query_depth]['query_list']:
+                    query_results.append('/'.join([query_objects[query_depth]['query_directory'], item]))
+                    print('appended to results', '/'.join([query_objects[query_depth]['query_directory'], item]))
+            
+            print('query depth list', query_objects[query_depth]['query_list'], query_objects[query_depth]['query_list_index'])
+            print('old query_depth', query_depth, 'max_depth', max_depth, 'query_list_index', query_objects[query_depth]['query_list_index'])
+            
+
+            if not len(query_objects[query_depth]['query_list']) or query_depth == max_depth:
+                print('trigger empty or max depth', query_depth, max_depth)
+                query_depth-=1
+                print('prep trigger', query_objects[query_depth]['query_list_index'], len(query_objects[query_depth]['query_list'])-1)
+                while query_depth > -1 and query_objects[query_depth]['query_list_index'] == len(query_objects[query_depth]['query_list'])-1:
+                    print('trigger back', query_objects[query_depth]['query_list_index'], len(query_objects[query_depth]['query_list'])-1)
+                    query_objects[query_depth]['query_list_index'] = 0
+                    query_depth-=1
+                query_objects[query_depth]['query_list_index'] += 1
+                query_depth+=1
+            else:
+                print('trigger list')
+                query_depth+=1
+
+            print('new query_depth', query_depth, 'max_depth', max_depth, 'query_list_index', query_objects[query_depth]['query_list_index'])
+            test=input('continue?')
+        return query_results
+        
+    def get_url_list(self, query_path = None):
+        if 'win' in system().lower(): url_directory = url_directory.replace(sep,'/')
+        if not self.public: set_url_password(url_directory)
+        url_list = self.get_query_list(query_path)
+          
         query_string = query_string.replace('*','.*') if query_string else '.*'
-        url_directory = url_directory.replace('*','.*')
-        file_line, file_size, file_date = transpose(re.findall(r'<a href="(%s)".*</a></td><td>\s*(\d*)</td><td>(.*)</td></tr>\r'%query_string, urllib.request.urlopen(url_directory).read().decode('utf-8'))).tolist()
+        if '*' in url_directory:
+            
+        ####MT change to path file_line, file_size, file_date = transpose(re.findall(r'<a href="(%s)".*</a></td><td>\s*(\d*)</td><td>(.*)</td></tr>\r'%query_string, urllib.request.urlopen(url_directory).read().decode('utf-8'))).tolist()
         file_line = [f.split('"')[0] for f in file_line]       
         return  file_line, file_size, file_date
                 
