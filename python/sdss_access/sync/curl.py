@@ -123,7 +123,7 @@ class CurlAccess(SDSSPath):
         
     def set_url_password(self, url_directory):
         """ Authorize User on sas"""
-        url_directory = url_directory.split('sas')[0] + '/sas'
+        url_directory = url_directory.split('sas')[0]
         password_mgr = urllib.request.HTTPPasswordMgrWithDefaultRealm()
         password_mgr.add_password(None, url_directory, self.auth.username, self.auth.password)
         handler = urllib.request.HTTPBasicAuthHandler(password_mgr)
