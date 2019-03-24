@@ -195,7 +195,7 @@ class CurlAccess(SDSSPath):
             file_line_list.append(file_line.split('"')[0])
             file_size_list.append(file_size)
             file_date_list.append(file_date)       
-        return file_line, file_size, file_date
+        return [file_line_list, file_size_list, file_date_list]
                 
     def generate_stream_task(self, task=None):
         if task:
