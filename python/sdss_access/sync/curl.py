@@ -107,8 +107,8 @@ class CurlAccess(SDSSPath):
     def get_task_status(self, task=None):
         if task:
             try: 
-                file_size, file_date, file_line = self.get_url_list(url_directory = dirname(task['source']), query_string = basename(task['source']))
-                print('----get_task_status input', dirname(task['source']), basename(task['source']))
+                file_size, file_date, file_line = self.get_url_list(task['source'])
+                print('----get_task_status input', task['source'])
                 is_there_any_files = len(file_line) > 0
                 err = 'Found no files' if not is_there_any_files else ''
             except Exception as e:
@@ -122,7 +122,8 @@ class CurlAccess(SDSSPath):
         return is_there_any_files
         
     def set_url_password(self, url_directory):
-        url_directory = url_directory.split('sas')[0]
+        """ Authorize User on sas"""
+        url_directory = url_directory.split('sas')[0] + '/sas'
         password_mgr = urllib.request.HTTPPasswordMgrWithDefaultRealm()
         password_mgr.add_password(None, url_directory, self.auth.username, self.auth.password)
         handler = urllib.request.HTTPBasicAuthHandler(password_mgr)
@@ -131,15 +132,24 @@ class CurlAccess(SDSSPath):
         urllib.request.install_opener(opener)
         
     def get_query_list(self, url_query):
+        """Search through user specified "*" options and return all possible and valid urls"""
+        
+        # Find query locations and set a descriptive dictionary
         query_objects = [{'segment_number':index, 'query_directory':'', 'query_list_index':0, 'query_list':[], 'query':query.replace('*','.*')} for index, query in enumerate(url_query.split('/')) if '*' in query or index == len(url_query.split('/'))-1]
+        
+        #Set quick use observables of query_objects
         segment_numbers = [query_object['segment_number'] for query_object in query_objects]
         max_depth = len(query_objects)-1
+        
+        #Set url array used to append user specified urls
         query_results = []
 
+        #Walk and search through option branches for potential urls that pass user specifications
         query_depth = 9999
         while query_depth > 0:
             if query_depth == 9999: query_depth = 0
-            print('url_query_raw',  url_query)            
+            
+            #Set branch directory
             query_objects[query_depth]['query_directory'] = ''
             for segment_index, segment in enumerate(url_query.split('/')[:query_objects[query_depth]['segment_number']]):
                 if segment_index not in segment_numbers:
@@ -148,52 +158,41 @@ class CurlAccess(SDSSPath):
                     query_object = query_objects[segment_numbers.index(segment_index)]
                     query_branch = query_object['query_list'][query_object['query_list_index']]
                     query_objects[query_depth]['query_directory'] = '/'.join([query_objects[query_depth]['query_directory'], query_branch])
-            print('query depth directory', query_objects[query_depth]['query_directory'], 'and query', query_objects[query_depth]['query'])
             
+            #Get user specified url options at branch directory
             try:
                 query_objects[query_depth]['query_list'] = [item.split('"')[0] for item in re.findall(r'<a href="(%s)%s".*</a></td><td>'%(query_objects[query_depth]['query'], '/' if query_depth != max_depth else ''), urllib.request.urlopen(query_objects[query_depth]['query_directory']).read().decode('utf-8'))]
             except:
                 query_objects[query_depth]['query_list'] = []
-                print('Failed', query_objects[query_depth]['query_directory'])
-                
+            
+            #Append full url's that fit user specifications
             if query_depth == max_depth and len(query_objects[query_depth]['query_list']):
                 for item in query_objects[query_depth]['query_list']:
                     query_results.append('/'.join([query_objects[query_depth]['query_directory'], item]))
-                    print('appended to results', '/'.join([query_objects[query_depth]['query_directory'], item]))
-            
-            print('query depth list', query_objects[query_depth]['query_list'], query_objects[query_depth]['query_list_index'])
-            print('old query_depth', query_depth, 'max_depth', max_depth, 'query_list_index', query_objects[query_depth]['query_list_index'])
-            
-
+                    
+            #Specify walker logic to recognize when to step down the branch or back up and go to the next option
             if not len(query_objects[query_depth]['query_list']) or query_depth == max_depth:
-                print('trigger empty or max depth', query_depth, max_depth)
                 query_depth-=1
-                print('prep trigger', query_objects[query_depth]['query_list_index'], len(query_objects[query_depth]['query_list'])-1)
                 while query_depth > -1 and query_objects[query_depth]['query_list_index'] == len(query_objects[query_depth]['query_list'])-1:
-                    print('trigger back', query_objects[query_depth]['query_list_index'], len(query_objects[query_depth]['query_list'])-1)
                     query_objects[query_depth]['query_list_index'] = 0
                     query_depth-=1
                 query_objects[query_depth]['query_list_index'] += 1
                 query_depth+=1
             else:
-                print('trigger list')
                 query_depth+=1
-
-            print('new query_depth', query_depth, 'max_depth', max_depth, 'query_list_index', query_objects[query_depth]['query_list_index'])
-            test=input('continue?')
         return query_results
         
     def get_url_list(self, query_path = None):
-        if 'win' in system().lower(): url_directory = url_directory.replace(sep,'/')
-        if not self.public: set_url_password(url_directory)
-        url_list = self.get_query_list(query_path)
-          
-        query_string = query_string.replace('*','.*') if query_string else '.*'
-        if '*' in url_directory:
-            
-        ####MT change to path file_line, file_size, file_date = transpose(re.findall(r'<a href="(%s)".*</a></td><td>\s*(\d*)</td><td>(.*)</td></tr>\r'%query_string, urllib.request.urlopen(url_directory).read().decode('utf-8'))).tolist()
-        file_line = [f.split('"')[0] for f in file_line]       
-        return  file_line, file_size, file_date
+        if 'win' in system().lower(): query_path = query_path.replace(sep,'/')
+        if not self.public: self.set_url_password(query_path)
+        
+        file_line_list, file_size_list, file_date_list = [], [], []
+        for url in self.get_query_list(query_path):
+            file_line, file_size, file_date = re.findall(r'<a href="(%s)".*</a></td><td>\s*(\d*)</td><td>(.*)</td></tr>\r'%basename(url), urllib.request.urlopen(dirname(url)).read().decode('utf-8'))[0]
+            file_line_list.append(file_line.split('"')[0])
+            file_size_list.append(file_size)
+            file_date_list.append(file_date)       
+        return file_line, file_size, file_date
                 
     def generate_stream_task(self, task=None):
         if task:
@@ -204,7 +203,6 @@ class CurlAccess(SDSSPath):
             print('---curl---url', url_directory)
                 
             for file_line, file_size, file_date in transpose(self.get_url_list(url_directory, query_string)):
-                filename=file_line.split('"')[0]
                 location = join(directory, filename)
                 source = join(self.stream.source, location) if self.remote_base else None
                 if 'win' in system().lower(): source = source.replace(sep,'/')
