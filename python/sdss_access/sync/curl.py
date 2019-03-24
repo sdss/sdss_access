@@ -204,7 +204,7 @@ class CurlAccess(SDSSPath):
             directory = dirname(location)
             url_directory = join(self.stream.source, directory,'')
             print('---curl---url', url_directory)
-                
+            print(self.get_url_list('/'.join([url_directory, query_string])))
             for file_line, file_size, file_date in self.get_url_list('/'.join([url_directory, query_string])):
                 location = join(directory, filename)
                 source = join(self.stream.source, location) if self.remote_base else None
