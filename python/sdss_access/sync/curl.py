@@ -160,10 +160,10 @@ class CurlAccess(SDSSPath):
                     query_objects[query_depth]['query_directory'] = '/'.join([query_objects[query_depth]['query_directory'], query_branch])
             
             #Get user specified url options at branch directory
-            try:
-                query_objects[query_depth]['query_list'] = [item.split('"')[0] for item in re.findall(r'<a href="(%s)%s".*</a></td><td>'%(query_objects[query_depth]['query'], '/' if query_depth != max_depth else ''), urllib.request.urlopen(query_objects[query_depth]['query_directory']).read().decode('utf-8'))]
-            except:
-                query_objects[query_depth]['query_list'] = []
+            #try:
+            query_objects[query_depth]['query_list'] = [item.split('"')[0] for item in re.findall(r'<a href="(%s)%s".*</a></td><td>'%(query_objects[query_depth]['query'], '/' if query_depth != max_depth else ''), urllib.request.urlopen(query_objects[query_depth]['query_directory']).read().decode('utf-8'))]
+            '''except:
+                query_objects[query_depth]['query_list'] = []'''
             
             #Append full url's that fit user specifications
             if query_depth == max_depth and len(query_objects[query_depth]['query_list']):
