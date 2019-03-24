@@ -187,6 +187,7 @@ class CurlAccess(SDSSPath):
         if not self.public: self.set_url_password(query_path)
         
         file_line_list, file_size_list, file_date_list = [], [], []
+        print('---------urls',self.get_query_list(query_path))
         for url in self.get_query_list(query_path):
             file_line, file_size, file_date = re.findall(r'<a href="(%s)".*</a></td><td>\s*(\d*)</td><td>(.*)</td></tr>\r'%basename(url), urllib.request.urlopen(dirname(url)).read().decode('utf-8'))[0]
             file_line_list.append(file_line.split('"')[0])
