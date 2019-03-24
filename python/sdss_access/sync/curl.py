@@ -106,14 +106,14 @@ class CurlAccess(SDSSPath):
 
     def get_task_status(self, task=None):
         if task:
-            #try: 
-            file_line, file_size, file_date = self.get_url_list(task['source'])
-            print('----get_task_status input', task['source'])
-            is_there_any_files = len(file_line) > 0
-            err = 'Found no files' if not is_there_any_files else ''
-            '''except Exception as e:
+            try: 
+                file_line, file_size, file_date = self.get_url_list(task['source'])
+                print('----get_task_status input', task['source'])
+                is_there_any_files = len(file_line) > 0
+                err = 'Found no files' if not is_there_any_files else ''
+            except Exception as e:
                 err = e
-                is_there_any_files = False'''
+                is_there_any_files = False
                 
             if not is_there_any_files:
                 raise AccessError("Return code %r\n" % err)
@@ -160,10 +160,12 @@ class CurlAccess(SDSSPath):
                     query_objects[query_depth]['query_directory'] = '/'.join([query_objects[query_depth]['query_directory'], query_branch])
             
             #Get user specified url options at branch directory
-            #try:
-            query_objects[query_depth]['query_list'] = [item.split('"')[0] for item in re.findall(r'<a href="(%s)%s".*</a></td><td>'%(query_objects[query_depth]['query'], '/' if query_depth != max_depth else ''), urllib.request.urlopen(query_objects[query_depth]['query_directory']).read().decode('utf-8'))]
-            '''except:
-                query_objects[query_depth]['query_list'] = []'''
+            try:
+                query_objects[query_depth]['query_list'] = [item.split('"')[0] for item in re.findall(r'<a href="(%s)%s".*</a></td><td>'%(query_objects[query_depth]['query'], '/' if query_depth != max_depth else ''), urllib.request.urlopen(query_objects[query_depth]['query_directory']).read().decode('utf-8'))]
+            except Exception as e:
+                query_objects[query_depth]['query_list'] = []
+                if 'Unauthorized' in e:
+                    raise AccessError("Return code %r\n" % e)
             
             #Append full url's that fit user specifications
             if query_depth == max_depth and len(query_objects[query_depth]['query_list']):
