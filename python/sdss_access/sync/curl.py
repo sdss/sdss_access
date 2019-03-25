@@ -195,7 +195,7 @@ class CurlAccess(SDSSPath):
             file_line_list.append(file_line.split('"')[0])
             file_size_list.append(file_size)
             file_date_list.append(file_date)       
-        return [file_line_list, file_size_list, file_date_list]
+        return [file_line_list, file_size_list, file_date_list, url]
                 
     def generate_stream_task(self, task=None):
         if task:
@@ -205,8 +205,9 @@ class CurlAccess(SDSSPath):
             url_directory = join(self.stream.source, directory,'')
             print('---curl---url', url_directory)
             print(self.get_url_list('/'.join([url_directory, query_string])))
-            for filename, file_size, file_date in transpose(self.get_url_list('/'.join([url_directory, query_string]))):
-                location = join(directory, filename)
+            for filename, file_size, file_date, url in transpose(self.get_url_list('/'.join([url_directory, query_string]))):
+                #location = join(directory, filename)
+                location = url.split('/sas/')[-1]
                 source = join(self.stream.source, location) if self.remote_base else None
                 if 'win' in system().lower(): source = source.replace(sep,'/')
                 destination = join(self.stream.destination, location)
