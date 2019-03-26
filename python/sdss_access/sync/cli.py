@@ -4,7 +4,7 @@ from os import getenv, makedirs
 from os.path import exists, join, basename
 from math import log10
 from sys import exit
-from subprocess import Popen, STDOUT, PIPE
+from subprocess import Popen, STDOUT
 from shlex import split
 from tempfile import TemporaryFile
 from time import time, sleep
@@ -70,7 +70,7 @@ class Cli(object):
             stdout = logfile if logfile else STDOUT
             stderr = errfile if errfile else STDOUT
             print('---cli command', command, split(str(command)))
-            background_process = Popen(split(str(command), posix='win' not in system().lower()), env=self.env, stdout=stdout, stderr=stderr, shell='win' in system().lower())
+            background_process = Popen(split(str(command), posix='win' not in system().lower()), env=self.env if 'rsync -' in command else None, stdout=stdout, stderr=stderr)
             print('-----background', background_process.communicate())
             if pause:
                 sleep(pause)
@@ -132,7 +132,7 @@ class Cli(object):
                 errfile = TemporaryFile()
             else:
                 errfile = open(errname, 'w+')
-            proc = Popen(split(str(command), posix='win' not in system().lower()), stdout=outfile, stderr=errfile, env=self.env)
+            proc = Popen(split(str(command), posix='win' not in system().lower()), stdout=outfile, stderr=errfile, env=self.env if 'rsync -' in command else None)
             tstart = time()
             while proc.poll() is None:
                 elapsed = time() - tstart
@@ -153,6 +153,7 @@ class Cli(object):
             err = errfile.read()
             outfile.close()
             errfile.close()
+            print('>>>>>>foreground', command, split(str(command), posix='win' not in system().lower()), out, err)
             if logger is not None:
                 if status == 0 and logall:
                     if len(out) > 0:

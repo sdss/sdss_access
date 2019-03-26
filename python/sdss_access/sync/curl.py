@@ -203,15 +203,19 @@ class CurlAccess(SDSSPath):
             location = task['location']
             query_string = basename(location)
             directory = dirname(location)
-            url_directory = join(self.stream.source, directory,'')
+            url_directory = join(self.stream.source, directory)
             print('---curl---url', url_directory)
             print(self.get_url_list('/'.join([url_directory, query_string])))
             for filename, file_size, file_date, url in transpose(self.get_url_list('/'.join([url_directory, query_string]))):
                 #location = join(directory, filename)
                 location = url.split('/sas/')[-1]
                 source = join(self.stream.source, location) if self.remote_base else None
-                if 'win' in system().lower(): source = source.replace(sep,'/')
                 destination = join(self.stream.destination, location)
+                if 'win' in system().lower():
+                    source = source.replace(sep,'/')
+                    destination = destination.replace('/',sep)
+                    location = location.replace('/',sep)
+                
                 print('----curl---filename', filename, 'location',location, 'source', source, 'destination', destination)
                 print('----file_date', file_date)
                 if exists(destination):
@@ -259,7 +263,7 @@ class CurlAccess(SDSSPath):
 
     def commit(self, offset=None, limit=None, dryrun=False):
         """ Start the curl download """
-        self.stream.command = "curl %s --create-dirs -RLK {path}" % (('-u %s:%s'%(self.auth.username, self.auth.password)) if self.auth.username and self.auth.password else '')
+        self.stream.command = "curl %s --create-dirs --fail -sSRLK {path}" % (('-u %s:%s'%(self.auth.username, self.auth.password)) if self.auth.username and self.auth.password else '')
         self.stream.append_tasks_to_streamlets(offset=offset, limit=limit)
         self.stream.commit_streamlets()
         self.stream.run_streamlets()

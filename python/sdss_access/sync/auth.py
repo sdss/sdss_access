@@ -1,5 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 from six.moves import input
+from platform import system
 
 """ add the following username and password to your ~/.netrc file
     and remember to chmod 600 ~/.netrc
@@ -21,7 +22,7 @@ class Auth(object):
     def set_netrc(self):
         try:
             from netrc import netrc
-            self.netrc = netrc() if not self.public else None
+            self.netrc = netrc('_netrc' if 'win' in system().lower() else '.netrc') if not self.public else None
         except Exception as e:
             if self.verbose:
                 print("SDSS_ACCESS> AUTH NETRC: %r" % e)
