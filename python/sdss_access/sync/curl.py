@@ -24,9 +24,7 @@ class CurlAccess(SDSSPath):
         self.stream = None
         self.stream_count = stream_count
         self.verbose = verbose
-        print('-----curl.py--init--label',self.label,'stream_count',self.stream_count,'verbose',verbose,'setting initial stream')
         self.initial_stream = self.get_stream()
-        print('self.initial_stream',self.initial_stream)
 
     def get_stream(self):
         stream = Stream(stream_count=self.stream_count, verbose=self.verbose)
@@ -39,7 +37,6 @@ class CurlAccess(SDSSPath):
         self.set_auth(username=username, password=password, inquire=inquire)
         #self.set_netloc(dtn=not self.public)
         self.set_remote_base(scheme="https")
-        print('---curl--remote--self.remote_base', self.remote_base)
 
     def set_auth(self, username=None, password=None, inquire=True):
         self.auth = Auth(public=self.public, netloc=self.netloc, verbose=self.verbose)
@@ -65,18 +62,15 @@ class CurlAccess(SDSSPath):
 
     def add(self, filetype, **kwargs):
         """ Adds a filepath into the list of tasks to download"""
-        print('----curl--add')
         location = self.location(filetype, **kwargs)
         source = self.url(filetype, sasdir='sas', **kwargs)
         if 'full' not in kwargs:
             destination = self.full(filetype, **kwargs)
         else:
             destination = kwargs.get('full')
-        print('---curl--destination',destination)
 
         if location and source and destination:
             self.initial_stream.append_task(location=location, source=source, destination=destination)
-            print('----curl---added to initial_stream')
         else:
             print("There is no file with filetype=%r to access in the tree module loaded" % filetype)
 
@@ -92,7 +86,6 @@ class CurlAccess(SDSSPath):
             self.stream.source = join(self.remote_base, 'sas')
             if 'win' in system().lower(): self.stream.source = self.stream.source.replace(sep,'/')
             self.stream.destination = self.base_dir
-            print('-----curl---stream source', self.stream.source,'stream destination', self.stream.destination)
             self.stream.cli.env = {'CURL_PASSWORD': self.auth.password} if self.auth.ready() else None
             if self.stream.source and self.stream.destination:
                 for task in self.initial_stream.task:
@@ -108,7 +101,6 @@ class CurlAccess(SDSSPath):
         if task:
             try: 
                 file_line, file_size, file_date, url = self.get_url_list(task['source'])
-                print('----get_task_status input', task['source'])
                 is_there_any_files = len(file_line) > 0
                 err = 'Found no files' if not is_there_any_files else ''
             except Exception as e:
@@ -189,7 +181,6 @@ class CurlAccess(SDSSPath):
         if not self.public: self.set_url_password(query_path)
         
         file_line_list, file_size_list, file_date_list, url_list = [], [], [], []
-        print('---------urls',self.get_query_list(query_path), query_path)
         for url in self.get_query_list(query_path):
             file_line, file_size, file_date = re.findall(r'<a href="(%s)".*</a></td><td>\s*(\d*)</td><td>(.*)</td></tr>\r'%basename(url), urllib.request.urlopen(dirname(url)).read().decode('utf-8'))[0]
             url_list.append(url)
@@ -204,8 +195,6 @@ class CurlAccess(SDSSPath):
             query_string = basename(location)
             directory = dirname(location)
             url_directory = join(self.stream.source, directory)
-            print('---curl---url', url_directory)
-            print(self.get_url_list('/'.join([url_directory, query_string])))
             for filename, file_size, file_date, url in transpose(self.get_url_list('/'.join([url_directory, query_string]))):
                 #location = join(directory, filename)
                 location = url.split('/sas/')[-1]
@@ -216,8 +205,6 @@ class CurlAccess(SDSSPath):
                     destination = destination.replace('/',sep)
                     location = location.replace('/',sep)
                 
-                print('----curl---filename', filename, 'location',location, 'source', source, 'destination', destination)
-                print('----file_date', file_date)
                 if exists(destination):
                     existing_file_size = int(popen('gzip -l %s' % destination).readlines()[1].split()[0]) if '.gz' in destination else getsize(destination)
                     if existing_file_size == int(file_size) and abs(datetime.strptime(file_date, "%Y-%b-%d %H:%M" if len(file_date.split('-')[0]) == 4 else "%d-%b-%Y %H:%M") - datetime.fromtimestamp(getmtime(destination))).seconds < 60: print('Already Downloaded at %s'%destination)

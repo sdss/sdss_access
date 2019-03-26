@@ -96,7 +96,7 @@ class RsyncAccess(SDSSPath):
         if task:
             command = "rsync -R %(source)s" % task
             if self.verbose:
-                print("rsync -R %(source)s" % task)
+                print(command)
             status, out, err = self.stream.cli.foreground_run(command)
             if status:
                 raise AccessError("Return code %r\n%s" % (status, err))

@@ -69,9 +69,7 @@ class Cli(object):
         if command:
             stdout = logfile if logfile else STDOUT
             stderr = errfile if errfile else STDOUT
-            print('---cli command', command, split(str(command)))
             background_process = Popen(split(str(command), posix='win' not in system().lower()), env=self.env if 'rsync -' in command else None, stdout=stdout, stderr=stderr)
-            print('-----background', background_process.communicate())
             if pause:
                 sleep(pause)
         else:
@@ -153,7 +151,6 @@ class Cli(object):
             err = errfile.read()
             outfile.close()
             errfile.close()
-            print('>>>>>>foreground', command, split(str(command), posix='win' not in system().lower()), out, err)
             if logger is not None:
                 if status == 0 and logall:
                     if len(out) > 0:

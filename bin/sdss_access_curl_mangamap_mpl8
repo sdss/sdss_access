@@ -8,6 +8,6 @@ curl_access.remote()
 #curl_access.remote(username='sdss',password='***-******')
 #mangamap = $MANGA_SPECTRO_ANALYSIS/{drpver}/{dapver}/full/{plate}/{ifu}/manga-{plate}-{ifu}-LOGCUBE_MAPS-{bintype}-{n:0>3}.fits.gz
 
-curl_access.add('mangamap', drpver = 'v2_5_3', dapver='2.3.0', plate=8485, ifu=1901, bintype='NONE', n='*')
+curl_access.add('mangamap', drpver = 'v1_5_1', dapver='1.1.1', plate=8485, ifu=1901, bintype='NONE', n='*')
 curl_access.set_stream()
 curl_access.commit()

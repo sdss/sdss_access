@@ -130,7 +130,6 @@ class Stream(object):
                     self.cli.write_lines(path=path_txt, lines=['url '+join(self.source, location).replace(sep,'/')+'\n'+'output '+join(self.destination, location) for location in streamlet['location']])
                 else:
                     self.cli.write_lines(path=path_txt, lines=['url '+join(self.source, location)+'\n'+'output '+join(self.destination, location) for location in streamlet['location']])
-                print('PATH=',path_txt)
 
     def run_streamlets(self):
         for streamlet in self.streamlet:
