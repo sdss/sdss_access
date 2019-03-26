@@ -22,7 +22,7 @@ class Auth(object):
     def set_netrc(self):
         try:
             from netrc import netrc
-            self.netrc = netrc('_netrc' if 'win' in system().lower() else '.netrc') if not self.public else None
+            self.netrc = netrc() if not self.public else None
         except Exception as e:
             if self.verbose:
                 print("SDSS_ACCESS> AUTH NETRC: %r" % e)
