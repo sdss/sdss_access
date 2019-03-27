@@ -110,7 +110,7 @@ class CurlAccess(SDSSPath):
     def get_task_status(self, task=None):
         if task:
             try: 
-                file_line, file_size, file_date, url = self.url_list
+                file_line, file_size, file_date, url = self.get_url_list(task[‘source’])
                 is_there_any_files = len(file_line) > 0
                 err = 'Found no files' if not is_there_any_files else ''
             except Exception as e:
@@ -205,7 +205,7 @@ class CurlAccess(SDSSPath):
             file_line_list.append(file_line.split('"')[0])
             file_size_list.append(file_size)
             file_date_list.append(file_date)      
-        self.url_list = [file_line_list, file_size_list, file_date_list, url_list]
+        return [file_line_list, file_size_list, file_date_list, url_list]
                 
     def generate_stream_task(self, task=None):
         if task:
