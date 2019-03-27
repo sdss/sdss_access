@@ -11,7 +11,9 @@ import re
 from platform import system
 from os import popen
 from numpy import transpose
-from datetime import datetime
+from datetime import datetime, timedelta
+import time
+from pytz import timezone
 
 class CurlAccess(SDSSPath):
     """Class for providing Curl access to SDSS SAS Paths
@@ -207,9 +209,11 @@ class CurlAccess(SDSSPath):
                 
                 if exists(destination):
                     existing_file_size = int(popen('gzip -l %s' % destination).readlines()[1].split()[0]) if '.gz' in destination else getsize(destination)
-                    print('testing existing', existing_file_size, int(file_size), file_date, datetime.strptime(file_date, "%Y-%b-%d %H:%M" if len(file_date.split('-')[0]) == 4 else "%d-%b-%Y %H:%M"), datetime.fromtimestamp(getmtime(destination)), datetime.fromtimestamp(getmtime(destination)), 
-                    if existing_file_size == int(file_size) and abs(datetime.strptime(file_date, "%Y-%b-%d %H:%M" if len(file_date.split('-')[0]) == 4 else "%d-%b-%Y %H:%M") - datetime.fromtimestamp(getmtime(destination))).seconds < 60)
-                    if existing_file_size == int(file_size) and abs(datetime.strptime(file_date, "%Y-%b-%d %H:%M" if len(file_date.split('-')[0]) == 4 else "%d-%b-%Y %H:%M") - datetime.fromtimestamp(getmtime(destination))).seconds < 60: print('Already Downloaded at %s'%destination)
+                    url_file_time = datetime.strptime(file_date, "%Y-%b-%d %H:%M" if len(file_date.split('-')[0]) == 4 else "%d-%b-%Y %H:%M")
+                    local_file_time = datetime.utcfromtimestamp(getmtime(destination))
+                    url_file_time = url_file_time + timedelta(seconds = time.altzone if time.daylight else time.timezone)
+                    if existing_file_size == int(file_size) and abs(url_file_time - local_file_time).seconds < 60:
+                        print('Already Downloaded at %s'%destination)
                     else: yield (location, source, destination)
                 else: yield (location, source, destination)
 
