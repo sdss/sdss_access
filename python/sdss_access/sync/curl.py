@@ -219,7 +219,7 @@ class CurlAccess(SDSSPath):
             url_file_time = datetime.strptime(url_file_time, "%Y-%b-%d %H:%M" if len(url_file_time.split('-')[0]) == 4 else "%d-%b-%Y %H:%M")
             local_file_time = datetime.utcfromtimestamp(getmtime(destination))
             url_file_time = url_file_time + timedelta(seconds = time.altzone if time.daylight else time.timezone)
-            if existing_file_size == int(file_size) and abs(url_file_time - local_file_time).seconds < 60:
+            if existing_file_size == int(url_file_size) and abs(url_file_time - local_file_time).seconds < 60:
                 print('Already Downloaded at %s'%destination)
                 return True
             else:
