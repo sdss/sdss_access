@@ -212,7 +212,7 @@ class CurlAccess(SDSSPath):
                 if not self.check_file_exists_locally(destination, file_date):
                     yield (location, source, destination)
                 
-    def check_file_exists_locally(self, destination = None, url_file_time = None)
+    def check_file_exists_locally(self, destination = None, url_file_time = None):
         """Checks if file already exists (note that time check is only accurate to the minute)"""
         if exists(destination):
             existing_file_size = int(popen('gzip -l %s' % destination).readlines()[1].split()[0]) if '.gz' in destination else getsize(destination)
