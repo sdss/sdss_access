@@ -86,7 +86,8 @@ class CurlAccess(SDSSPath):
         else:
             self.stream = self.get_stream()
             self.stream.source = join(self.remote_base, 'sas')
-            if 'win' in system().lower(): self.stream.source = self.stream.source.replace(sep,'/')
+            if 'win' in system().lower():
+                self.stream.source = self.stream.source.replace(sep,'/')
             self.stream.destination = self.base_dir
             self.stream.cli.env = {'CURL_PASSWORD': self.auth.password} if self.auth.ready() else None
             if self.stream.source and self.stream.destination:
@@ -126,7 +127,7 @@ class CurlAccess(SDSSPath):
         urllib.request.install_opener(opener)
         
     def get_query_list(self, url_query):
-        """Search through user specified "*" options and return all possible and valid urls"""
+        """Search through user specified "*" options and return all possible and valid url paths"""
         
         # Find query locations and set a descriptive dictionary
         query_objects = [{'segment_number':index, 'query_directory':'', 'query_list_index':0, 'query_list':[], 'query':query.replace('*','.*')} for index, query in enumerate(url_query.split('/')) if '*' in query or index == len(url_query.split('/'))-1]
@@ -179,8 +180,11 @@ class CurlAccess(SDSSPath):
         return query_results
         
     def get_url_list(self, query_path = None):
-        if 'win' in system().lower(): query_path = query_path.replace(sep,'/')
-        if not self.public: self.set_url_password(query_path)
+        """Gets url paths from get_query_list and returns file proparties and path"""
+        if 'win' in system().lower():
+            query_path = query_path.replace(sep,'/')
+        if not self.public:
+            self.set_url_password(query_path)
         
         file_line_list, file_size_list, file_date_list, url_list = [], [], [], []
         for url in self.get_query_list(query_path):
@@ -198,7 +202,6 @@ class CurlAccess(SDSSPath):
             directory = dirname(location)
             url_directory = join(self.stream.source, directory)
             for filename, file_size, file_date, url in transpose(self.get_url_list('/'.join([url_directory, query_string]))):
-                #location = join(directory, filename)
                 location = url.split('/sas/')[-1]
                 source = join(self.stream.source, location) if self.remote_base else None
                 destination = join(self.stream.destination, location)
@@ -206,16 +209,24 @@ class CurlAccess(SDSSPath):
                     source = source.replace(sep,'/')
                     destination = destination.replace('/',sep)
                     location = location.replace('/',sep)
+                if not self.check_file_exists_locally(destination, file_date):
+                    yield (location, source, destination)
                 
-                if exists(destination):
-                    existing_file_size = int(popen('gzip -l %s' % destination).readlines()[1].split()[0]) if '.gz' in destination else getsize(destination)
-                    url_file_time = datetime.strptime(file_date, "%Y-%b-%d %H:%M" if len(file_date.split('-')[0]) == 4 else "%d-%b-%Y %H:%M")
-                    local_file_time = datetime.utcfromtimestamp(getmtime(destination))
-                    url_file_time = url_file_time + timedelta(seconds = time.altzone if time.daylight else time.timezone)
-                    if existing_file_size == int(file_size) and abs(url_file_time - local_file_time).seconds < 60:
-                        print('Already Downloaded at %s'%destination)
-                    else: yield (location, source, destination)
-                else: yield (location, source, destination)
+    def check_file_exists_locally(self, destination = None, url_file_time = None)
+        """Checks if file already exists (note that time check is only accurate to the minute)"""
+        if exists(destination):
+            existing_file_size = int(popen('gzip -l %s' % destination).readlines()[1].split()[0]) if '.gz' in destination else getsize(destination)
+            url_file_time = datetime.strptime(url_file_time, "%Y-%b-%d %H:%M" if len(url_file_time.split('-')[0]) == 4 else "%d-%b-%Y %H:%M")
+            local_file_time = datetime.utcfromtimestamp(getmtime(destination))
+            url_file_time = url_file_time + timedelta(seconds = time.altzone if time.daylight else time.timezone)
+            if existing_file_size == int(file_size) and abs(url_file_time - local_file_time).seconds < 60:
+                print('Already Downloaded at %s'%destination)
+                return True
+            else:
+                return False
+        else:
+            return False
+                    
 
     def set_stream_task(self, task=None):
         status = self.get_task_status(task=task)

@@ -347,7 +347,8 @@ class BasePath(object):
                                             'be one of the designated templates '
                                             'in the currently loaded tree'.format(filetype))
         template = self.templates[filetype]
-        if 'win' in system().lower(): template = template.replace('/',sep)
+        if 'win' in system().lower():
+            template = template.replace('/',sep)
 
         # Now replace {} items
         if template:
@@ -446,7 +447,8 @@ class BasePath(object):
 
         location = self.location(filetype, **kwargs)
         url = join(self.remote_base, sasdir, location) if self.remote_base and location else None
-        if 'win' in system().lower(): url = url.replace(sep,'/')
+        if 'win' in system().lower():
+            url = url.replace(sep,'/')
         return url
 
 
