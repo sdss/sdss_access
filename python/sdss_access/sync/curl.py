@@ -191,7 +191,7 @@ class CurlAccess(SDSSPath):
                 
         return query_results
         
-    def set_url_list(self, query_path = None):
+    def get_url_list(self, query_path = None):
         """Gets url paths from get_query_list and returns file proparties and path"""
         if os_windows:
             query_path = query_path.replace(sep,'/')
@@ -241,7 +241,6 @@ class CurlAccess(SDSSPath):
                     
 
     def set_stream_task(self, task=None):
-        self.set_url_list(task['source'])
         status = self.get_task_status(task=task)
         stream_has_task = False
         if status:
