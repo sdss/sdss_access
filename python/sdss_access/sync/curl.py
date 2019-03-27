@@ -6,14 +6,21 @@ from re import search
 from sdss_access import SDSSPath, AccessError
 from sdss_access.sync.auth import Auth
 from sdss_access.sync.stream import Stream
-import urllib
 import re
-from platform import system
+from sdss_access import os_windows
 from os import popen
 from numpy import transpose
 from datetime import datetime, timedelta
 import time
 from pytz import timezone
+#import urllib
+try:
+    from urllib2 import HTTPPasswordMgrWithDefaultRealm, HTTPBasicAuthHandler, build_opener, install_opener, urlopen
+    from urllib2 import HTTPError
+except:
+    from urllib.request import HTTPPasswordMgrWithDefaultRealm, HTTPBasicAuthHandler, build_opener, install_opener, urlopen
+    from urllib.error import HTTPError
+
 
 class CurlAccess(SDSSPath):
     """Class for providing Curl access to SDSS SAS Paths
@@ -86,7 +93,7 @@ class CurlAccess(SDSSPath):
         else:
             self.stream = self.get_stream()
             self.stream.source = join(self.remote_base, 'sas')
-            if 'win' in system().lower():
+            if os_windows:
                 self.stream.source = self.stream.source.replace(sep,'/')
             self.stream.destination = self.base_dir
             self.stream.cli.env = {'CURL_PASSWORD': self.auth.password} if self.auth.ready() else None
@@ -103,7 +110,7 @@ class CurlAccess(SDSSPath):
     def get_task_status(self, task=None):
         if task:
             try: 
-                file_line, file_size, file_date, url = self.get_url_list(task['source'])
+                file_line, file_size, file_date, url = self.url_list
                 is_there_any_files = len(file_line) > 0
                 err = 'Found no files' if not is_there_any_files else ''
             except Exception as e:
@@ -119,12 +126,12 @@ class CurlAccess(SDSSPath):
     def set_url_password(self, url_directory):
         """ Authorize User on sas"""
         url_directory = url_directory.split('sas')[0]
-        password_mgr = urllib.request.HTTPPasswordMgrWithDefaultRealm()
+        password_mgr = HTTPPasswordMgrWithDefaultRealm()
         password_mgr.add_password(None, url_directory, self.auth.username, self.auth.password)
-        handler = urllib.request.HTTPBasicAuthHandler(password_mgr)
-        opener = urllib.request.build_opener(handler)
+        handler = HTTPBasicAuthHandler(password_mgr)
+        opener = build_opener(handler)
         opener.open(url_directory)
-        urllib.request.install_opener(opener)
+        install_opener(opener)
         
     def get_query_list(self, url_query):
         """Search through user specified "*" options and return all possible and valid url paths"""
@@ -140,9 +147,13 @@ class CurlAccess(SDSSPath):
         query_results = []
 
         #Walk and search through option branches for potential urls that pass user specifications
-        query_depth = 9999
-        while query_depth > 0:
-            if query_depth == 9999: query_depth = 0
+        query_depth = None
+
+        if self.verbose:
+            print("SDSS_ACCESS> Expanding wildcards %r" % url_query)
+
+        while query_depth is not 0:
+            if query_depth is None: query_depth = 0
             
             #Set branch directory
             query_objects[query_depth]['query_directory'] = ''
@@ -156,7 +167,7 @@ class CurlAccess(SDSSPath):
             
             #Get user specified url options at branch directory
             try:
-                query_objects[query_depth]['query_list'] = [item.split('"')[0] for item in re.findall(r'<a href="(%s)%s".*</a></td><td>'%(query_objects[query_depth]['query'], '/' if query_depth != max_depth else ''), urllib.request.urlopen(query_objects[query_depth]['query_directory']).read().decode('utf-8'))]
+                query_objects[query_depth]['query_list'] = [item.split('"')[0] for item in re.findall(r'<a href="(%s)%s".*</a></td><td>'%(query_objects[query_depth]['query'], '/' if query_depth != max_depth else ''), urlopen(query_objects[query_depth]['query_directory']).read().decode('utf-8'))]
             except Exception as e:
                 query_objects[query_depth]['query_list'] = []
                 if 'Unauthorized' in e:
@@ -177,23 +188,24 @@ class CurlAccess(SDSSPath):
                 query_depth+=1
             else:
                 query_depth+=1
+                
         return query_results
         
-    def get_url_list(self, query_path = None):
+    def set_url_list(self, query_path = None):
         """Gets url paths from get_query_list and returns file proparties and path"""
-        if 'win' in system().lower():
+        if os_windows:
             query_path = query_path.replace(sep,'/')
         if not self.public:
             self.set_url_password(query_path)
         
         file_line_list, file_size_list, file_date_list, url_list = [], [], [], []
         for url in self.get_query_list(query_path):
-            file_line, file_size, file_date = re.findall(r'<a href="(%s)".*</a></td><td>\s*(\d*)</td><td>(.*)</td></tr>\r'%basename(url), urllib.request.urlopen(dirname(url)).read().decode('utf-8'))[0]
+            file_line, file_size, file_date = re.findall(r'<a href="(%s)".*</a></td><td>\s*(\d*)</td><td>(.*)</td></tr>\r'%basename(url), urlopen(dirname(url)).read().decode('utf-8'))[0]
             url_list.append(url)
             file_line_list.append(file_line.split('"')[0])
             file_size_list.append(file_size)
             file_date_list.append(file_date)      
-        return [file_line_list, file_size_list, file_date_list, url_list]
+        self.url_list = [file_line_list, file_size_list, file_date_list, url_list]
                 
     def generate_stream_task(self, task=None):
         if task:
@@ -205,7 +217,7 @@ class CurlAccess(SDSSPath):
                 location = url.split('/sas/')[-1]
                 source = join(self.stream.source, location) if self.remote_base else None
                 destination = join(self.stream.destination, location)
-                if 'win' in system().lower():
+                if os_windows:
                     source = source.replace(sep,'/')
                     destination = destination.replace('/',sep)
                     location = location.replace('/',sep)
@@ -229,6 +241,7 @@ class CurlAccess(SDSSPath):
                     
 
     def set_stream_task(self, task=None):
+        self.set_url_list(task['source'])
         status = self.get_task_status(task=task)
         stream_has_task = False
         if status:

@@ -14,6 +14,11 @@ from tree import Tree
 # File logging can be started by calling log.start_file_logger(name).
 from .misc import log
 
+# check if posix-based operating system
+from os import name
+is_posix = ( name == "posix" )
+os_windows = not is_posix
+
 # set up the TREE, but match the TREE_VER if it is already there
 from tree import Tree
 config = os.environ.get('TREE_VER', 'sdsswork')

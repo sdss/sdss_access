@@ -10,7 +10,7 @@ from tempfile import TemporaryFile
 from time import time, sleep
 from glob import iglob
 from datetime import datetime
-from platform import system
+from sdss_access import is_posix, os_windows
 from tempfile import gettempdir
 
 
@@ -20,7 +20,7 @@ class Cli(object):
 
     #tmp_dir = '/tmp'
     tmp_dir = gettempdir()
-    if 'win' in system().lower():
+    if os_windows:
         tmp_dir = tmp_dir.split(':')[-1]
 
     def __init__(self, label=None, data_dir=None, verbose=False):
@@ -69,7 +69,7 @@ class Cli(object):
         if command:
             stdout = logfile if logfile else STDOUT
             stderr = errfile if errfile else STDOUT
-            background_process = Popen(split(str(command), posix='win' not in system().lower()), env=self.env if 'rsync -' in command else None, stdout=stdout, stderr=stderr)
+            background_process = Popen(split(str(command), posix=is_posix), env=self.env if 'rsync -' in command else None, stdout=stdout, stderr=stderr)
             if pause:
                 sleep(pause)
         else:
@@ -130,7 +130,7 @@ class Cli(object):
                 errfile = TemporaryFile()
             else:
                 errfile = open(errname, 'w+')
-            proc = Popen(split(str(command), posix='win' not in system().lower()), stdout=outfile, stderr=errfile, env=self.env if 'rsync -' in command else None)
+            proc = Popen(split(str(command), posix=is_posix), stdout=outfile, stderr=errfile, env=self.env if 'rsync -' in command else None)
             tstart = time()
             while proc.poll() is None:
                 elapsed = time() - tstart

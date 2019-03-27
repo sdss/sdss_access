@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 from six.moves import input
-from platform import system
+from sdss_access import os_windows
 
 """ add the following username and password to your ~/.netrc file
     and remember to chmod 600 ~/.netrc
@@ -22,14 +22,17 @@ class Auth(object):
     def set_netrc(self):
         try:
             from netrc import netrc
-            if 'win' not in system().lower():
-                self.netrc = netrc() if not self.public else None
-            else:
-                self.netrc = netrc('_netrc')
         except Exception as e:
+            netrc = None
             if self.verbose:
                 print("SDSS_ACCESS> AUTH NETRC: %r" % e)
-            self.netrc = None
+        if netrc:
+            """ Windows: recommending _netrc following
+            https://stackoverflow.com/questions/6031214/git-how-to-use-netrc-file-on-windows-to-save-user-and-password"""
+            file = "_netrc" if os_windows else None
+            try: self.netrc = netrc(file) if not self.public else None
+            except Exception as e: print("SDSS_ACCESS> Error %r" % e)
+        else: self.netrc = None
 
     def set_netloc(self, netloc=None):
         self.netloc = netloc

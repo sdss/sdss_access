@@ -5,7 +5,7 @@ from sdss_access.sync import Cli
 from random import shuffle
 from re import compile
 from os.path import dirname, sep, join
-from platform import system
+from sdss_access import os_windows
 
 
 class Stream(object):
@@ -70,7 +70,7 @@ class Stream(object):
             locations = locations[offset:]
         if limit:
             locations = locations[:limit]
-        if 'win' in system().lower():
+        if os_windows:
             locations = [loc.replace('/',sep) for loc in locations]
         else:
             locations = [loc for loc in locations]
@@ -126,7 +126,7 @@ class Stream(object):
             if 'rsync -' in self.command:
                 self.cli.write_lines(path=path_txt, lines=[location for location in streamlet['location']])
             else:
-                if 'win' in system().lower():
+                if os_windows:
                     self.cli.write_lines(path=path_txt, lines=['url '+join(self.source, location).replace(sep,'/')+'\n'+'output '+join(self.destination, location) for location in streamlet['location']])
                 else:
                     self.cli.write_lines(path=path_txt, lines=['url '+join(self.source, location)+'\n'+'output '+join(self.destination, location) for location in streamlet['location']])
