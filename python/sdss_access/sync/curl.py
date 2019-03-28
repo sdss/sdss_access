@@ -109,9 +109,10 @@ class CurlAccess(SDSSPath):
 
     def get_task_status(self, task=None):
         if task:
-            try: 
-                file_line, file_size, file_date, url = self.get_url_list(task['source'])
-                is_there_any_files = len(file_line) > 0
+            try:
+                print('===============', task['source'])
+                self.set_url_list(task['source'])
+                is_there_any_files = len(self.file_line_list) > 0
                 err = 'Found no files' if not is_there_any_files else ''
             except Exception as e:
                 err = e
@@ -191,21 +192,20 @@ class CurlAccess(SDSSPath):
                 
         return query_results
         
-    def get_url_list(self, query_path = None):
+    def set_url_list(self, query_path = None):
         """Gets url paths from get_query_list and returns file proparties and path"""
         if os_windows:
             query_path = query_path.replace(sep,'/')
         if not self.public:
             self.set_url_password(query_path)
         
-        file_line_list, file_size_list, file_date_list, url_list = [], [], [], []
+        self.file_line_list, self.file_size_list, self.file_date_list, self.url_list = [], [], [], []
         for url in self.get_query_list(query_path):
             file_line, file_size, file_date = re.findall(r'<a href="(%s)".*</a></td><td>\s*(\d*)</td><td>(.*)</td></tr>\r'%basename(url), urlopen(dirname(url)).read().decode('utf-8'))[0]
-            url_list.append(url)
-            file_line_list.append(file_line.split('"')[0])
-            file_size_list.append(file_size)
-            file_date_list.append(file_date)      
-        return [file_line_list, file_size_list, file_date_list, url_list]
+            self.url_list.append(url)
+            self.file_line_list.append(file_line.split('"')[0])
+            self.file_size_list.append(file_size)
+            self.file_date_list.append(file_date)      
                 
     def generate_stream_task(self, task=None):
         if task:
@@ -213,7 +213,8 @@ class CurlAccess(SDSSPath):
             query_string = basename(location)
             directory = dirname(location)
             url_directory = join(self.stream.source, directory)
-            for filename, file_size, file_date, url in transpose(self.get_url_list('/'.join([url_directory, query_string]))):
+            print('>>>>>>>>', '/'.join([url_directory, query_string]))
+            for filename, file_size, file_date, url in zip(self.file_line_list, self.file_size_list, self.file_date_list, self.url_list):
                 location = url.split('/sas/')[-1]
                 source = join(self.stream.source, location) if self.remote_base else None
                 destination = join(self.stream.destination, location)
