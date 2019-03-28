@@ -110,7 +110,6 @@ class CurlAccess(SDSSPath):
     def get_task_status(self, task=None):
         if task:
             try:
-                print('===============', task['source'])
                 self.set_url_list(task['source'])
                 is_there_any_files = len(self.file_line_list) > 0
                 err = 'Found no files' if not is_there_any_files else ''
@@ -213,7 +212,6 @@ class CurlAccess(SDSSPath):
             query_string = basename(location)
             directory = dirname(location)
             url_directory = join(self.stream.source, directory)
-            print('>>>>>>>>', '/'.join([url_directory, query_string]))
             for filename, file_size, file_date, url in zip(self.file_line_list, self.file_size_list, self.file_date_list, self.url_list):
                 location = url.split('/sas/')[-1]
                 source = join(self.stream.source, location) if self.remote_base else None
