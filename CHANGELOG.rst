@@ -6,6 +6,20 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
+0.2.8 (unreleased)
+------------------
+Added
+^^^^^
+- new extract method to return extracted keywords from a given filename
+- new tests for sdss_access.path
+- methods to extract and look up source code given a method name
+
+Changed
+^^^^^^^
+- expanded lookup_keys to also look for keywords inside special % functions
+- moved special function template substitution into a separate method
+- replaced template envvar substitution with os.path.expandvars 
+
 0.2.7 (2018-09-06)
 ------------------
 

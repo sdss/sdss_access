@@ -3,6 +3,10 @@ from __future__ import division, print_function
 import os
 import re
 import requests
+import ast
+import inspect
+import pathlib
+import six
 from glob import glob
 from os.path import join
 from random import choice, sample
@@ -84,8 +88,88 @@ class BasePath(object):
 
         assert name, 'Must specify a path name'
         assert name in self.templates.keys(), '{0} must be defined in the path templates'.format(name)
+        # find all words inside brackets
         keys = list(set(re.findall(r'{(.*?)}', self.templates[name])))
+        # lookup any keys referenced inside special functions
+        skeys = self._check_special_kwargs(name)
+        keys.extend(skeys)
+        # remove any duplicates
+        keys = list(set(keys))
+        # remove the type : descriptor
+        keys = [k.split(':')[0] for k in keys]
         return keys
+
+    def _check_special_kwargs(self, name):
+        ''' check special functions for kwargs
+        
+        Checks the content of the special functions (%methodname) for
+        any keyword arguments referenced within
+
+        Parameters:
+            name (str):
+                A path key name
+
+        Returns:
+            A list of keyword arguments found in any special functions 
+        '''
+        keys = []
+        # find any %method names in the template string
+        functions = re.findall(r"\%\w+", self.templates[name])
+        if not functions:
+            return keys
+
+        # loop over special method names and extract keywords
+        for function in functions:
+            method = getattr(self, function[1:])
+            # get source code of special method
+            source = self._find_source(method)
+            fkeys = re.findall(r'kwargs\[(.*?)\]', source)
+            if fkeys:
+                # evaluate to proper string
+                fkeys = [ast.literal_eval(k) for k in fkeys]
+                keys.extend(fkeys)
+        return keys
+
+    @staticmethod
+    def _find_source(method):
+        ''' find source code of a given method
+        
+        Find and extract the source code of a given method in a module.
+        Uses inspect.findsource to get all source code and performs some
+        selection magic to identify method source code.  Doing it this way
+        because inspect.getsource returns wrong method.
+
+        Parameters:
+            method (obj):
+                A method object
+        
+        Returns:
+            A string containing the source code of a given method
+        
+        Example:
+            >>> from sdss_access.path import Path
+            >>> path = Path()
+            >>> path._find_source(path.full)
+        '''
+        
+        # get source code lines of entire module method is in
+        source = inspect.findsource(method)
+        is_method = inspect.ismethod(method)
+        # create single source code string
+        source_str = '\n'.join(source[0])
+        # define search pattern
+        if is_method:
+            pattern = r'def\s{0}\(self'.format(method.__name__)
+        # search for pattern within the string
+        start = re.search(pattern, source_str)
+        if start:
+            # find start and end positions of source code
+            startpos = start.start()
+            endpos = source_str.find('def ', startpos + 1)
+            code = source_str[startpos:endpos]
+        else:
+            code = None
+        return code
 
     def lookup_names(self):
         ''' Lookup what path names are available
@@ -98,6 +182,76 @@ class BasePath(object):
             A list of the available path names.
         '''
         return self.templates.keys()
+
+    def extract(self, name, example):
+        ''' Extract keywords from an example path '''
+
+        # ensure example is a string
+        if isinstance(example, pathlib.Path):
+            example = str(example)
+        assert isinstance(example, six.string_types), 'example file must be a string'
+
+        # get the template
+        assert name in self.lookup_names(), '{0} must be a valid template name'.format(name)
+        template = self.templates[name]
+
+        # expand the environment variable
+        template = os.path.expandvars(template)
+
+        # handle special functions; perform a drop in replacement
+        if re.match('%spectrodir', template):
+            template = re.sub('%spectrodir', os.environ['BOSS_SPECTRO_REDUX'], template)
+        elif re.search('%platedir', template):
+            template = re.sub('%platedir', '(.*)/{plateid:0>6}', template)
+        elif re.search('%definitiondir', template):
+            template = re.sub('%definitiondir', '{designid:0>6}', template)
+        if re.search('%plateid6', template):
+            template = re.sub('%plateid6', '{plateid:0>6}', template)
+
+        # check if template has any brackets
+        haskwargs = re.search('[{}]', template)
+        if not haskwargs:
+            return None
+
+        # escape the envvar $ and any dots
+        subtemp = template.replace('$', '\\$').replace('.', '\\.')
+        # define search pattern; replace all template keywords with regex "(.*)" group
+        research = re.sub('{(.*?)}', '(.*)', subtemp)
+        # look for matches in template and example
+        pmatch = re.search(research, template)
+        tmatch = re.search(research, example)
+
+        path_dict = {}
+        # if example match extract keys and values from the match groups
+        if tmatch:
+            values = tmatch.groups(0)
+            keys = pmatch.groups(0)
+            assert len(keys) == len(values), 'pattern and template matches must have same length'
+            parts = zip(keys, values)
+            # parse into dictionary
+            for part in parts:
+                value = part[1]
+                if re.findall('{(.*?)}', part[0]):
+                    # get the key name inside the brackets
+                    keys = re.findall('{(.*?)}', part[0])
+                    # remove the type : designation
+                    keys = [k.split(':')[0] for k in keys]
+                    # handle double bracket edge cases; remove this when better solution found
+                    if len(keys) > 1:
+                        if keys[0] == 'dr':
+                            # for {dr}{version}
+                            drval = re.match('^DR[1-9][0-9]', value).group(0)
+                            otherval = value.split(drval)[-1]
+                            pdict = {keys[0]: drval, keys[1]: otherval}
+                        elif keys[0] in ['rc', 'br', 'filter', 'camrow']:
+                            # for {camrow}{camcol}, {filter}{camcol}, {br}{id}, etc
+                            pdict = {keys[0]: value[0], keys[1]: value[1:]}
+                        else:
+                            raise ValueError('This case has not yet been accounted for.')
+                        path_dict.update(pdict)
+                    else:
+                        path_dict[keys[0]] = value
+        return path_dict
 
     def dir(self, filetype, **kwargs):
         """Return the directory containing a file of a given type.
@@ -361,24 +515,44 @@ class BasePath(object):
 
         if template:
             # Now replace environmental variables
-            envvars = re.findall(r"\$\w+", template)
-            for envvar in envvars:
-                try:
-                    value = os.environ[envvar[1:]]
-                except KeyError:
-                    return None
-                template = re.sub("\\" + envvar, value, template)
+            template = os.path.expandvars(template)
 
             # Now call special functions as appropriate
-            functions = re.findall(r"\%\w+", template)
-            for function in functions:
-                try:
-                    method = getattr(self, function[1:])
-                except AttributeError:
-                    return None
+            template = self._call_special_functions(filetype, template, **kwargs)
+
+        return template
+
+    def _call_special_functions(self, filetype, template, **kwargs):
+        ''' Call the special functions found in a template path
+
+        Calls special functions indicated by %methodname found in the
+        sdss_paths.ini template file, and replaces the %location in the path
+        with the returned content.
+
+        Parameters:
+            filetype (str):
+                template name of file
+            template (str):
+                the template path
+            kwargs (dict):
+                Any kwargs needed to pass into the methods
+
+        Returns:
+            The expanded template path 
+        '''
+        # Now call special functions as appropriate
+        functions = re.findall(r"\%\w+", template)
+        if not functions:
+            return template
+
+        for function in functions:
+            try:
+                method = getattr(self, function[1:])
+            except AttributeError:
+                return None
+            else:
                 value = method(filetype, **kwargs)
                 template = re.sub(function, value, template)
-
         return template
 
     def set_netloc(self, netloc=None, sdss=None, dtn=None):
