@@ -19,6 +19,7 @@ Changed
 - expanded lookup_keys to also look for keywords inside special % functions
 - moved special function template substitution into a separate method
 - replaced template envvar substitution with os.path.expandvars 
+- updating yaml.load to use FullLoaded in compliance with pyyaml 5.1
 
 0.2.7 (2018-09-06)
 ------------------
