@@ -2,15 +2,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from six.moves import input
 from sdss_access import os_windows
 
-""" add the following username and password to your ~/.netrc file
-    and remember to chmod 600 ~/.netrc
-
-machine data.sdss.org
-    login sdss
-    password ***-******
-"""
-
-
 class Auth(object):
 
     def __init__(self, netloc=None, public=False, verbose=False):
@@ -20,6 +11,13 @@ class Auth(object):
         self.set_netrc()
 
     def set_netrc(self):
+        """ add the following username and password to your ~/.netrc file
+            and remember to chmod 600 ~/.netrc
+
+            machine data.sdss.org
+            login sdss
+            password ***-******
+        """
         try:
             from netrc import netrc
         except Exception as e:
