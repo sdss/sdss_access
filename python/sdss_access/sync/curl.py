@@ -28,13 +28,7 @@ class CurlAccess(BaseAccess):
     """
 
     def __init__(self, label='sdss_curl', stream_count=5, mirror=False, public=False, release=None, verbose=False):
-        super(CurlAccess, self).__init__(mirror=mirror, public=public, release=release, verbose=verbose)
-        self.label = label
-        self.auth = None
-        self.stream = None
-        self.stream_count = stream_count
-        self.verbose = verbose
-        self.initial_stream = self.get_stream()
+        super(CurlAccess, self).__init__(mirror=mirror, public=public, release=release, verbose=verbose, label = label)
 
     def remote(self, username=None, password=None, inquire=None):
         """ Configures remote access """
