@@ -4,4 +4,4 @@ from sdss_access.sync import CurlAccess, RsyncAccess
 
 class Access: pass
 
-#Access.__dict__ = dict(RsyncAccess.__dict__)
+Access.__dict__ = dict(RsyncAccess.__dict__)
