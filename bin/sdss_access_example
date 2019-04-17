@@ -1,0 +1,56 @@
+#!/usr/bin/env python
+from __future__ import absolute_import, division, print_function, unicode_literals
+# The line above will help with 2to3 support.
+
+from sdss_access import Access, AccessError
+access = Access(label='mangacube',mirror=True,public=False,verbose=True)
+
+#works if you have the sdss username in your ~/.netrc (or you will be prompted)
+access.remote()
+#the alternative to setting the password in ~/.netrc is not recommended!
+#access.remote(username='sdss',password='***-******')
+
+access.add('mangacube', drpver='v1_5_1', plate=8485, ifu='*')
+#access.add('spZbest', run2d='v5_7_2', run1d='v5_7_2', plateid=7339, mjd='*')
+try: access.set_stream()
+except: print("error")
+
+print("="*80)
+print("example i): expand wildcard")
+locations = access.get_locations()
+for location in locations: print("- %s" % location)
+
+print("="*80)
+print("example ii): first 5 (limit=5)")
+locations = access.get_locations(limit=5)
+if locations:
+    for location in locations: print("- %s" % location)
+
+print("="*80)
+print("example iii): next 5 (offset=5,limit=5)")
+locations = access.get_locations(offset=5,limit=5)
+if locations:
+    for location in locations: print("- %s" % location)
+
+print("="*80)
+print("example iv): random 5 = shuffle then (limit=5)")
+access.shuffle()
+locations = access.get_locations(limit=5)
+if locations:
+    for location in locations: print("- %s" % location)
+
+print("="*80)
+print("example v): random 5 as paths")
+access.shuffle()
+paths = access.get_paths(limit=5)
+if paths:
+    for path in paths: print("- %s" % path)
+
+print("="*80)
+print("example vi): random 5 as urls")
+access.shuffle()
+urls = access.get_urls(limit=5)
+if urls:
+    for url in urls: print("- %s" % url)
+
+#access.commit(dryrun=True)
