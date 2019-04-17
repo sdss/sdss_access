@@ -25,7 +25,7 @@ tree = Tree(config=config)
 log.debug("SDSS_ACCESS> Using %r" % tree)
 
 from .path import Path as SDSSPath, AccessError
-from .sync import HttpAccess, BaseAccess, RsyncAccess, CurlAccess
+from .sync import HttpAccess, Access, BaseAccess, RsyncAccess, CurlAccess
 
 
 NAME = 'sdss_access'
