@@ -17,7 +17,6 @@ from .misc import log
 # check if posix-based operating system
 from os import name
 is_posix = ( name == "posix" )
-os_windows = not is_posix
 
 # set up the TREE, but match the TREE_VER if it is already there
 from tree import Tree
@@ -26,7 +25,7 @@ tree = Tree(config=config)
 log.debug("SDSS_ACCESS> Using %r" % tree)
 
 from .path import Path as SDSSPath, AccessError
-from .sync import HttpAccess, RsyncAccess, CurlAccess
+from .sync import HttpAccess, BaseAccess, RsyncAccess, CurlAccess
 
 
 NAME = 'sdss_access'

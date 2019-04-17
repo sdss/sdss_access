@@ -3,17 +3,18 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from os.path import isfile, exists, dirname, join, basename, getsize, getmtime, sep
 from re import search
-from sdss_access import SDSSPath, AccessError
+from sdss_access import AccessError
+from sdss_access.sync.access import BaseAccess
 from sdss_access.sync.auth import Auth
 from sdss_access.sync.stream import Stream
 import re
-from sdss_access import os_windows
+from sdss_access import is_posix
 from os import popen
 from numpy import transpose
 from datetime import datetime, timedelta
 import time
 from pytz import timezone
-#import urllib
+
 try:
     from urllib2 import HTTPPasswordMgrWithDefaultRealm, HTTPBasicAuthHandler, build_opener, install_opener, urlopen
     from urllib2 import HTTPError
@@ -22,7 +23,7 @@ except:
     from urllib.error import HTTPError
 
 
-class CurlAccess(SDSSPath):
+class CurlAccess(BaseAccess):
     """Class for providing Curl access to SDSS SAS Paths
     """
 
@@ -35,10 +36,6 @@ class CurlAccess(SDSSPath):
         self.verbose = verbose
         self.initial_stream = self.get_stream()
 
-    def get_stream(self):
-        stream = Stream(stream_count=self.stream_count, verbose=self.verbose)
-        return stream
-
     def remote(self, username=None, password=None, inquire=None):
         """ Configures remote access """
 
@@ -46,29 +43,7 @@ class CurlAccess(SDSSPath):
         self.set_auth(username=username, password=password, inquire=inquire)
         #self.set_netloc(dtn=not self.public)
         self.set_remote_base(scheme="https")
-
-    def set_auth(self, username=None, password=None, inquire=True):
-        self.auth = Auth(public=self.public, netloc=self.netloc, verbose=self.verbose)
-        self.auth.set_username(username)
-        self.auth.set_password(password)
-        if not self.public:
-            if not self.auth.ready():
-                self.auth.load()
-            if not self.auth.ready():
-                self.auth.set_username(inquire=inquire)
-                self.auth.set_password(inquire=inquire)
-
-    def reset(self):
-        ''' Reset all streams '''
-
-        # reset the main stream
-        if self.stream:
-            self.stream.reset()
-
-        # reset the initial stream (otherwise old 'adds' remain in the new stream)
-        if self.initial_stream:
-            self.initial_stream.reset()
-
+        
     def add(self, filetype, **kwargs):
         """ Adds a filepath into the list of tasks to download"""
         location = self.location(filetype, **kwargs)
@@ -82,7 +57,7 @@ class CurlAccess(SDSSPath):
             self.initial_stream.append_task(location=location, source=source, destination=destination)
         else:
             print("There is no file with filetype=%r to access in the tree module loaded" % filetype)
-
+            
     def set_stream(self):
         """ Sets the download streams """
 
@@ -93,7 +68,7 @@ class CurlAccess(SDSSPath):
         else:
             self.stream = self.get_stream()
             self.stream.source = join(self.remote_base, 'sas')
-            if os_windows:
+            if not is_posix:
                 self.stream.source = self.stream.source.replace(sep,'/')
             self.stream.destination = self.base_dir
             self.stream.cli.env = {'CURL_PASSWORD': self.auth.password} if self.auth.ready() else None
@@ -146,7 +121,7 @@ class CurlAccess(SDSSPath):
         #Set url array used to append user specified urls
         query_results = []
 
-        #Walk and search through option branches for potential urls that pass user specifications
+        #Walk and search through optional branches for potential urls that pass user specifications
         query_depth = None
 
         if self.verbose:
@@ -193,7 +168,7 @@ class CurlAccess(SDSSPath):
         
     def set_url_list(self, query_path = None):
         """Gets url paths from get_query_list and returns file proparties and path"""
-        if os_windows:
+        if not is_posix:
             query_path = query_path.replace(sep,'/')
         if not self.public:
             self.set_url_password(query_path)
@@ -216,7 +191,7 @@ class CurlAccess(SDSSPath):
                 location = url.split('/sas/')[-1]
                 source = join(self.stream.source, location) if self.remote_base else None
                 destination = join(self.stream.destination, location)
-                if os_windows:
+                if not is_posix:
                     source = source.replace(sep,'/')
                     destination = destination.replace('/',sep)
                     location = location.replace('/',sep)
@@ -254,27 +229,6 @@ class CurlAccess(SDSSPath):
                         print("-"*80)"""
         if not stream_has_task:
             print('SDSS_ACCESS> Error: stream has nothing to do.')
-
-    def shuffle(self):
-        self.stream.shuffle()
-
-    def get_locations(self, offset=None, limit=None):
-        return self.stream.get_locations(offset=offset, limit=limit) if self.stream else None
-
-    def get_paths(self, offset=None, limit=None):
-        locations = self.get_locations(offset=offset, limit=limit)
-        paths = [join(self.base_dir, location) for location in locations] if locations else None
-        return paths
-
-    def get_urls(self, offset=None, limit=None):
-        locations = self.get_locations(offset=offset, limit=limit)
-        remote_base = self.get_remote_base()
-        sasdir = 'sas' if not self.public else ''
-        urls = [join(remote_base, sasdir, location) for location in locations] if locations else None
-        return urls
-
-    def refine_task(self, regex=None):
-        self.stream.refine_task(regex=regex)
 
     def commit(self, offset=None, limit=None, dryrun=False):
         """ Start the curl download """

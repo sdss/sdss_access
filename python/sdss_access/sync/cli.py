@@ -10,7 +10,7 @@ from tempfile import TemporaryFile
 from time import time, sleep
 from glob import iglob
 from datetime import datetime
-from sdss_access import is_posix, os_windows
+from sdss_access import is_posix
 from tempfile import gettempdir
 
 
@@ -20,7 +20,7 @@ class Cli(object):
 
     #tmp_dir = '/tmp'
     tmp_dir = gettempdir()
-    if os_windows:
+    if not is_posix:
         tmp_dir = tmp_dir.split(':')[-1]
 
     def __init__(self, label=None, data_dir=None, verbose=False):
