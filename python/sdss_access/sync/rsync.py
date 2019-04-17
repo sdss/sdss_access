@@ -4,7 +4,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from os.path import isfile, exists, dirname, join
 from re import search
 from sdss_access import AccessError
-from sdss_access.sync.access import BaseAccess
+from sdss_access.sync.baseaccess import BaseAccess
 from sdss_access.sync.auth import Auth
 from sdss_access.sync.stream import Stream
 
