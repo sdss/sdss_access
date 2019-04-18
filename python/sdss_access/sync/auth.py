@@ -1,6 +1,8 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 from six.moves import input
 from sdss_access import is_posix
+from os.path import join
+from os import environ
 
 class Auth(object):
 
@@ -27,7 +29,7 @@ class Auth(object):
         if netrc:
             """ Windows: recommending _netrc following
             https://stackoverflow.com/questions/6031214/git-how-to-use-netrc-file-on-windows-to-save-user-and-password"""
-            file = "_netrc" if not is_posix else None
+            file = join(environ['HOME'], "_netrc") if not is_posix else None
             try: self.netrc = netrc(file) if not self.public else None
             except Exception as e: print("SDSS_ACCESS> Error %r" % e)
         else: self.netrc = None
