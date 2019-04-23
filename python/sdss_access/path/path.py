@@ -5,7 +5,6 @@ import re
 import requests
 import ast
 import inspect
-import pathlib
 import six
 from glob import glob
 from os.path import join
@@ -13,6 +12,10 @@ from random import choice, sample
 from collections import OrderedDict
 from sdss_access import tree
 
+try:
+    import pathlib
+except ImportError:
+    pathlib = None
 
 try:
     from ConfigParser import RawConfigParser
@@ -185,6 +188,10 @@ class BasePath(object):
 
     def extract(self, name, example):
         ''' Extract keywords from an example path '''
+
+        # if pathlib not available do nothing
+        if not pathlib:
+            return None
 
         # ensure example is a string
         if isinstance(example, pathlib.Path):

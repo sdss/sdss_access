@@ -21,6 +21,10 @@ Changed
 - replaced template envvar substitution with os.path.expandvars 
 - updating yaml.load to use FullLoaded in compliance with pyyaml 5.1
 
+Fixed
+^^^^^
+- Bug fix for pathlib on 2.7 python systems
+
 0.2.7 (2018-09-06)
 ------------------
 
