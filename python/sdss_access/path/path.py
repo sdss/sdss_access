@@ -44,35 +44,33 @@ class BasePath(object):
 
     _netloc = {"dtn": "sdss@dtn01.sdss.org", "sdss": "data.sdss.org", "mirror": "data.mirror.sdss.org"}
 
-    def __init__(self, pathfile, mirror=False, public=False, release=None, verbose=False):
+    def __init__(self, mirror=False, public=False, release=None, verbose=False):
         self.mirror = mirror
         self.public = public
         self.release = release
         self.verbose = verbose
         self.set_netloc()
         self.set_remote_base()
-        self._pathfile = pathfile
-        self._config = RawConfigParser()
-        self._config.optionxform = str
-        self.templates = OrderedDict()
-        self._input_templates()
+        # set the path templates from the tree
+        self.templates = tree.paths
         if release != tree.config_name:
             self.replant_tree()
 
-    def replant_tree(self):
-        ''' replants the tree based on release '''
-        tree.replant_tree(self.release)
+    def replant_tree(self, release=None):
+        ''' replants the tree based on release
 
-    def _input_templates(self):
-        """Read the path template file.
-        """
-        foo = self._config.read([self._pathfile])
-        if len(foo) == 1:
-            for k, v in self._config.items('paths'):
-                self.templates[k] = v
-        else:
-            raise ValueError("Could not read {0}!".format(self._pathfile))
-        return
+        Resets the path definitions given a specified release
+
+        Parameters:
+            release (str):
+                A release to use when replanting the tree
+        '''
+        release = release or self.release
+        if release:
+            release = release.lower().replace('-', '')
+        tree.replant_tree(release)
+        self.templates = tree.paths
+        self.release = release
 
     def lookup_keys(self, name):
         ''' Lookup the keyword arguments needed for a given path name
@@ -622,13 +620,7 @@ class Path(BasePath):
     """Class for construction of paths in general.  Sets a particular template file.
     """
     def __init__(self, mirror=False, public=False, release=None, verbose=False):
-        try:
-            tree_dir = os.environ['TREE_DIR']
-        except KeyError:
-            raise NameError("Could not find TREE_DIR in the environment!  Did you load the tree product?")
-        pathfile = os.path.join(tree_dir, 'data', 'sdss_paths.ini')
-
-        super(Path, self).__init__(pathfile, mirror=mirror, public=public, release=release, verbose=verbose)
+        super(Path, self).__init__(mirror=mirror, public=public, release=release, verbose=verbose)
 
     def plateid6(self, filetype, **kwargs):
         """Print plate ID, accounting for 5-6 digit plate IDs.
