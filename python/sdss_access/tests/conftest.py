@@ -47,7 +47,8 @@ class Survey(object):
     def get_rsync_kwargs(self):
         if self.survey == 'manga':
             rkwargs = {'plate': None, 'ifu': None, 'drpver': None, 'dapver': None, 'dir3d': None,
-                       'mpl': None, 'bintype': '*', 'n': '**', 'mode': '*', 'daptype': '*'}
+                       'mpl': None, 'bintype': '*', 'n': '**', 'mode': '*', 'daptype': '*', 
+                       'wave': 'LOG'}
         return rkwargs
 
     def set_data(self, release):
@@ -57,7 +58,7 @@ class Survey(object):
             if '4' in release:
                 self.names.extend(['mangadefault', 'mangamap'])
             else:
-                self.names.extend(['mangadap5'])
+                self.names.extend(['mangadap'])
 
 
 @pytest.fixture(scope='session', params=surveys)
@@ -82,7 +83,7 @@ def init_manga_survey(survey, get_release, get_plateifu):
     yield survey
 
 
-@pytest.fixture(scope='module', params=['mangadap5', 'mangacube'])
+@pytest.fixture(scope='module', params=['mangadap', 'mangacube'])
 def data(request, init_manga_survey):
     ''' fixture to generate data '''
     fillkwargs = {'plate': init_manga_survey.rsync_kwargs['plate'], 'ifu': init_manga_survey.rsync_kwargs['ifu'],
@@ -95,7 +96,7 @@ def data(request, init_manga_survey):
                               'loc': 'mangawork/manga/spectro/analysis/{drpver}/{dapver}/full/{plate}/{ifu}/'.format(**fillkwargs),
                               'single': 'manga-{plate}-{ifu}-LOGCUBE_MAPS-NONE-003.fits.gz'.format(**fillkwargs),
                               'count': 21},
-                 'mangadap5': {'files': 'manga-{plate}-{ifu}-*-SPX-GAU-MILESHC.fits.gz'.format(**fillkwargs),
+                 'mangadap': {'files': 'manga-{plate}-{ifu}-*-SPX-GAU-MILESHC.fits.gz'.format(**fillkwargs),
                                'loc': 'mangawork/manga/spectro/analysis/{drpver}/{dapver}/*/{plate}/{ifu}/'.format(**fillkwargs),
                                'single': 'manga-{plate}-{ifu}-MAPS-SPX-GAU-MILESHC.fits.gz'.format(**fillkwargs),
                                'count': 2},
@@ -108,17 +109,17 @@ def data(request, init_manga_survey):
 
 
 @pytest.fixture()
-def path():
+def path(get_release):
     ''' Fixture to create a generic Path object '''
-    path = Path()
+    path = Path(release=get_release)
     yield path
     path = None
 
 
 @pytest.fixture(scope='function')
-def rsync():
+def rsync(get_release):
     ''' fixture to create generic rsync object '''
-    rsync = RsyncAccess(label='test_rsync')
+    rsync = RsyncAccess(label='test_rsync', release=get_release)
     rsync.remote()
     yield rsync
 

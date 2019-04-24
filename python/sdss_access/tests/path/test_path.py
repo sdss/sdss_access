@@ -24,12 +24,12 @@ class TestPath(object):
 
     def test_public(self):
         path = Path()
-        url = path.url('mangacube', drpver='v2_3_1', plate=8485, ifu='1901')
+        url = path.url('mangacube', drpver='v2_3_1', plate=8485, ifu='1901', wave='LOG')
         assert 'mangawork' in url
 
         release = 'dr14'
         path = Path(public=True, release=release)
-        url = path.url('mangacube', drpver='v2_3_1', plate=8485, ifu='1901')
+        url = path.url('mangacube', drpver='v2_3_1', plate=8485, ifu='1901', wave='LOG')
         assert release in url
 
     @pytest.mark.parametrize('place, exp', [('local', False), ('remote', True)])
@@ -41,7 +41,7 @@ class TestPath(object):
     def test_lookup_names(self, path):
         assert 'mangacube' in path.lookup_names()
 
-    @pytest.mark.parametrize('name, keys', [('mangacube', ['drpver', 'ifu', 'plate']),
+    @pytest.mark.parametrize('name, keys', [('mangacube', ['drpver', 'ifu', 'plate', 'wave']),
                                             ('plateLines', ['plateid'])])
     def test_lookup_keys(self, path, name, keys):
         realkeys = path.lookup_keys(name)
@@ -65,14 +65,14 @@ class TestPath(object):
     def test_envvar_expansion(self, path):
         name = 'mangacube'
         assert '$MANGA_SPECTRO_REDUX' in path.templates[name]
-        full = path.full(name, drpver='v2_4_3', plate=8485, ifu=1901)
+        full = path.full(name, drpver='v2_4_3', plate=8485, ifu=1901, wave='LOG')
         exp = 'sas/mangawork/manga/spectro/redux/v2_4_3/8485'
         assert exp in full
 
     @pytest.mark.parametrize('name, example, keys',
                              [('mangacube',
                                'mangawork/manga/spectro/redux/v2_4_3/8485/stack/manga-8485-1901-LOGCUBE.fits.gz',
-                               {'drpver': 'v2_4_3', 'plate': '8485', 'ifu': '1901'}),
+                               {'drpver': 'v2_4_3', 'plate': '8485', 'ifu': '1901', 'wave': 'LOG'}),
                               ('REJECT_MASK', 'ebosswork/eboss/lss/reject_mask/mask.html',
                                {'type': 'mask', 'format': 'html'}),
                               ('fpC', 'ebosswork/eboss/photo/redux/1/45/objcs/3/fpC-000045-g3-0123.fit',
@@ -91,7 +91,7 @@ class TestPath(object):
         assert 'template = self._call_special_functions' in code
 
     def full(self, path):
-        full = path.full('mangacube', drpver='v2_4_3', plate=8485, ifu='*')
+        full = path.full('mangacube', drpver='v2_4_3', plate=8485, ifu='*', wave='LOG')
         return full
 
     def test_location(self, path):
