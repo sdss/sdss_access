@@ -20,6 +20,7 @@ Changed
 - moved special function template substitution into a separate method
 - replaced template envvar substitution with os.path.expandvars 
 - updating yaml.load to use FullLoaded in compliance with pyyaml 5.1
+- changing disutils.strictversion to parse_versions
 
 Fixed
 ^^^^^
