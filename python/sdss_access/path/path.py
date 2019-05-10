@@ -180,6 +180,16 @@ class BasePath(object):
             A list of the available path names.
         '''
         return self.templates.keys()
+    
+    def has_name(self, name):
+        ''' Check if a given path name exists in the set of templates
+        
+        Parameters:
+            name (str):
+                The path name to lookup
+        '''
+        assert isinstance(name, six.string_types), 'name must be a string'
+        return name in self.lookup_names()
 
     def extract(self, name, example):
         ''' Extract keywords from an example path '''
@@ -197,14 +207,14 @@ class BasePath(object):
         template = os.path.expandvars(template)
 
         # handle special functions; perform a drop in replacement
-        if re.match('%spectrodir', template):
-            template = re.sub('%spectrodir', os.environ['BOSS_SPECTRO_REDUX'], template)
-        elif re.search('%platedir', template):
-            template = re.sub('%platedir', '(.*)/{plateid:0>6}', template)
-        elif re.search('%definitiondir', template):
-            template = re.sub('%definitiondir', '{designid:0>6}', template)
-        if re.search('%plateid6', template):
-            template = re.sub('%plateid6', '{plateid:0>6}', template)
+        if re.match('@spectrodir', template):
+            template = re.sub('@spectrodir', os.environ['BOSS_SPECTRO_REDUX'], template)
+        elif re.search('@platedir', template):
+            template = re.sub('@platedir', '(.*)/{plateid:0>6}', template)
+        elif re.search('@definitiondir', template):
+            template = re.sub('@definitiondir', '{designid:0>6}', template)
+        if re.search('@plateid6', template):
+            template = re.sub('@plateid6', '{plateid:0>6}', template)
 
         # check if template has any brackets
         haskwargs = re.search('[{}]', template)
@@ -539,7 +549,7 @@ class BasePath(object):
             The expanded template path 
         '''
         # Now call special functions as appropriate
-        functions = re.findall(r"\%\w+", template)
+        functions = re.findall(r"\@\w+", template)
         if not functions:
             return template
 
