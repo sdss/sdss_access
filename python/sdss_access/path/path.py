@@ -47,14 +47,16 @@ class BasePath(object):
     def __init__(self, mirror=False, public=False, release=None, verbose=False):
         self.mirror = mirror
         self.public = public
-        self.release = release
+        self.release = release or 'sdsswork'
         self.verbose = verbose
         self.set_netloc()
         self.set_remote_base()
+        self._compressions = ['.gz', '.bz2', '.zip']
+        self._comp_regex = r'({0})$'.format('|'.join(self._compressions))
         # set the path templates from the tree
         self.templates = tree.paths
-        if release != tree.config_name:
-            self.replant_tree()
+        if self.release and self.release.lower() not in tree.config_name:
+            self.replant_tree(release=self.release)
 
     def replant_tree(self, release=None):
         ''' replants the tree based on release
@@ -221,13 +223,17 @@ class BasePath(object):
         if not haskwargs:
             return None
 
+        # # replace any compression with optional
+        # for comp in self._compressions:
+        #     template = template.replace(comp, '({0})?'.format(comp))
         # escape the envvar $ and any dots
+        template = self._remove_compression(template)
         subtemp = template.replace('$', '\\$').replace('.', '\\.')
         # define search pattern; replace all template keywords with regex "(.*)" group
         research = re.sub('{(.*?)}', '(.*)', subtemp)
         # look for matches in template and example
-        pmatch = re.search(research, template)
-        tmatch = re.search(research, example)
+        pmatch = re.search(research, self._remove_compression(template))
+        tmatch = re.search(research, self._remove_compression(example))
 
         path_dict = {}
         # if example match extract keys and values from the match groups
@@ -362,7 +368,7 @@ class BasePath(object):
             full = self.full(filetype, **kwargs)
 
         # assert '*' in full, 'Wildcard must be present in full path'
-        files = glob(full)
+        files = glob(self._add_compression_wild(full))
 
         # return as urls?
         as_url = kwargs.get('as_url', None)
@@ -527,6 +533,50 @@ class BasePath(object):
 
             # Now call special functions as appropriate
             template = self._call_special_functions(filetype, template, **kwargs)
+
+        return self._check_compression(template)
+
+    def _remove_compression(self, template):
+        ''' remove a compression suffix '''
+        is_comp = re.search(self._comp_regex, template)
+        if is_comp:
+            temp_split = re.split(self._comp_regex, template)
+            template = temp_split[0]    
+        return template
+
+    def _add_compression_wild(self, template):
+        ''' add a compression wildcard '''
+        is_comp = re.search(self._comp_regex, template)
+        if is_comp:
+            for comp in self._compressions:
+                template = template.replace(comp, '*')
+        else:
+            template = template + '*'
+        return template
+
+    def _check_compression(self, template):
+        ''' check if filepath is actually compressed '''
+
+        exists = self.exists('', full=template)
+        if exists:
+            return template
+
+        # check if file is not compressed compared to template
+        is_comp = re.search(self._comp_regex, template)
+        if is_comp:
+            template = os.path.splitext(template)[0]
+            exists = self.exists('', full=template)
+            if exists:
+                return template
+
+        # check if file on disk is actually compressed compared to template
+        alternates = glob(template + '*')
+        if alternates:
+            suffixes = list(set([re.search(self._comp_regex, c).group(0)
+                                 for c in alternates if re.search(self._comp_regex, c)]))
+            if suffixes:
+                assert len(suffixes) == 1, 'should only be one suffix per file template '
+                template = template + suffixes[0]
 
         return template
 
