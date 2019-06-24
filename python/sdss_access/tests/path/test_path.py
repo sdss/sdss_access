@@ -48,13 +48,13 @@ class TestPath(object):
         assert set(keys) == set(realkeys)
 
     @pytest.mark.parametrize('name, special, keys, exp',
-                             [('plateLines', '%platedir', {'plateid': 8485},
+                             [('plateLines', '@platedir', {'plateid': 8485},
                                '0084XX/008485/plateLines-008485.png'),
-                              ('plateLines', '%platedir', {'plateid': 11002},
+                              ('plateLines', '@platedir', {'plateid': 11002},
                                '0110XX/011002/plateLines-11002.png'),
-                              ('spAll', '%spectrodir', {'run2d': 103},
+                              ('spAll', '@spectrodir', {'run2d': 103},
                                'sas/sdsswork/sdss/spectro'),
-                              ('spAll', '%spectrodir', {'run2d': 100},
+                              ('spAll', '@spectrodir', {'run2d': 100},
                                'sas/ebosswork/eboss/spectro')],
                              ids=['platedir_p4', 'platedir_p5', 'spectrodir_r1', 'spectrodir_r2'])
     def test_special_function(self, path, name, special, keys, exp):

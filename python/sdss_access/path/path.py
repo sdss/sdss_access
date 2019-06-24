@@ -193,6 +193,95 @@ class BasePath(object):
         assert isinstance(name, six.string_types), 'name must be a string'
         return name in self.lookup_names()
 
+    @staticmethod
+    def _extract(template, example):
+        ''' temp version of Andy extract code '''
+        from collections import Counter
+        # escape the envvar $, any dots, and forward slashes
+        subtemp = template.replace('$', '\\$') \
+                          .replace('.', '\\.') \
+                          .replace('/', '\/')
+
+        # define named search pattern.
+        named_search = re.sub(r'{(\w+)}', r'(?P<\1>(.*?))', subtemp)
+
+        # fix duplicates by prepending '_' to them.
+        named_terms = re.findall(r"<\w+>", named_search)
+        for term, count in Counter(named_terms).items():
+            if count > 1:
+                for i in range(count - 1):
+                    _ = "_" * (1 + i)
+                    new_term = f"<{_}{term.strip('<>')}>"
+                    named_search = named_search.replace(term, new_term, 1)
+
+        match = re.compile(named_search).search(example)
+        if match is None:
+            return dict()
+
+        path_dict = match.groupdict()
+
+        # remove duplicates.
+        duplicate_keys = []
+        for k, v in path_dict.items():
+            if k.startswith("_") and k.lstrip("_") in path_dict and v == path_dict[k.lstrip("_")]:
+                duplicate_keys.append(k)
+
+        for key in duplicate_keys:
+            path_dict.pop(key)
+
+        # handle {}{} edge case
+        doubles = re.findall(r'{\w+}{\w+}', subtemp)
+        if doubles:
+            for double in doubles:
+                keys = re.findall('{(.*?)}', double)
+                if keys[0] == 'dr':
+                    value = path_dict[keys[0]]
+                    drval = re.match('^DR[1-9][0-9]', value).group(0)
+                    otherval = value.split(drval)[-1]
+                    pdict = {keys[0]: drval, keys[1]: otherval}
+                elif keys[0] in ['rc', 'br', 'filter', 'camrow']:
+                    # for {camrow}{camcol}, {filter}{camcol}, {br}{id}, etc
+                    value = path_dict[keys[0]]
+                    pdict = {keys[0]: value[0], keys[1]: value[1:]}
+                else:
+                    raise ValueError('This case has not yet been accounted for.')
+                path_dict.update(pdict)
+
+        return path_dict
+
+    def _test_extract(self, name, example, strict=True):
+        ''' new temp extract of Andy example '''
+
+        # ensure example is a string
+        if isinstance(example, pathlib.Path):
+            example = str(example)
+        assert isinstance(example, six.string_types), 'example file must be a string'
+
+        # get the template
+        assert name in self.lookup_names(), '{0} must be a valid template name'.format(name)
+        template = self.templates[name]
+
+        # expand the environment variables
+        template = os.path.expandvars(template)
+
+        # handle special functions; perform a drop in replacement
+        if re.match('@spectrodir', template):
+            template = re.sub('@spectrodir', os.environ['BOSS_SPECTRO_REDUX'], template)
+        elif re.search('@platedir', template):
+            template = re.sub('@platedir', '(.*)/{plateid:0>6}', template)
+        elif re.search('@definitiondir', template):
+            template = re.sub('@definitiondir', '{designid:0>6}', template)
+        if re.search('@plateid6', template):
+            template = re.sub('@plateid6', '{plateid:0>6}', template)
+
+        # extract keywords
+        path_dict = self._extract(template, example)
+
+        # If we failed and we aren't strict, try again.
+        if not path_dict and not strict:
+            return self._extract(os.path.basename(template), os.path.basename(example))
+        return path_dict
+
     def extract(self, name, example):
         ''' Extract keywords from an example path '''
 
@@ -223,14 +312,11 @@ class BasePath(object):
         if not haskwargs:
             return None
 
-        # # replace any compression with optional
-        # for comp in self._compressions:
-        #     template = template.replace(comp, '({0})?'.format(comp))
         # escape the envvar $ and any dots
         template = self._remove_compression(template)
         subtemp = template.replace('$', '\\$').replace('.', '\\.')
         # define search pattern; replace all template keywords with regex "(.*)" group
-        research = re.sub('{(.*?)}', '(.*)', subtemp)
+        research = re.sub('{(.*?)}', '(.*?)', subtemp)
         # look for matches in template and example
         pmatch = re.search(research, self._remove_compression(template))
         tmatch = re.search(research, self._remove_compression(example))
