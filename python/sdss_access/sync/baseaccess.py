@@ -154,6 +154,10 @@ class BaseAccess(abc.ABC, SDSSPath):
         urls = [join(remote_base, sasdir, location) for location in locations] if locations else None
         return urls
 
+    @abc.abstractmethod
+    def generate_stream_task(self, task=None, out=None):
+        ''' creates the task to put in the download stream '''
+
     def set_stream_task(self, task=None, out=None):
         ''' sets the path input dictionary for a task in a stream '''
         stream_has_task = False
@@ -171,10 +175,13 @@ class BaseAccess(abc.ABC, SDSSPath):
             print('SDSS_ACCESS> Error: stream has nothing to do.')
 
     @abc.abstractmethod
+    def _get_stream_command(self):
+        ''' gets the stream command used when committing the download '''
+
     def commit(self, offset=None, limit=None):
         """ Start the download """
 
-        self.stream.command = self._stream_command
+        self.stream.command = self._get_stream_command()
         self.stream.append_tasks_to_streamlets(offset=offset, limit=limit)
         self.stream.commit_streamlets()
         self.stream.run_streamlets()

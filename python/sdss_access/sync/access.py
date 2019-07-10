@@ -5,7 +5,8 @@ from sdss_access.sync import CurlAccess, RsyncAccess
 from sdss_access import is_posix
 
 Base = RsyncAccess if is_posix else CurlAccess
-label = 'sdss_rsync' if is_posix else 'sdss_curl'
+access_mode = 'rsync' if is_posix else 'curl'
+label = 'sdss_{0}'.format(access_mode)
 
 
 class Access(Base):
@@ -13,7 +14,7 @@ class Access(Base):
     """
     def __init__(self, label=label, stream_count=5, mirror=False, public=False, release=None, 
                  verbose=False):
-        self.access_mode = 'rsync' if is_posix else 'curl'
+        self.access_mode = access_mode
         super(Access, self).__init__(label=label, stream_count=stream_count, mirror=mirror, 
                                      public=public, release=release, verbose=verbose)
 

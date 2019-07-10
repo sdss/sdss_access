@@ -40,6 +40,7 @@ class RsyncAccess(BaseAccess):
         return out
 
     def generate_stream_task(self, task=None, out=None):
+        ''' creates the task to put in the download stream '''
         if task and out:
             depth = task['location'].count('/')
             if self.public:
@@ -60,8 +61,6 @@ class RsyncAccess(BaseAccess):
         out = self.get_task_out(task=task)
         super(RsyncAccess, self).set_stream_task(task=task, out=out)
 
-    def commit(self, offset=None, limit=None):
-        """ Start the rsync download """
-
-        self._stream_command = "rsync -avRK --files-from={path} {source} {destination}"
-        super(RsyncAccess, self).commit(offset=offset, limit=limit)
+    def _get_stream_command(self):
+        ''' gets the stream command used when committing the download '''
+        return "rsync -avRK --files-from={path} {source} {destination}"

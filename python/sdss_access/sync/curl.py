@@ -133,6 +133,7 @@ class CurlAccess(BaseAccess):
             self.file_date_list.append(file_date)      
                 
     def generate_stream_task(self, task=None, out=None):
+        ''' creates the task to put in the download stream '''
         if task:
             location = task['location']
             for filename, file_size, file_date, url in zip(self.file_line_list, self.file_size_list, self.file_date_list, self.url_list):
@@ -166,10 +167,9 @@ class CurlAccess(BaseAccess):
         if status:
             super(CurlAccess, self).set_stream_task(task=task)
 
-    def commit(self, offset=None, limit=None, dryrun=False):
-        """ Start the curl download """
+    def _get_stream_command(self):
+        ''' gets the stream command used when committing the download '''
         auth = ''
         if self.auth.username and self.auth.password:
             auth = '-u {0}:{1}'.format(self.auth.username, self.auth.password)
-        self._stream_command = "curl {0} --create-dirs --fail -sSRLK {{path}}".format(auth)
-        super(CurlAccess, self).commit(offset=offset, limit=limit)
+        return "curl {0} --create-dirs --fail -sSRLK {{path}}".format(auth)
