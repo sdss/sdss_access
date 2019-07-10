@@ -370,7 +370,7 @@ class BasePath(object):
                     value = os.environ[envvar[1:]]
                 except KeyError:
                     return None
-                template = template.replace(envvar,value)
+                template = template.replace(envvar, value)
                 #template = re.sub("\\" + envvar, value, template)
 
             # Now call special functions as appropriate
@@ -382,12 +382,24 @@ class BasePath(object):
                     return None
                 value = method(filetype, **kwargs)
                 #template = re.sub(function, value, template)
-                template = template.replace(function,value)
+                template = template.replace(function, value)
 
         return template
 
     def set_netloc(self, netloc=None, sdss=None, dtn=None):
-        self.netloc = netloc if netloc else self._netloc["sdss"] if sdss else self._netloc["dtn"] if dtn else self._netloc["mirror"] if self.mirror else self._netloc["sdss"]
+        if netloc:
+            self.netloc = netloc
+            return
+
+        if dtn:
+            self.netloc = self._netloc["dtn"]
+        elif sdss:
+            self.netloc = self._netloc['sdss']
+        elif self.mirror:
+            self.netloc = self._netloc["mirror"]
+        else:
+            self.netloc = self._netloc['sdss']
+        #self.netloc = netloc if netloc else self._netloc["sdss"] if sdss else self._netloc["dtn"] if dtn else self._netloc["mirror"] if self.mirror else self._netloc["sdss"]
 
     def set_remote_base(self, scheme=None):
         self.remote_base = self.get_remote_base(scheme=scheme) if scheme else self.get_remote_base()

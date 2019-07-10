@@ -6,6 +6,19 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
+0.2.8 (unreleased)
+------------------
+
+Added
+^^^^^
+* sdss_access now has a CurlAccess class to enable use on Windows OS
+* implemented new BaseAccess class to abstract out commonalities between RsyncAccess and CurlAccess
+* added a general Access class which handles the choice between Rsync/CurlAccess
+
+Changed
+^^^^^^^
+* moved methods from RsyncAccess and CurlAccess into common BaseAccess
+
 0.2.7 (2018-09-06)
 ------------------
 

@@ -7,8 +7,16 @@ from sdss_access import is_posix
 Base = RsyncAccess if is_posix else CurlAccess
 label = 'sdss_rsync' if is_posix else 'sdss_curl'
 
+
 class Access(Base):
     """Class for providing Rsync or Curl access depending on posix
     """
-    def __init__(self, label=label, stream_count=5, mirror=False, public=False, release=None, verbose=False):
-        super(Base, self).__init__(mirror=mirror, public=public, release=release, verbose=verbose, label = label)
+    def __init__(self, label=label, stream_count=5, mirror=False, public=False, release=None, 
+                 verbose=False):
+        self.access_mode = 'rsync' if is_posix else 'curl'
+        super(Access, self).__init__(label=label, stream_count=stream_count, mirror=mirror, 
+                                     public=public, release=release, verbose=verbose)
+
+    def __repr__(self):
+        return '<Access(access_mode="{0}", using="{1}")>'.format(self.access_mode, self.netloc)
+    

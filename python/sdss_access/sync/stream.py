@@ -1,10 +1,10 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 # The line above will help with 2to3 support.
 
+import re
 from sdss_access.sync import Cli
 from random import shuffle
-from re import compile
-from os.path import dirname, sep, join
+from os.path import sep, join
 from sdss_access import is_posix
 
 
@@ -16,7 +16,7 @@ class Stream(object):
         self.verbose = verbose
         try:
             self.stream_count = min(int(stream_count), self.max_stream_count)
-        except:
+        except Exception:
             self.stream_count = 0
         self.streamlet = [{'index': index, 'location': None, 'source': None, 'destination': None} for index in range(0, self.stream_count)]
         self.reset()
@@ -45,7 +45,7 @@ class Stream(object):
                 n = len(location)
                 ok = n == len(source) and n == len(destination)
                 streamlet['location'], streamlet['source'], streamlet['destination'] = (location, source, destination) if ok else (None, None, None)
-            except:
+            except Exception:
                 streamlet['location'], streamlet['source'], streamlet['destination'] = (None, None, None)
 
     def get_streamlet(self, index=None, increment=1):
@@ -56,11 +56,11 @@ class Stream(object):
         else:
             try:
                 self.index = int(index)
-            except:
+            except Exception:
                 self.index = 0
         try:
             streamlet = self.streamlet[self.index]
-        except:
+        except Exception:
             streamlet = None
         return streamlet
 
@@ -71,7 +71,7 @@ class Stream(object):
         if limit:
             locations = locations[:limit]
         if not is_posix:
-            locations = [loc.replace('/',sep) for loc in locations]
+            locations = [loc.replace('/', sep) for loc in locations]
         else:
             locations = [loc for loc in locations]
         return locations
@@ -81,7 +81,7 @@ class Stream(object):
 
     def refine_task(self, regex=None):
         locations = self.get_locations()
-        r = compile(regex)
+        r = re.compile(regex)
         subset = filter(lambda i: r.search(i), locations)
         self.task = [self.task[locations.index(s)] for s in subset]
 
@@ -105,9 +105,9 @@ class Stream(object):
     def append_streamlet(self, index=None, task=None):
         streamlet = self.get_streamlet(index=index)
         if streamlet and task:
-                streamlet['location'].append(task['location'])
-                streamlet['source'].append(task['source'])
-                streamlet['destination'].append(task['destination'])
+            streamlet['location'].append(task['location'])
+            streamlet['source'].append(task['source'])
+            streamlet['destination'].append(task['destination'])
 
     def commit_streamlets(self):
         if self.command:
@@ -122,14 +122,14 @@ class Stream(object):
             streamlet['path'] = self.cli.get_path(index=streamlet['index'])
             path_txt = "{0}.txt".format(streamlet['path'])
             streamlet['command'] = self.command.format(path=path_txt, source=self.source, destination=self.destination)
-
+    
             if 'rsync -' in self.command:
                 self.cli.write_lines(path=path_txt, lines=[location for location in streamlet['location']])
             else:
                 if not is_posix:
-                    self.cli.write_lines(path=path_txt, lines=['url '+join(self.source, location).replace(sep,'/')+'\n'+'output '+join(self.destination, location) for location in streamlet['location']])
+                    self.cli.write_lines(path=path_txt, lines=['url ' + join(self.source, location).replace(sep,'/')+'\n'+'output '+join(self.destination, location) for location in streamlet['location']])
                 else:
-                    self.cli.write_lines(path=path_txt, lines=['url '+join(self.source, location)+'\n'+'output '+join(self.destination, location) for location in streamlet['location']])
+                    self.cli.write_lines(path=path_txt, lines=['url ' + join(self.source, location)+'\n'+'output '+join(self.destination, location) for location in streamlet['location']])
 
     def run_streamlets(self):
         for streamlet in self.streamlet:
