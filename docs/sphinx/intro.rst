@@ -110,8 +110,10 @@ Reference/API
 .. rubric:: Class
 
 .. autosummary:: sdss_access.path.Path
+.. autosummary:: sdss_access.Access
 .. autosummary:: sdss_access.HttpAccess
 .. autosummary:: sdss_access.RsyncAccess
+.. autosummary:: sdss_access.CurlAccess
 
 .. rubric:: Methods
 

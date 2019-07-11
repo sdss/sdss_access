@@ -14,6 +14,13 @@ Path
 Sync
 ----
 
+Access
+^^^^^^
+.. automodule:: sdss_access.sync.access
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Auth
 ^^^^
 .. automodule:: sdss_access.sync.auth
@@ -24,6 +31,13 @@ Auth
 Client
 ^^^^^^
 .. automodule:: sdss_access.sync.cli
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Curl
+^^^^^
+.. automodule:: sdss_access.sync.curl
    :members:
    :undoc-members:
    :show-inheritance:
