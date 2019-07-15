@@ -77,9 +77,15 @@ class Cli(object):
         return background_process
 
     def wait_for_processes(self, processes, pause=60):
-        print("SDSS_ACCESS> syncing... please wait")
-        while any([process.poll() is None for process in processes]):
+        running_processes = [process.poll() is None for process in processes]
+        pause_count = 0
+        while any(running_processes):
+            running_count = sum(running_processes)
+            if self.verbose:
+                print("SDSS_ACCESS> syncing... please wait for %r rsync streams to complete [running for %r seconds]" % (running_count, pause_count * pause))
             sleep(pause)
+            running_processes = [process.poll() is None for process in processes]
+            pause_count += 1
         print("SDSS_ACCESS> Done!")
         self.returncode = tuple([process.returncode for process in processes])
 
@@ -171,5 +177,3 @@ class Cli(object):
 
 class CliError(Exception):
     pass
-
-

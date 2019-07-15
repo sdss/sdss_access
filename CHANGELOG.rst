@@ -11,13 +11,25 @@ This document records the main changes to the sdss_access code.
 
 Added
 ^^^^^
-* sdss_access now has a CurlAccess class to enable use on Windows OS
-* implemented new BaseAccess class to abstract out commonalities between RsyncAccess and CurlAccess
-* added a general Access class which handles the choice between Rsync/CurlAccess
+- new extract method to return extracted keywords from a given filename
+- new tests for sdss_access.path
+- methods to extract and look up source code given a method name
+- sdss_access now has a CurlAccess class to enable use on Windows OS
+- implemented new BaseAccess class to abstract out commonalities between RsyncAccess and CurlAccess
+- added a general Access class which handles the choice between Rsync/CurlAccess
 
 Changed
 ^^^^^^^
-* moved methods from RsyncAccess and CurlAccess into common BaseAccess
+- expanded lookup_keys to also look for keywords inside special % functions
+- moved special function template substitution into a separate method
+- replaced template envvar substitution with os.path.expandvars 
+- updating yaml.load to use FullLoaded in compliance with pyyaml 5.1
+- changing disutils.strictversion to parse_versions
+- moved methods from RsyncAccess and CurlAccess into common BaseAccess
+
+Fixed
+^^^^^
+- Bug fix for pathlib on 2.7 python systems
 
 0.2.7 (2018-09-06)
 ------------------

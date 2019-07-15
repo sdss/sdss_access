@@ -3,6 +3,7 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from pkg_resources import parse_version
 import os
 
 import yaml
@@ -31,10 +32,11 @@ from .sync import HttpAccess, Access, BaseAccess, RsyncAccess, CurlAccess
 NAME = 'sdss_access'
 
 # Loads config
+yaml_version = parse_version(yaml.__version__)
 with open(os.path.dirname(__file__) + '/etc/{0}.cfg'.format(NAME)) as ff:
-    config = yaml.load(ff)
-
+    if yaml_version >= parse_version('5.1'):
+        config = yaml.load(ff, Loader=yaml.FullLoader)
+    else:
+        config = yaml.load(ff)
 
 __version__ = '0.2.8dev'
-
-
