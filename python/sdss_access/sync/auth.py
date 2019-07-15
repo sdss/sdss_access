@@ -4,6 +4,7 @@ from sdss_access import is_posix
 from os.path import join
 from os import environ
 
+
 class Auth(object):
 
     def __init__(self, netloc=None, public=False, verbose=False):
@@ -19,6 +20,9 @@ class Auth(object):
             machine data.sdss.org
             login sdss
             password ***-******
+
+            Windows: recommending _netrc following
+            https://stackoverflow.com/questions/6031214/git-how-to-use-netrc-file-on-windows-to-save-user-and-password
         """
         try:
             from netrc import netrc
@@ -27,12 +31,13 @@ class Auth(object):
             if self.verbose:
                 print("SDSS_ACCESS> AUTH NETRC: %r" % e)
         if netrc:
-            """ Windows: recommending _netrc following
-            https://stackoverflow.com/questions/6031214/git-how-to-use-netrc-file-on-windows-to-save-user-and-password"""
             file = join(environ['HOME'], "_netrc") if not is_posix else None
-            try: self.netrc = netrc(file) if not self.public else None
-            except Exception as e: print("SDSS_ACCESS> Error %r" % e)
-        else: self.netrc = None
+            try:
+                self.netrc = netrc(file) if not self.public else None
+            except Exception as e:
+                print("SDSS_ACCESS> Error %r" % e)
+        else:
+            self.netrc = None
 
     def set_netloc(self, netloc=None):
         self.netloc = netloc
