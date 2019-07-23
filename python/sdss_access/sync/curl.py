@@ -94,7 +94,7 @@ class CurlAccess(BaseAccess):
             # Get user specified url options at branch directory
             try:
                 query_objects[query_depth]['query_list'] = [item.split('"')[0] for item in re.findall(r'<a href="(%s)%s".*</a></td><td>'%(query_objects[query_depth]['query'], '/' if query_depth != max_depth else ''), urlopen(query_objects[query_depth]['query_directory']).read().decode('utf-8'))]
-                print(query_objects[query_depth]['query_list'])
+                print(query_objects[query_depth]['query_directory'], query_objects[query_depth]['query_list'])
             except Exception as e:
                 query_objects[query_depth]['query_list'] = []
                 if 'Unauthorized' in e:
