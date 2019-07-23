@@ -94,6 +94,7 @@ class CurlAccess(BaseAccess):
             # Get user specified url options at branch directory
             try:
                 query_objects[query_depth]['query_list'] = [item.split('"')[0] for item in re.findall(r'<a href="(%s)%s".*</a></td><td>'%(query_objects[query_depth]['query'], '/' if query_depth != max_depth else ''), urlopen(query_objects[query_depth]['query_directory']).read().decode('utf-8'))]
+                print(query_objects[query_depth]['query_list'])
             except Exception as e:
                 query_objects[query_depth]['query_list'] = []
                 if 'Unauthorized' in e:
@@ -125,7 +126,6 @@ class CurlAccess(BaseAccess):
             self.set_url_password(query_path)
         
         self.file_line_list, self.file_size_list, self.file_date_list, self.url_list = [], [], [], []
-        print('---', self.get_query_list(query_path))
         for url in self.get_query_list(query_path):
             file_line, file_size, file_date = re.findall(r'<a href="(%s)".*</a></td><td>\s*(\d*)</td><td>(.*)</td></tr>\r' % basename(url), urlopen(dirname(url)).read().decode('utf-8'))[0]
             self.url_list.append(url)
