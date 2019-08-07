@@ -3,22 +3,22 @@
 #
 # Licensed under a 3-clause BSD license.
 #
-# @Author: Brian Cherinka
-# @Date:   2017-03-24 12:22:07
-# @Last modified by:   Brian Cherinka
-# @Last Modified time: 2018-07-08 15:47:42
+# @Author: Michael Talbot
+# @Date:   2019-08-7 12:30:00
+# @Last modified by:   Michael Talbot
+# @Last Modified time: 2019-08-07 12:30:00
 
 from __future__ import print_function, division, absolute_import
 
 
-class TestRsyncAdd(object):
+class TestCurlAdd(object):
 
     def test_curl_add_link(self, curl_add):
         task = curl_add.initial_stream.task[0]
         assert curl_add.location in task['location']
 
 
-class TestRsyncStream(object):
+class TestCurlStream(object):
 
     def test_curl_setstream_task(self, curl_set):
         tasks = curl_set.stream.task
