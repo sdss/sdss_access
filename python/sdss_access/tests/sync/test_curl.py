@@ -10,7 +10,7 @@
 
 from __future__ import print_function, division, absolute_import
 
-
+ 
 class TestCurlAdd(object):
 
     def test_curl_add_link(self, curl_add):
