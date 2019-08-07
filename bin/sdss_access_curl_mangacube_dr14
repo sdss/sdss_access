@@ -1,9 +1,0 @@
-#!/usr/bin/env python3
-from sdss_access import CurlAccess, AccessError
-curl_access = CurlAccess(label='mangacube_dr14',public=True,release='dr14',verbose=True)
-curl_access.remote()
-curl_access.add('mangacube', drpver='v2_1_2', plate=8485, ifu='19*')
-curl_access.set_stream()
-
-curl_access.commit()
-

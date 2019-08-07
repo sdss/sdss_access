@@ -13,6 +13,7 @@ import os
 import pytest
 
 from sdss_access import RsyncAccess
+from sdss_access import CurlAccess
 from sdss_access.path import Path
 
 
@@ -144,5 +145,35 @@ def rsync_set(rsync_add, data):
     rsync_add.count = paths['count']
     rsync_add.set_stream()
     yield rsync_add
+
+@pytest.fixture(scope='function')
+def curl():
+    ''' fixture to create generic curl object '''
+    curl = CurlAccess(label='test_curl')
+    curl.remote()
+    yield curl
+
+    # teardown
+    curl.reset()
+    curl = None
+
+
+@pytest.fixture(scope='function')
+def curl_add(curl, data, init_manga_survey):
+    ''' fixture to add data to an curl object '''
+    name, paths = data
+    curl.add(name, **init_manga_survey.curl_kwargs)
+    curl.location = paths['loc']
+    yield curl
+
+
+@pytest.fixture(scope='function')
+def curl_set(curl_add, data):
+    ''' fixture to set the stream of an curl object '''
+    name, paths = data
+    curl_add.location = os.path.join(paths['loc'].replace('*', 'SPX-GAU-MILESHC'), paths['single'])
+    curl_add.count = paths['count']
+    curl_add.set_stream()
+    yield curl_add
 
 
