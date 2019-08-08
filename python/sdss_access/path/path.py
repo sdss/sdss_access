@@ -13,10 +13,11 @@ from collections import OrderedDict
 from sdss_access import tree
 from sdss_access import is_posix
 
+pathlib = None
 try:
     import pathlib
 except ImportError:
-    pathlib = None
+    import pathlib2 as pathlib
 
 try:
     from ConfigParser import RawConfigParser
