@@ -138,8 +138,8 @@ class TestPath(object):
     def test_refine(self, path):
         full = self.full(path)
         n = path.expand('', full=full)
-        items = path.refine(n, r'(.*?)-19\d{2}-(.*?)')
-        if not items:
+        if not n:
             return
+        items = path.refine(n, r'(.*?)-19\d{2}-(.*?)')
         for item in items:
             assert re.search('8485-190[1-2]', item)
