@@ -13,9 +13,12 @@ python:
 
 os:
 - linux
+- windows
 
 matrix:
   fast_finish: true
+  allow_failures:
+    - os: windows
 
 notifications:
   email: false
