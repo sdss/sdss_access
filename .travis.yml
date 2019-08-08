@@ -20,10 +20,6 @@ matrix:
 notifications:
   email: false
 
-env:
-  global:
-  - SAS_BASE_DIR=$HOME/sas
-
 # repo branches to test
 branches:
 - master

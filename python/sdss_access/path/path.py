@@ -12,10 +12,11 @@ from random import choice, sample
 from collections import OrderedDict
 from sdss_access import tree
 
+pathlib = None
 try:
     import pathlib
 except ImportError:
-    pathlib = None
+    import pathlib2 as pathlib
 
 try:
     from ConfigParser import RawConfigParser
