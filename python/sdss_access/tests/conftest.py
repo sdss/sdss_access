@@ -43,9 +43,9 @@ class Survey(object):
             self.setup_manga()
 
     def setup_manga(self):
-        self.rsync_kwargs = self.get_rsync_kwargs()
+        self.path_kwargs = self.get_path_kwargs()
 
-    def get_rsync_kwargs(self):
+    def get_path_kwargs(self):
         if self.survey == 'manga':
             rkwargs = {'plate': None, 'ifu': None, 'drpver': None, 'dapver': None, 'dir3d': None,
                        'mpl': None, 'bintype': '*', 'n': '**', 'mode': '*', 'daptype': '*'}
@@ -75,10 +75,10 @@ def init_manga_survey(survey, get_release, get_plateifu):
 
     drpver, dapver = mpldict[get_release]
     plate, ifu = get_plateifu.split('-')
-    survey.rsync_kwargs['drpver'] = drpver
-    survey.rsync_kwargs['dapver'] = dapver
-    survey.rsync_kwargs['plate'] = plate
-    survey.rsync_kwargs['ifu'] = ifu
+    survey.path_kwargs['drpver'] = drpver
+    survey.path_kwargs['dapver'] = dapver
+    survey.path_kwargs['plate'] = plate
+    survey.path_kwargs['ifu'] = ifu
     survey.set_data(get_release)
     yield survey
 
@@ -86,8 +86,8 @@ def init_manga_survey(survey, get_release, get_plateifu):
 @pytest.fixture(scope='module', params=['mangadap5', 'mangacube'])
 def data(request, init_manga_survey):
     ''' fixture to generate data '''
-    fillkwargs = {'plate': init_manga_survey.rsync_kwargs['plate'], 'ifu': init_manga_survey.rsync_kwargs['ifu'],
-                  'drpver': init_manga_survey.rsync_kwargs['drpver'], 'dapver': init_manga_survey.rsync_kwargs['dapver']}
+    fillkwargs = {'plate': init_manga_survey.path_kwargs['plate'], 'ifu': init_manga_survey.path_kwargs['ifu'],
+                  'drpver': init_manga_survey.path_kwargs['drpver'], 'dapver': init_manga_survey.path_kwargs['dapver']}
     data_dict = {'mangadefault': {'files': 'mangadap-{plate}-{ifu}-default.fits.gz'.format(**fillkwargs),
                                   'loc': 'mangawork/manga/spectro/analysis/{drpver}/{dapver}/default/{plate}/'.format(**fillkwargs),
                                   'single': 'mangadap-{plate}-{ifu}-default.fits.gz'.format(**fillkwargs),
@@ -132,7 +132,7 @@ def rsync():
 def rsync_add(rsync, data, init_manga_survey):
     ''' fixture to add data to an rsync object '''
     name, paths = data
-    rsync.add(name, **init_manga_survey.rsync_kwargs)
+    rsync.add(name, **init_manga_survey.path_kwargs)
     rsync.location = paths['loc']
     yield rsync
 
@@ -162,7 +162,7 @@ def curl():
 def curl_add(curl, data, init_manga_survey):
     ''' fixture to add data to an curl object '''
     name, paths = data
-    curl.add(name, **init_manga_survey.curl_kwargs)
+    curl.add(name, **init_manga_survey.path_kwargs)
     curl.location = paths['loc']
     yield curl
 
