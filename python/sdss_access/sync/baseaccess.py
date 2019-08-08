@@ -2,6 +2,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # The line above will help with 2to3 support.
 
 import abc
+import six
 from os.path import join, sep
 from sdss_access import SDSSPath
 from sdss_access.sync.auth import Auth
@@ -9,7 +10,7 @@ from sdss_access.sync.stream import Stream
 from sdss_access import is_posix, AccessError
 
 
-class BaseAccess(abc.ABC, SDSSPath):
+class BaseAccess(six.with_metaclass(abc.ABCMeta, SDSSPath)):
     """Class for providing Rsync or Curl access to SDSS SAS Paths
     """
     remote_scheme = None
