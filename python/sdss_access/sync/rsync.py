@@ -109,7 +109,8 @@ class RsyncAccess(SDSSPath):
     def generate_stream_task(self, task=None, out=None):
         if task and out:
             depth = task['location'].count('/')
-            if self.public: depth -= 1
+            if self.public:
+                depth -= 1
             for result in out.split(b"\n"):
                 result = result.decode('utf-8')
                 if result.startswith(('d', '-', 'l')):
@@ -118,6 +119,9 @@ class RsyncAccess(SDSSPath):
                     except:
                         location = None
                     if location and location.count('/') == depth:
+                        # need to join the DR tag into the location
+                        if self.public:
+                            location = join(self.release.lower(), location)
                         source = join(self.stream.source, location) if self.remote_base else None
                         destination = join(self.stream.destination, location)
                         yield (location, source, destination)
