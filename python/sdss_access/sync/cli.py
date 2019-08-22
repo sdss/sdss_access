@@ -62,6 +62,8 @@ class Cli(object):
 
     def get_background_process(self, command=None, logfile=None, errfile=None, pause=1):
         if command:
+            if self.verbose:
+                print("SDSS_ACCESS> [background]$ %r" % command)
             stdout = logfile if logfile else STDOUT
             stderr = errfile if errfile else STDOUT
             background_process = Popen(split(str(command)), env=self.env, stdout=stdout, stderr=stderr)

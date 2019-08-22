@@ -79,8 +79,8 @@ class RsyncAccess(SDSSPath):
             raise AccessError("No files to download.")
         else:
             self.stream = self.get_stream()
-            self.stream.source = join(self.remote_base, 'sas') if self.remote_base and not self.public else self.remote_base
-            self.stream.destination = self.base_dir
+            self.stream.source = join(self.remote_base, self.release.lower() if self.public else 'sas') if self.remote_base else self.remote_base
+            self.stream.destination = join(self.base_dir, self.release.lower() if self.public else '') if self.base_dir else self.base_dir
             if self.verbose:
                 print("SDSS_ACCESS> Stream destination: %s" % self.stream.destination)
             self.stream.cli.env = {'RSYNC_PASSWORD': self.auth.password} if self.auth.ready() else None
@@ -119,9 +119,6 @@ class RsyncAccess(SDSSPath):
                     except:
                         location = None
                     if location and location.count('/') == depth:
-                        # need to join the DR tag into the location
-                        if self.public:
-                            location = join(self.release.lower(), location)
                         source = join(self.stream.source, location) if self.remote_base else None
                         destination = join(self.stream.destination, location)
                         yield (location, source, destination)
@@ -133,11 +130,11 @@ class RsyncAccess(SDSSPath):
             if location and source and destination:
                 stream_has_task = True
                 self.stream.append_task(location=location, source=source, destination=destination)
-                """if self.verbose:
+                if self.verbose:
                     print("SDSS_ACCESS> Preparing to download: %s" % location)
                     print("SDSS_ACCESS> from: %s" % source)
                     print("SDSS_ACCESS> to: %s" % destination)
-                    print("-"*80)"""
+                    print("-"*80)
 
         if not stream_has_task:
             print('SDSS_ACCESS> Error: stream has nothing to do.')
@@ -156,7 +153,7 @@ class RsyncAccess(SDSSPath):
     def get_urls(self, offset=None, limit=None):
         locations = self.get_locations(offset=offset, limit=limit)
         remote_base = self.get_remote_base()
-        sasdir = 'sas' if not self.public else ''
+        sasdir =  self.release if self.public else 'sas'
         urls = [join(remote_base, sasdir, location) for location in locations] if locations else None
         return urls
 
