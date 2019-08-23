@@ -130,3 +130,4 @@ class Stream(object):
             print("SDSS_ACCESS> return code {returncode}".format(returncode=self.cli.returncode))
         for streamlet in self.streamlet:
             streamlet['logfile'].close()
+            streamlet['errfile'].close()
