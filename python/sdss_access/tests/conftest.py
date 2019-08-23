@@ -60,23 +60,34 @@ def expdata(release, datapath):
     # remote base
     base = remote['work'] if release == 'work' else remote['public']
     # work or DR directory
-    name = datapath['work'] if release == 'work' else release.lower()
+    name = datapath['work'] if release == 'work' else ''
     # file location
     location = os.path.join(name, datapath['location'])
     # full source file location
-    source = os.path.join(base, 'sas' if release == 'work' else '', location)
+    source = os.path.join(base, 'sas' if release == 'work' else release.lower(), location)
     # full final file location
-    destination = os.path.join(os.getenv('SAS_BASE_DIR'), location)
+    destination = os.path.join(os.getenv('SAS_BASE_DIR'), '' if release == 'work' else release.lower(), location)
     # combined dict
     result = {'name': datapath['name'], 'params': datapath['params'], 'base': base,
-              'location': location, 'source': source, 'destination': destination}
+              'location': location, 'source': source, 'destination': destination, 'release': release.lower()}
     yield result
     result = None
 
 
 @pytest.fixture(scope='session')
-def exptask(expdata):
-    ''' fixture to yield expected stream task based on test data '''
+def inittask(expdata):
+    ''' fixture to yield expected initial stream task based on test data '''
+
+    patch = '' if expdata['release'] == 'work' else expdata['release']
+    loc = os.path.join(patch, expdata['location'])
+    task = [{'location': loc, 'source': expdata['source'],
+             'destination': expdata['destination'], 'exists': None}]
+    yield task
+    task = None
+
+@pytest.fixture(scope='session')
+def finaltask(expdata):
+    ''' fixture to yield expected final stream task based on test data '''
 
     task = [{'location': expdata['location'], 'source': expdata['source'],
              'destination': expdata['destination'], 'exists': None}]

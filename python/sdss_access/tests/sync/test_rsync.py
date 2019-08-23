@@ -26,14 +26,27 @@ class TestRsync(object):
         path = rstream.get_paths()[0]
         assert path == expdata['destination']
 
+    def test_commit(self, monkeypatch, tmpdir, rsync):
+        sasdir = tmpdir.mkdir("sas")
+        monkeypatch.setenv("SAS_BASE_DIR", str(sasdir))
+
+        # need to replant tree since rsync is a session level fixture
+        rsync.replant_tree()
+        rsync.add('drpall', drpver='v2_4_3')
+        rsync.set_stream()
+        rsync.commit()
+
+        path = rsync.get_paths()[0]
+        print('path', path)
+        assert os.path.exists(path) is True
+        assert os.path.isfile(path) is True
+
 
 class TestStream(object):
-    def test_initial_stream(self, radd, exptask):
+    def test_initial_stream(self, radd, inittask):
         task = radd.initial_stream.task
-        assert task == exptask
+        assert task == inittask
 
-    def test_final_stream(self, rstream, exptask):
-        initial_task = rstream.initial_stream.task
+    def test_final_stream(self, rstream, finaltask):
         task = rstream.stream.task
-        assert task == exptask
-        assert task == initial_task
+        assert task == finaltask

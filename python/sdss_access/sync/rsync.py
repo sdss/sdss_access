@@ -147,13 +147,14 @@ class RsyncAccess(SDSSPath):
 
     def get_paths(self, offset=None, limit=None):
         locations = self.get_locations(offset=offset, limit=limit)
-        paths = [join(self.base_dir, location) for location in locations] if locations else None
+        sasdir = self.release.lower() if self.public else ''
+        paths = [join(self.base_dir, sasdir, location) for location in locations] if locations else None
         return paths
 
     def get_urls(self, offset=None, limit=None):
         locations = self.get_locations(offset=offset, limit=limit)
         remote_base = self.get_remote_base()
-        sasdir =  self.release if self.public else 'sas'
+        sasdir = self.release.lower() if self.public else 'sas'
         urls = [join(remote_base, sasdir, location) for location in locations] if locations else None
         return urls
 
