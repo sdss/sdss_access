@@ -126,7 +126,7 @@ class Stream(object):
             if self.verbose:
                 print("SDSS_ACCESS> rsync stream %s logging to %s" % (streamlet['index'],streamlet['logfile'].name))
         self.cli.wait_for_processes(list(streamlet['process'] for streamlet in self.streamlet))
-        if self.cli.returncode:
+        if self.cli.returncode and self.verbose:
             print("SDSS_ACCESS> return code {returncode}".format(returncode=self.cli.returncode))
         for streamlet in self.streamlet:
             streamlet['logfile'].close()
