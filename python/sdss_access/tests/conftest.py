@@ -17,6 +17,20 @@ from sdss_access import RsyncAccess
 from sdss_access.path import Path
 
 
+# PYTEST MODIFIERS
+# -----------------
+def pytest_addoption(parser):
+    """Add new options"""
+    # run slow tests
+    parser.addoption('--runslow', action='store_true', default=False, help='Run slow tests.')
+
+
+def pytest_runtest_setup(item):
+    """Skip slow tests."""
+    if 'slow' in item.keywords and not item.config.getoption('--runslow'):
+        pytest.skip('Requires --runslow option to run.')
+
+
 @pytest.fixture()
 def path():
     ''' Fixture to create a generic Path object '''

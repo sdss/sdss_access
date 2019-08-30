@@ -10,6 +10,7 @@
 
 from __future__ import print_function, division, absolute_import
 import os
+import pytest
 
 
 class TestRsync(object):
@@ -26,6 +27,7 @@ class TestRsync(object):
         path = rstream.get_paths()[0]
         assert path == expdata['destination']
 
+    @pytest.mark.slow
     def test_commit(self, monkeypatch, tmpdir, rsync):
         sasdir = tmpdir.mkdir("sas")
         monkeypatch.setenv("SAS_BASE_DIR", str(sasdir))
