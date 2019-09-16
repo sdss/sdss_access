@@ -13,7 +13,7 @@ import os
 import pytest
 import yaml
 
-from sdss_access import RsyncAccess
+from sdss_access import RsyncAccess, HttpAccess
 from sdss_access.path import Path
 
 
@@ -99,6 +99,7 @@ def inittask(expdata):
     yield task
     task = None
 
+
 @pytest.fixture(scope='session')
 def finaltask(expdata):
     ''' fixture to yield expected final stream task based on test data '''
@@ -136,3 +137,13 @@ def rstream(radd):
     ''' fixture to set the stream for an parametrized rsync object '''
     radd.set_stream()
     yield radd
+
+
+@pytest.fixture(scope='session')
+def http(release):
+    if 'DR' in release:
+        http = HttpAccess(public=True, release=release)
+    else:
+        http = HttpAccess()
+    yield http
+    http = None

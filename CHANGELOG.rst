@@ -13,6 +13,7 @@ Added
 - new extract method to return extracted keywords from a given filename
 - new tests for sdss_access.path
 - methods to extract and look up source code given a method name
+- added public access for HttpAccess
 
 Changed
 ^^^^^^^
