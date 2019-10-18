@@ -65,7 +65,8 @@ class BasePath(object):
 
     def replant_tree(self):
         ''' replants the tree based on release '''
-        tree.replant_tree(self.release)
+        release = self.release.lower()
+        tree.replant_tree(release)
 
     def _input_templates(self):
         """Read the path template file.
