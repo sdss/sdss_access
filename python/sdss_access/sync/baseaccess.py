@@ -73,16 +73,16 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, SDSSPath)):
 
             # set stream source based on access mode
             if self.access_mode == 'rsync':
-                source = join(self.remote_base, 'sas') if self.remote_base and not self.public else join(
-                    self.remote_base, self.release) if self.release else self.remote_base
+                source = join(self.remote_base, self.release.lower()
+                              if self.public else 'sas') if self.remote_base else self.remote_base
             elif self.access_mode == 'curl':
                 source = join(self.remote_base, 'sas').replace(sep, '/')
             self.stream.source = source
 
             # set stream destination based on access mode
             if self.access_mode == 'rsync':
-                dest = join(self.base_dir,
-                            self.release) if self.public and self.release else self.base_dir
+                dest = join(self.base_dir, self.release.lower() 
+                            if self.public else '') if self.base_dir else self.base_dir
             elif self.access_mode == 'curl':
                 dest = self.base_dir
             self.stream.destination = dest
@@ -144,14 +144,15 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, SDSSPath)):
     def get_paths(self, offset=None, limit=None):
         ''' Return the base paths for all paths in the stream '''
         locations = self.get_locations(offset=offset, limit=limit)
-        paths = [join(self.base_dir, location) for location in locations] if locations else None
+        sasdir = self.release.lower() if self.public else ''
+        paths = [join(self.base_dir, sasdir, location) for location in locations] if locations else None
         return paths
         
     def get_urls(self, offset=None, limit=None):
         ''' Return the urls for all paths in the stream '''
         locations = self.get_locations(offset=offset, limit=limit)
         remote_base = self.get_remote_base()
-        sasdir = 'sas' if not self.public else ''
+        sasdir = self.release.lower() if self.public else 'sas'
         urls = [join(remote_base, sasdir, location) for location in locations] if locations else None
         return urls
 
