@@ -17,6 +17,7 @@ Added
 - sdss_access now has a CurlAccess class to enable use on Windows OS
 - implemented new BaseAccess class to abstract out commonalities between RsyncAccess and CurlAccess
 - added a general Access class which handles the choice between Rsync/CurlAccess
+- added public access for HttpAccess
 
 Changed
 ^^^^^^^
@@ -26,10 +27,12 @@ Changed
 - updating yaml.load to use FullLoaded in compliance with pyyaml 5.1
 - changing disutils.strictversion to parse_versions
 - moved methods from RsyncAccess and CurlAccess into common BaseAccess
+- refactored the test suite to add tests on DR data, and simplify new path entries
 
 Fixed
 ^^^^^
 - Bug fix for pathlib on 2.7 python systems
+- Issue :issue:`9` Bug fix in generate_stream_task for public rsync locations
 
 0.2.7 (2018-09-06)
 ------------------

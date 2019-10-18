@@ -67,6 +67,8 @@ class Cli(object):
 
     def get_background_process(self, command=None, logfile=None, errfile=None, pause=1):
         if command:
+            if self.verbose:
+                print("SDSS_ACCESS> [background]$ %r" % command)
             stdout = logfile if logfile else STDOUT
             stderr = errfile if errfile else STDOUT
             background_process = Popen(split(str(command), posix=is_posix), env=self.env if 'rsync -' in command else None, stdout=stdout, stderr=stderr)
@@ -127,51 +129,55 @@ class Cli(object):
         status = 0
         out = ''
         err = ''
-        if not test:
-            if outname is None:
-                outfile = TemporaryFile()
-            else:
-                outfile = open(outname, 'w+')
-            if errname is None:
-                errfile = TemporaryFile()
-            else:
-                errfile = open(errname, 'w+')
-            proc = Popen(split(str(command), posix=is_posix), stdout=outfile, stderr=errfile, env=self.env if 'rsync -' in command else None)
-            tstart = time()
-            while proc.poll() is None:
-                elapsed = time() - tstart
-                if elapsed > 500000:
-                    message = "Process still running after more than 5 days!"
-                    proc.kill()
-                    break
-                tsleep = 10**(int(log10(elapsed)) - 1)
-                if tsleep < 1:
-                    tsleep = 1
-                sleep(tsleep)
-            # proc.wait()
-            (out,err) = proc.communicate()
-            status = proc.returncode
-            outfile.seek(0)
-            out = outfile.read()
-            errfile.seek(0)
-            err = errfile.read()
-            outfile.close()
-            errfile.close()
-            if logger is not None:
-                if status == 0 and logall:
-                    if len(out) > 0:
-                        logger.debug('STDOUT = \n' + out)
-                    if len(err) > 0:
-                        logger.debug('STDERR = \n' + err)
-                if status != 0:
-                    logger.error('status = {0}'.format(status))
-                    if len(out) > 0:
-                        logger.error('STDOUT = \n' + out)
-                    if len(err) > 0:
-                        logger.error('STDERR = \n' + err)
-                    if message is not None:
-                        logger.critical(message)
-                        exit(status)
+
+        # if test, return early
+        if test:
+            return (status, out, err)
+
+        # Perform the system call    
+        if outname is None:
+            outfile = TemporaryFile()
+        else:
+            outfile = open(outname, 'w+')
+        if errname is None:
+            errfile = TemporaryFile()
+        else:
+            errfile = open(errname, 'w+')
+        proc = Popen(split(str(command)), stdout=outfile, stderr=errfile, env=self.env)
+        tstart = time()
+        while proc.poll() is None:
+            elapsed = time() - tstart
+            if elapsed > 500000:
+                message = "Process still running after more than 5 days!"
+                proc.kill()
+                break
+            tsleep = 10**(int(log10(elapsed)) - 1)
+            if tsleep < 1:
+                tsleep = 1
+            sleep(tsleep)
+        # proc.wait()
+        status = proc.returncode
+        outfile.seek(0)
+        out = outfile.read()
+        errfile.seek(0)
+        err = errfile.read()
+        outfile.close()
+        errfile.close()
+        if logger is not None:
+            if status == 0 and logall:
+                if len(out) > 0:
+                    logger.debug('STDOUT = \n' + out)
+                if len(err) > 0:
+                    logger.debug('STDERR = \n' + err)
+            if status != 0:
+                logger.error('status = {0}'.format(status))
+                if len(out) > 0:
+                    logger.error('STDOUT = \n' + out)
+                if len(err) > 0:
+                    logger.error('STDERR = \n' + err)
+                if message is not None:
+                    logger.critical(message)
+                    exit(status)
         return (status, out, err)
 
 
