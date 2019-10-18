@@ -65,7 +65,7 @@ class BasePath(object):
 
     def replant_tree(self):
         ''' replants the tree based on release '''
-        release = self.release.lower()
+        release = self.release.lower() if self.release else None
         tree.replant_tree(release)
 
     def _input_templates(self):
