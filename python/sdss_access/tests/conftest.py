@@ -5,15 +5,15 @@
 #
 # @Author: Brian Cherinka
 # @Date:   2017-03-24 12:22:30
-# @Last modified by:   Brian Cherinka
-# @Last Modified time: 2018-07-08 16:34:37
+# @Last modified by:   Michael Talbot
+# @Last Modified time: 2019-08-07 12:30:00
 
 from __future__ import print_function, division, absolute_import
 import os
 import pytest
 import yaml
 
-from sdss_access import RsyncAccess, HttpAccess
+from sdss_access import RsyncAccess, HttpAccess, CurlAccess
 from sdss_access.path import Path
 
 
@@ -147,3 +147,32 @@ def http(release):
         http = HttpAccess()
     yield http
     http = None
+
+
+@pytest.fixture(scope='session')
+def curl(release):
+    ''' fixture to create generic curl object - parametrized by release '''
+
+    if 'DR' in release:
+        curl = CurlAccess(label='test_curl', public=True, release=release)
+    else:
+        curl = CurlAccess(label='test_curl')
+    curl.remote()
+    yield curl
+    # teardown
+    curl.reset()
+    curl = None
+
+
+@pytest.fixture(scope='session')
+def cadd(curl, expdata):
+    ''' fixture to add a path to an curl object '''
+    curl.add(expdata['name'], **expdata['params'])
+    yield curl
+
+
+@pytest.fixture(scope='session')
+def cstream(cadd):
+    ''' fixture to set the stream for an parametrized curl object '''
+    cadd.set_stream()
+    yield cadd

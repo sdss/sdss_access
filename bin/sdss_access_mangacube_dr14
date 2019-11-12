@@ -1,0 +1,9 @@
+#!/usr/bin/env python3
+from sdss_access import Access, AccessError
+access = Access(label='mangacube_dr14',public=True,release='dr14',verbose=True)
+access.remote()
+access.add('mangacube', drpver='v2_1_2', plate=8485, ifu='19*')
+access.set_stream()
+
+access.commit()
+

@@ -8,11 +8,15 @@ This document records the main changes to the sdss_access code.
 
 0.2.8 (unreleased)
 ------------------
+
 Added
 ^^^^^
 - new extract method to return extracted keywords from a given filename
 - new tests for sdss_access.path
 - methods to extract and look up source code given a method name
+- sdss_access now has a CurlAccess class to enable use on Windows OS
+- implemented new BaseAccess class to abstract out commonalities between RsyncAccess and CurlAccess
+- added a general Access class which handles the choice between Rsync/CurlAccess
 - added public access for HttpAccess
 
 Changed
@@ -22,6 +26,7 @@ Changed
 - replaced template envvar substitution with os.path.expandvars 
 - updating yaml.load to use FullLoaded in compliance with pyyaml 5.1
 - changing disutils.strictversion to parse_versions
+- moved methods from RsyncAccess and CurlAccess into common BaseAccess
 - refactored the test suite to add tests on DR data, and simplify new path entries
 
 Fixed

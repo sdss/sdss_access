@@ -7,10 +7,11 @@ import ast
 import inspect
 import six
 from glob import glob
-from os.path import join
+from os.path import join, sep
 from random import choice, sample
 from collections import OrderedDict
 from sdss_access import tree
+from sdss_access import is_posix
 
 pathlib = None
 try:
@@ -509,6 +510,8 @@ class BasePath(object):
                                             'be one of the designated templates '
                                             'in the currently loaded tree'.format(filetype))
         template = self.templates[filetype]
+        if not is_posix:
+            template = template.replace('/',sep)
 
         # Now replace {} items
         if template:
@@ -561,11 +564,24 @@ class BasePath(object):
                 return None
             else:
                 value = method(filetype, **kwargs)
-                template = re.sub(function, value, template)
+                template = template.replace(function, value)
+
         return template
 
     def set_netloc(self, netloc=None, sdss=None, dtn=None):
-        self.netloc = netloc if netloc else self._netloc["sdss"] if sdss else self._netloc["dtn"] if dtn else self._netloc["mirror"] if self.mirror else self._netloc["sdss"]
+        if netloc:
+            self.netloc = netloc
+            return
+
+        if dtn:
+            self.netloc = self._netloc["dtn"]
+        elif sdss:
+            self.netloc = self._netloc['sdss']
+        elif self.mirror:
+            self.netloc = self._netloc["mirror"]
+        else:
+            self.netloc = self._netloc['sdss']
+        #self.netloc = netloc if netloc else self._netloc["sdss"] if sdss else self._netloc["dtn"] if dtn else self._netloc["mirror"] if self.mirror else self._netloc["sdss"]
 
     def set_remote_base(self, scheme=None):
         self.remote_base = self.get_remote_base(scheme=scheme) if scheme else self.get_remote_base()
@@ -580,7 +596,7 @@ class BasePath(object):
         else:
             try:
                 self.base_dir = join(os.environ['SAS_BASE_DIR'], '')
-            except:
+            except Exception:
                 pass
 
     def location(self, filetype, base_dir=None, **kwargs):
@@ -624,7 +640,10 @@ class BasePath(object):
         """
 
         location = self.location(filetype, **kwargs)
-        return join(self.remote_base, sasdir, location) if self.remote_base and location else None
+        url = join(self.remote_base, sasdir, location) if self.remote_base and location else None
+        if not is_posix:
+            url = url.replace(sep,'/')
+        return url
 
 
 class Path(BasePath):
