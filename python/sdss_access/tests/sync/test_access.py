@@ -7,7 +7,7 @@
 # Created: Thursday, 8th August 2019 6:08:07 pm
 # License: BSD 3-clause "New" or "Revised" License
 # Copyright (c) 2019 Brian Cherinka
-# Last Modified: Friday, 18th October 2019 4:25:00 pm
+# Last Modified: Tuesday, 12th November 2019 2:51:10 pm
 # Modified By: Brian Cherinka
 
 
@@ -15,7 +15,11 @@ from __future__ import print_function, division, absolute_import
 import pytest
 from sdss_access.sync import CurlAccess, RsyncAccess
 import sdss_access
-import importlib
+try:
+    import importlib
+except ImportError:
+    import imp as importlib
+
 
 is_posix = [True, False]
 exp = {True: (RsyncAccess, 'rsync'), False: (CurlAccess, 'curl')}
