@@ -1,5 +1,12 @@
 python:
-   version: 3.5
-   setup_py_install: true
+  version: 3.7
+  install:
+    - requirements: requirements_doc.txt
+    - method: setuptools
+      path: package
 
-requirements_file: requirements_doc.txt
+sphinx:
+  configuration: docs/sphinx/conf.py
+
+build:
+  image: latest
