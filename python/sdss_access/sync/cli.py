@@ -20,6 +20,7 @@ class Cli(object):
 
     #tmp_dir = '/tmp'
     tmp_dir = gettempdir()
+    tmp_exists = exists(tmp_dir)
     if not is_posix:
         tmp_dir = tmp_dir.split(':')[-1]
 
@@ -27,7 +28,7 @@ class Cli(object):
         self.label = label if label else 'sdss_access'
         self.data_dir = data_dir if data_dir else getenv('SDSS_ACCESS_DATA_DIR')
         self.ready = exists(self.data_dir) if self.data_dir else False
-        if not self.ready and exists(self.tmp_dir):
+        if not self.ready and self.tmp_exists:
             self.data_dir = self.tmp_dir
         self.now = datetime.now().strftime("%Y%m%d")
         self.env = None
