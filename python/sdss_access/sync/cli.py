@@ -21,8 +21,6 @@ class Cli(object):
     #tmp_dir = '/tmp'
     tmp_dir = gettempdir()
     tmp_exists = exists(tmp_dir)
-    if not is_posix:
-        tmp_dir = tmp_dir.split(':')[-1]
 
     def __init__(self, label=None, data_dir=None, verbose=False):
         self.label = label if label else 'sdss_access'
