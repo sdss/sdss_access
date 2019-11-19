@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from sdss_access import AccessError
 from sdss_access.sync.baseaccess import BaseAccess
 from sdss_access import is_posix
+from os import system
 
 try:
     from urllib2 import HTTPPasswordMgrWithDefaultRealm, HTTPBasicAuthHandler, build_opener, install_opener, urlopen
@@ -24,6 +25,11 @@ class CurlAccess(BaseAccess):
 
     def __init__(self, label='sdss_curl', stream_count=5, mirror=False, public=False, release=None, 
                  verbose=False):
+        
+        if system('curl --version') != 0:
+            print('Please check that cURL is installed. \nIf cURL is not installed, the cURL download wizard is located at: ' + r'https://curl.haxx.se/dlwiz/.' + '\nInstallation tutorials for cURL (software from https://curl.haxx.se) are available online.')
+            exit()
+        
         super(CurlAccess, self).__init__(stream_count=stream_count, mirror=mirror, public=public, 
                                          release=release, verbose=verbose, label=label)
 
