@@ -31,7 +31,7 @@ class CurlAccess(BaseAccess):
                    'download wizard is located at: https://curl.haxx.se/dlwiz/. '
                    'Installation tutorials for cURL (software from https://curl.haxx.se) '
                    'are available online.')
-            raise RuntimeError(msg)
+            raise AccessError(msg)
         
         super(CurlAccess, self).__init__(stream_count=stream_count, mirror=mirror, public=public, 
                                          release=release, verbose=verbose, label=label)

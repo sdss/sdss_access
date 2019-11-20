@@ -87,7 +87,7 @@ class Cli(object):
             sleep(pause)
             running_processes = [process.poll() is None for process in processes]
             pause_count += 1
-        print("SDSS_ACCESS> Done!")
+        #print("SDSS_ACCESS> Done!")
         self.returncode = tuple([process.returncode for process in processes])
 
     def foreground_run(self, command, test=False, logger=None, logall=False, message=None, outname=None, errname=None):

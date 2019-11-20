@@ -138,9 +138,18 @@ class Stream(object):
             streamlet['process'] = self.cli.get_background_process(streamlet['command'], logfile=streamlet['logfile'], errfile=streamlet['errfile'])
             if self.verbose:
                 print("SDSS_ACCESS> rsync stream %s logging to %s" % (streamlet['index'],streamlet['logfile'].name))
+
         self.cli.wait_for_processes(list(streamlet['process'] for streamlet in self.streamlet))
-        if self.cli.returncode and self.verbose:
-            print("SDSS_ACCESS> return code {returncode}".format(returncode=self.cli.returncode))
+
+        if any(self.cli.returncode):
+            path = self.streamlet[0]['path'][:-3]
+            if self.verbose:
+                print("SDSS_ACCESS> return code {returncode}".format(
+                    returncode=self.cli.returncode))
+            print("SDSS_ACCESS> Failed! See error logs in %s." % (path))
+        else:
+            print("SDSS_ACCESS> Done!")
+
         for streamlet in self.streamlet:
             streamlet['logfile'].close()
             streamlet['errfile'].close()
