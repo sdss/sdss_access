@@ -6,10 +6,16 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
-0.2.9 (unreleased)
+0.2.9 (2019-12-06)
 ------------------
 
-0.2.8 (2018-11-12)
+Fixed
+^^^^^
+- bug in rtfd build failures
+- Issue :issue:`12` - bug on Windows when HOME drive different than Window temporary directory drive
+- Issue :issue:`11` - bug on Windows not creating temporary paths correctly
+
+0.2.8 (2019-11-12)
 ------------------
 
 Added
@@ -17,10 +23,11 @@ Added
 - new extract method to return extracted keywords from a given filename
 - new tests for sdss_access.path
 - methods to extract and look up source code given a method name
-- sdss_access now has a CurlAccess class to enable use on Windows OS
-- implemented new BaseAccess class to abstract out commonalities between RsyncAccess and CurlAccess
-- added a general Access class which handles the choice between Rsync/CurlAccess
-- added public access for HttpAccess
+- sdss_access now has a `CurlAccess` class to enable use on Windows OS
+- implemented new `BaseAccess` class to abstract out commonalities between `RsyncAccess` and `CurlAccess`
+- added a general `Access` class which handles the choice between `Rsync/CurlAccess`
+- issue :issue:`10` - added public access for `HttpAccess`
+- merged PR :pr:`6` - add curl as an access method
 
 Changed
 ^^^^^^^
