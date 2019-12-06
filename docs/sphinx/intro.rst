@@ -142,6 +142,18 @@ will automatically utilize `RsyncAccess`.
     access.set_stream()
     access.commit()
 
+In all all cases, successful `sdss_access` downloads will return a code of 0. Any other number indicates that a problem occurred.  If no verbose message
+is displayed, you may need to check the `sdss_access_XX.log` and `sdss_access_XX.err` files within the temporary directory.  
+
+.. _sdss-access-windows:
+
+Notes for Windows Users
+^^^^^^^^^^^^^^^^^^^^^^^
+
+`sdss_access` downloads files into a directory defined by the `SAS_BASE_DIR` enviroment variable.  If this path points to another drive other than 
+the C drive, make sure that the new drive and paths have full write permissions available to `curl`.  `CurlAccess` may not work properly until correct
+permissions are set up in your folder system.
+
 .. _sdss-access-api:
 
 Reference/API
