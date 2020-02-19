@@ -3,6 +3,7 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from pkg_resources import parse_version
 import os
 
 import yaml
@@ -14,6 +15,10 @@ from tree import Tree
 # File logging can be started by calling log.start_file_logger(name).
 from .misc import log
 
+# check if posix-based operating system
+from os import name
+is_posix = ( name == "posix" )
+
 # set up the TREE, but match the TREE_VER if it is already there
 from tree import Tree
 config = os.environ.get('TREE_VER', 'sdsswork')
@@ -21,16 +26,17 @@ tree = Tree(config=config)
 log.debug("SDSS_ACCESS> Using %r" % tree)
 
 from .path import Path as SDSSPath, AccessError
-from .sync import HttpAccess, RsyncAccess
+from .sync import HttpAccess, Access, BaseAccess, RsyncAccess, CurlAccess
 
 
 NAME = 'sdss_access'
 
 # Loads config
+yaml_version = parse_version(yaml.__version__)
 with open(os.path.dirname(__file__) + '/etc/{0}.cfg'.format(NAME)) as ff:
-    config = yaml.load(ff, Loader=yaml.FullLoader)
+    if yaml_version >= parse_version('5.1'):
+        config = yaml.load(ff, Loader=yaml.FullLoader)
+    else:
+        config = yaml.load(ff)
 
-
-__version__ = '0.2.8dev'
-
-
+__version__ = '0.2.10dev'

@@ -6,18 +6,35 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
-0.2.8 (unreleased)
-------------------
+0.2.10 (unreleased)
+-------------------
 
 Refactored
 ^^^^^^^^^^
 - Modified sdss_access to use the new versioned tree.  Removes input and dependency on single sdss_paths.ini file.  
+
+0.2.9 (2019-12-06)
+------------------
+
+Fixed
+^^^^^
+- bug in rtfd build failures
+- Issue :issue:`12` - bug on Windows when HOME drive different than Window temporary directory drive
+- Issue :issue:`11` - bug on Windows not creating temporary paths correctly
+
+0.2.8 (2019-11-12)
+------------------
 
 Added
 ^^^^^
 - new extract method to return extracted keywords from a given filename
 - new tests for sdss_access.path
 - methods to extract and look up source code given a method name
+- sdss_access now has a `CurlAccess` class to enable use on Windows OS
+- implemented new `BaseAccess` class to abstract out commonalities between `RsyncAccess` and `CurlAccess`
+- added a general `Access` class which handles the choice between `Rsync/CurlAccess`
+- issue :issue:`10` - added public access for `HttpAccess`
+- merged PR :pr:`6` - add curl as an access method
 
 Changed
 ^^^^^^^
@@ -25,6 +42,14 @@ Changed
 - moved special function template substitution into a separate method
 - replaced template envvar substitution with os.path.expandvars 
 - updating yaml.load to use FullLoaded in compliance with pyyaml 5.1
+- changing disutils.strictversion to parse_versions
+- moved methods from RsyncAccess and CurlAccess into common BaseAccess
+- refactored the test suite to add tests on DR data, and simplify new path entries
+
+Fixed
+^^^^^
+- Bug fix for pathlib on 2.7 python systems
+- Issue :issue:`9` Bug fix in generate_stream_task for public rsync locations
 
 0.2.7 (2018-09-06)
 ------------------

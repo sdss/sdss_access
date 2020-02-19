@@ -10,19 +10,23 @@ from tempfile import TemporaryFile
 from time import time, sleep
 from glob import iglob
 from datetime import datetime
+from sdss_access import is_posix
+from tempfile import gettempdir
 
 
 class Cli(object):
     """Class for providing command line interface (cli) sync scripts, and logs to local disk
     """
 
-    tmp_dir = '/tmp'
+    #tmp_dir = '/tmp'
+    tmp_dir = gettempdir()
+    tmp_exists = exists(tmp_dir)
 
     def __init__(self, label=None, data_dir=None, verbose=False):
         self.label = label if label else 'sdss_access'
         self.data_dir = data_dir if data_dir else getenv('SDSS_ACCESS_DATA_DIR')
         self.ready = exists(self.data_dir) if self.data_dir else False
-        if not self.ready and exists(self.tmp_dir):
+        if not self.ready and self.tmp_exists:
             self.data_dir = self.tmp_dir
         self.now = datetime.now().strftime("%Y%m%d")
         self.env = None
@@ -62,9 +66,11 @@ class Cli(object):
 
     def get_background_process(self, command=None, logfile=None, errfile=None, pause=1):
         if command:
+            if self.verbose:
+                print("SDSS_ACCESS> [background]$ %r" % command)
             stdout = logfile if logfile else STDOUT
             stderr = errfile if errfile else STDOUT
-            background_process = Popen(split(str(command)), env=self.env, stdout=stdout, stderr=stderr)
+            background_process = Popen(split(str(command), posix=is_posix), env=self.env if 'rsync -' in command else None, stdout=stdout, stderr=stderr)
             if pause:
                 sleep(pause)
         else:
@@ -72,10 +78,16 @@ class Cli(object):
         return background_process
 
     def wait_for_processes(self, processes, pause=60):
-        print("SDSS_ACCESS> syncing... please wait")
-        while any([process.poll() is None for process in processes]):
+        running_processes = [process.poll() is None for process in processes]
+        pause_count = 0
+        while any(running_processes):
+            running_count = sum(running_processes)
+            if self.verbose:
+                print("SDSS_ACCESS> syncing... please wait for %r rsync streams to complete [running for %r seconds]" % (running_count, pause_count * pause))
             sleep(pause)
-        print("SDSS_ACCESS> Done!")
+            running_processes = [process.poll() is None for process in processes]
+            pause_count += 1
+        #print("SDSS_ACCESS> Done!")
         self.returncode = tuple([process.returncode for process in processes])
 
     def foreground_run(self, command, test=False, logger=None, logall=False, message=None, outname=None, errname=None):
@@ -116,54 +128,57 @@ class Cli(object):
         status = 0
         out = ''
         err = ''
-        if not test:
-            if outname is None:
-                outfile = TemporaryFile()
-            else:
-                outfile = open(outname, 'w+')
-            if errname is None:
-                errfile = TemporaryFile()
-            else:
-                errfile = open(errname, 'w+')
-            proc = Popen(split(str(command)), stdout=outfile, stderr=errfile, env=self.env)
-            tstart = time()
-            while proc.poll() is None:
-                elapsed = time() - tstart
-                if elapsed > 500000:
-                    message = "Process still running after more than 5 days!"
-                    proc.kill()
-                    break
-                tsleep = 10**(int(log10(elapsed)) - 1)
-                if tsleep < 1:
-                    tsleep = 1
-                sleep(tsleep)
-            # proc.wait()
-            status = proc.returncode
-            outfile.seek(0)
-            out = outfile.read()
-            errfile.seek(0)
-            err = errfile.read()
-            outfile.close()
-            errfile.close()
-            if logger is not None:
-                if status == 0 and logall:
-                    if len(out) > 0:
-                        logger.debug('STDOUT = \n' + out)
-                    if len(err) > 0:
-                        logger.debug('STDERR = \n' + err)
-                if status != 0:
-                    logger.error('status = {0}'.format(status))
-                    if len(out) > 0:
-                        logger.error('STDOUT = \n' + out)
-                    if len(err) > 0:
-                        logger.error('STDERR = \n' + err)
-                    if message is not None:
-                        logger.critical(message)
-                        exit(status)
+
+        # if test, return early
+        if test:
+            return (status, out, err)
+
+        # Perform the system call    
+        if outname is None:
+            outfile = TemporaryFile()
+        else:
+            outfile = open(outname, 'w+')
+        if errname is None:
+            errfile = TemporaryFile()
+        else:
+            errfile = open(errname, 'w+')
+        proc = Popen(split(str(command)), stdout=outfile, stderr=errfile, env=self.env)
+        tstart = time()
+        while proc.poll() is None:
+            elapsed = time() - tstart
+            if elapsed > 500000:
+                message = "Process still running after more than 5 days!"
+                proc.kill()
+                break
+            tsleep = 10**(int(log10(elapsed)) - 1)
+            if tsleep < 1:
+                tsleep = 1
+            sleep(tsleep)
+        # proc.wait()
+        status = proc.returncode
+        outfile.seek(0)
+        out = outfile.read()
+        errfile.seek(0)
+        err = errfile.read()
+        outfile.close()
+        errfile.close()
+        if logger is not None:
+            if status == 0 and logall:
+                if len(out) > 0:
+                    logger.debug('STDOUT = \n' + out)
+                if len(err) > 0:
+                    logger.debug('STDERR = \n' + err)
+            if status != 0:
+                logger.error('status = {0}'.format(status))
+                if len(out) > 0:
+                    logger.error('STDOUT = \n' + out)
+                if len(err) > 0:
+                    logger.error('STDERR = \n' + err)
+                if message is not None:
+                    logger.critical(message)
+                    exit(status)
         return (status, out, err)
 
 
 class CliError(Exception):
     pass
-
-

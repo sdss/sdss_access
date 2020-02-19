@@ -1,0 +1,11 @@
+
+remote_base:
+  work: rsync://sdss@dtn01.sdss.org
+  public: rsync://data.sdss.org
+
+paths:
+  - name: mangacube
+    work: mangawork
+    params: {drpver: v2_4_3, plate: 8485, ifu: 1901}
+    location: manga/spectro/redux/v2_4_3/8485/stack/manga-8485-1901-LOGCUBE.fits.gz
+

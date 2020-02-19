@@ -1,9 +1,11 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 # The line above will help with 2to3 support.
 
+import re
 from sdss_access.sync import Cli
 from random import shuffle
-import re
+from os.path import sep, join
+from sdss_access import is_posix
 
 
 class Stream(object):
@@ -68,6 +70,10 @@ class Stream(object):
             locations = locations[offset:]
         if limit:
             locations = locations[:limit]
+        if not is_posix:
+            locations = [loc.replace('/', sep) for loc in locations]
+        else:
+            locations = [loc for loc in locations]
         return locations
 
     def shuffle(self):
@@ -116,7 +122,14 @@ class Stream(object):
             streamlet['path'] = self.cli.get_path(index=streamlet['index'])
             path_txt = "{0}.txt".format(streamlet['path'])
             streamlet['command'] = self.command.format(path=path_txt, source=self.source, destination=self.destination)
-            self.cli.write_lines(path=path_txt, lines=[location for location in streamlet['location']])
+    
+            if 'rsync -' in self.command:
+                self.cli.write_lines(path=path_txt, lines=[location for location in streamlet['location']])
+            else:
+                if not is_posix:
+                    self.cli.write_lines(path=path_txt, lines=['url ' + join(self.source, location).replace(sep,'/')+'\n'+'output '+join(self.destination, location) for location in streamlet['location']])
+                else:
+                    self.cli.write_lines(path=path_txt, lines=['url ' + join(self.source, location)+'\n'+'output '+join(self.destination, location) for location in streamlet['location']])
 
     def run_streamlets(self):
         for streamlet in self.streamlet:
@@ -124,10 +137,19 @@ class Stream(object):
             streamlet['errfile'] = open("{0}.err".format(streamlet['path']), "w")
             streamlet['process'] = self.cli.get_background_process(streamlet['command'], logfile=streamlet['logfile'], errfile=streamlet['errfile'])
             if self.verbose:
-                print("SDSS_ACCESS> rsync stream %s logging to %s" % (streamlet['index'], streamlet['logfile'].name))
-        self.cli.wait_for_processes(streamlet['process'] for streamlet in self.streamlet)
-        if self.cli.returncode:
-            print("SDSS_ACCESS> return code {returncode}".format(returncode=self.cli.returncode))
+                print("SDSS_ACCESS> rsync stream %s logging to %s" % (streamlet['index'],streamlet['logfile'].name))
+
+        self.cli.wait_for_processes(list(streamlet['process'] for streamlet in self.streamlet))
+
+        if any(self.cli.returncode):
+            path = self.streamlet[0]['path'][:-3]
+            if self.verbose:
+                print("SDSS_ACCESS> return code {returncode}".format(
+                    returncode=self.cli.returncode))
+            print("SDSS_ACCESS> Failed! See error logs in %s." % (path))
+        else:
+            print("SDSS_ACCESS> Done!")
+
         for streamlet in self.streamlet:
-            streamlet['errfile'].close()
             streamlet['logfile'].close()
+            streamlet['errfile'].close()

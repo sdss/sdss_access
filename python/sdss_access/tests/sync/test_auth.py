@@ -14,6 +14,7 @@ import pytest
 from sdss_access.sync.auth import Auth
 
 
+@pytest.mark.skip
 def test_set_username_interactively():
     """If authentication via `.netrc` file fails, then test for interactive prompt.
 

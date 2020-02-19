@@ -19,9 +19,10 @@ class HttpAccess(SDSSPath):
     """Class for providing HTTP access via urllib.request (python3) or urllib2 (python2) to SDSS SAS Paths
     """
 
-    def __init__(self, verbose=False):
-        super(HttpAccess, self).__init__()
+    def __init__(self, verbose=False, public=False, release=None, label='sdss_http'):
+        super(HttpAccess, self).__init__(public=public, release=release, verbose=verbose)
         self.verbose = verbose
+        self.label = label
         self._remote = False
 
     def set_auth(self, username=None, password=None):
