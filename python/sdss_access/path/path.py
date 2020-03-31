@@ -119,7 +119,7 @@ class BasePath(object):
         '''
         keys = []
         # find any %method names in the template string
-        functions = re.findall(r"\%\w+", self.templates[name])
+        functions = re.findall(r"\@\w+", self.templates[name])
         if not functions:
             return keys
 
