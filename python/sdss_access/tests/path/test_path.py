@@ -13,6 +13,7 @@ import os
 import re
 import pytest
 from sdss_access.path import Path
+from sdss_access.tests.conftest import gzcompress, gzuncompress
 
 
 class TestPath(object):
@@ -90,8 +91,8 @@ class TestPath(object):
         assert 'def full(self' in code
         assert 'template = self._call_special_functions' in code
 
-    def full(self, path):
-        full = path.full('mangacube', drpver='v2_4_3', plate=8485, ifu='*', wave='LOG')
+    def full(self, path, name='mangacube'):
+        full = path.full(name, drpver='v2_4_3', plate=8485, ifu='*', wave='LOG')
         return full
 
     def test_location(self, path):
@@ -143,3 +144,31 @@ class TestPath(object):
         items = path.refine(n, r'(.*?)-19\d{2}-(.*?)')
         for item in items:
             assert re.search('8485-190[1-2]', item)
+
+    @pytest.mark.parametrize('copydata',
+                             [('mangawork/manga/spectro/redux/v2_4_3/8485/stack/manga-8485-1901-LOGCUBE.fits.gz')], 
+                             indirect=True, ids=['data'])
+    def test_uncompress(self, copydata, monkeysas, path):
+        ''' test to find unzipped files with zipped path templates '''
+        assert path.templates['mangacube'].endswith('.gz')
+        with gzuncompress(copydata) as f:
+            full = path.full('mangacube', drpver='v2_4_3', plate=8485, ifu=1901, wave='LOG')
+            assert not full.endswith('.gz')
+            assert full.endswith('.fits')
+
+    @pytest.mark.parametrize('copydata',
+                             [('mangawork/manga/spectro/redux/v2_5_3/8485/images/1901.png')],
+                             indirect=True, ids=['data'])
+    def test_compress(self, copydata, monkeysas, path):
+        ''' test to find zipped files with non-zipped path templates '''
+        assert not path.templates['mangaimage'].endswith('.gz')
+        with gzcompress(copydata) as f:
+            full = path.full('mangaimage', drpver='v2_5_3', plate=8485, ifu=1901)
+            assert not full.endswith('.png')
+            assert full.endswith('.gz')
+
+    def test_uncompress_nofileexists(self, monkeysas, path):
+        ''' test if no file exists, full returns original template path '''
+        assert path.templates['mangacube'].endswith('.gz')
+        full = path.full('mangacube', drpver='v2_4_3', plate=8485, ifu=1901, wave='LOG')
+        assert full.endswith('.gz')

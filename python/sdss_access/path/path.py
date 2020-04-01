@@ -574,10 +574,10 @@ class BasePath(object):
         # check if file is not compressed compared to template
         is_comp = re.search(self._comp_regex, template)
         if is_comp:
-            template = os.path.splitext(template)[0]
-            exists = self.exists('', full=template)
+            base = os.path.splitext(template)[0]
+            exists = self.exists('', full=base)
             if exists:
-                return template
+                return base
 
         # check if file on disk is actually compressed compared to template
         alternates = glob(template + '*')
