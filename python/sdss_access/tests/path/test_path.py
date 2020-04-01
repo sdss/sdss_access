@@ -34,7 +34,7 @@ class TestPath(object):
 
     @pytest.mark.parametrize('place, exp', [('local', False), ('remote', True)])
     def test_existence(self, path, place, exp):
-        full = path.full('mangaimage', drpver='v2_4_3', plate=8116, ifu=1901, dir3d='mastar')
+        full = path.full('mangaimage', drpver='v2_5_3', plate=8116, ifu=1901, dir3d='mastar')
         exists = path.exists('', full=full, remote=(place == 'remote'))
         assert exp == exists
 
