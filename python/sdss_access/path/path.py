@@ -51,8 +51,8 @@ class BasePath(object):
 
     def __init__(self, mirror=False, public=False, release=None, verbose=False):
         self.mirror = mirror
-        self.public = public
         self.release = release or 'sdsswork'
+        self.public = 'dr' in self.release.lower() or public
         self.verbose = verbose
         self.set_netloc()
         self.set_remote_base()
