@@ -75,11 +75,11 @@ class TestPath(object):
                                {'drpver': 'v2_4_3', 'plate': '8485', 'ifu': '1901', 'wave': 'LOG'}),
                               ('REJECT_MASK', 'ebosswork/eboss/lss/reject_mask/mask.html',
                                {'type': 'mask', 'format': 'html'}),
-                              ('fpC', 'ebosswork/eboss/photo/redux/1/45/objcs/3/fpC-000045-g3-0123.fit',
+                              ('fpBIN', 'ebosswork/eboss/photo/redux/1/45/objcs/3/fpBIN-000045-g3-0123.fit',
                                {'rerun': '1', 'field': '0123', 'filter': 'g', 'camcol': '3', 'run': '000045'}),
                               ('galaxy', 'ebosswork/eboss/lss/galaxy_DR12v1.0_1_n.fits.gz', 
                                {'sample': '1', 'dr': 'DR12', 'version': 'v1.0', 'ns': 'n'})],
-                             ids=['mangacube', 'reject', 'fpc', 'galaxy'])
+                             ids=['mangacube', 'reject', 'fpbin', 'galaxy'])
     def test_extract(self, path, name, example, keys):
         fullpath = os.path.join(os.environ['SAS_BASE_DIR'], example)
         realkeys = path.extract(name, fullpath)

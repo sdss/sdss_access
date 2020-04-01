@@ -204,8 +204,10 @@ class BasePath(object):
         from collections import Counter
         # escape the envvar $, any dots, and forward slashes
         subtemp = template.replace('$', '\\$') \
-                          .replace('.', '\\.') \
                           .replace('/', '\/')
+        subtemp = re.sub('[.](?!\*)', '\\.', subtemp)
+        # remove keyword formatting
+        subtemp = re.sub(':(.+?)}', '}', subtemp)
 
         # define named search pattern.
         named_search = re.sub(r'{(\w+)}', r'(?P<\1>(.*?))', subtemp)
@@ -273,7 +275,7 @@ class BasePath(object):
         if re.match('@spectrodir', template):
             template = re.sub('@spectrodir', os.environ['BOSS_SPECTRO_REDUX'], template)
         elif re.search('@platedir', template):
-            template = re.sub('@platedir', '(.*)/{plateid:0>6}', template)
+            template = re.sub('@platedir', r'(.*)/{plateid:0>6}', template)
         elif re.search('@definitiondir', template):
             template = re.sub('@definitiondir', '{designid:0>6}', template)
         if re.search('@plateid6', template):
@@ -310,7 +312,7 @@ class BasePath(object):
         if re.match('@spectrodir', template):
             template = re.sub('@spectrodir', os.environ['BOSS_SPECTRO_REDUX'], template)
         elif re.search('@platedir', template):
-            template = re.sub('@platedir', '(.*)/{plateid:0>6}', template)
+            template = re.sub('@platedir', r'(.*)/{plateid:0>6}', template)
         elif re.search('@definitiondir', template):
             template = re.sub('@definitiondir', '{designid:0>6}', template)
         if re.search('@plateid6', template):
@@ -323,9 +325,11 @@ class BasePath(object):
 
         # escape the envvar $ and any dots
         template = self._remove_compression(template)
-        subtemp = template.replace('$', '\\$').replace('.', '\\.')
+        subtemp = template.replace('$', '\\$')
+        subtemp = re.sub(r'[.](?!\*)', '\\.', subtemp)
         # define search pattern; replace all template keywords with regex "(.*)" group
         research = re.sub('{(.*?)}', '(.*?)', subtemp)
+        research += '$'  # mark the end of a search string (captures cases when {} at end of string)
         # look for matches in template and example
         pmatch = re.search(research, self._remove_compression(template))
         tmatch = re.search(research, self._remove_compression(example))
