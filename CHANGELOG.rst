@@ -6,12 +6,15 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
-0.2.10 (unreleased)
+1.0.0 (unreleased)
 -------------------
 
 Refactored
 ^^^^^^^^^^
 - Modified sdss_access to use the new versioned tree.  Removes input and dependency on single sdss_paths.ini file.  
+
+0.2.10 (unreleased)
+-------------------
 
 0.2.9 (2019-12-06)
 ------------------
