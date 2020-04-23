@@ -6,8 +6,12 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
-0.2.10 (unreleased)
+0.2.10 (2020-04-23)
 -------------------
+
+Fixed
+^^^^^
+- Bug in remote file existence check for following redirects.
 
 0.2.9 (2019-12-06)
 ------------------
@@ -36,7 +40,7 @@ Changed
 ^^^^^^^
 - expanded lookup_keys to also look for keywords inside special % functions
 - moved special function template substitution into a separate method
-- replaced template envvar substitution with os.path.expandvars 
+- replaced template envvar substitution with os.path.expandvars
 - updating yaml.load to use FullLoaded in compliance with pyyaml 5.1
 - changing disutils.strictversion to parse_versions
 - moved methods from RsyncAccess and CurlAccess into common BaseAccess
