@@ -106,7 +106,7 @@ class BasePath(object):
 
     def _check_special_kwargs(self, name):
         ''' check special functions for kwargs
-        
+
         Checks the content of the special functions (%methodname) for
         any keyword arguments referenced within
 
@@ -115,7 +115,7 @@ class BasePath(object):
                 A path key name
 
         Returns:
-            A list of keyword arguments found in any special functions 
+            A list of keyword arguments found in any special functions
         '''
         keys = []
         # find any %method names in the template string
@@ -138,7 +138,7 @@ class BasePath(object):
     @staticmethod
     def _find_source(method):
         ''' find source code of a given method
-        
+
         Find and extract the source code of a given method in a module.
         Uses inspect.findsource to get all source code and performs some
         selection magic to identify method source code.  Doing it this way
@@ -147,16 +147,16 @@ class BasePath(object):
         Parameters:
             method (obj):
                 A method object
-        
+
         Returns:
             A string containing the source code of a given method
-        
+
         Example:
             >>> from sdss_access.path import Path
             >>> path = Path()
             >>> path._find_source(path.full)
         '''
-        
+
         # get source code lines of entire module method is in
         source = inspect.findsource(method)
         is_method = inspect.ismethod(method)
@@ -187,10 +187,10 @@ class BasePath(object):
             A list of the available path names.
         '''
         return self.templates.keys()
-    
+
     def has_name(self, name):
         ''' Check if a given path name exists in the set of templates
-        
+
         Parameters:
             name (str):
                 The path name to lookup
@@ -341,7 +341,7 @@ class BasePath(object):
             # check for remote existence using a HEAD request
             url = self.url('', full=full)
             try:
-                resp = requests.head(url)
+                resp = requests.head(url, allow_redirects=True)
             except Exception as e:
                 raise AccessError('Cannot check for remote file existence for {0}: {1}'.format(url, e))
             else:
@@ -551,7 +551,7 @@ class BasePath(object):
         is_comp = re.search(self._comp_regex, template)
         if is_comp:
             temp_split = re.split(self._comp_regex, template)
-            template = temp_split[0]    
+            template = temp_split[0]
         return template
 
     def _add_compression_wild(self, template):
@@ -606,7 +606,7 @@ class BasePath(object):
                 Any kwargs needed to pass into the methods
 
         Returns:
-            The expanded template path 
+            The expanded template path
         '''
         # Now call special functions as appropriate
         functions = re.findall(r"\@\w+", template)
