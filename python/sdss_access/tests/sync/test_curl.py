@@ -16,7 +16,7 @@ import pytest
 class TestCurl(object):
 
     def test_curl(self, curl, datapath):
-        name = curl.release.lower() if curl.release and 'DR' in curl.release else datapath['work']
+        name = curl.release.lower() if curl.release and 'dr' in curl.release else datapath['work']
         path = curl.url(datapath['name'], **datapath['params'])
         assert datapath['location'] in path
         assert 'https://data.sdss.org' in path
