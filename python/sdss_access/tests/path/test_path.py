@@ -13,7 +13,6 @@ import os
 import re
 import pytest
 from sdss_access.path import Path
-from sdss_access.tests.conftest import gzcompress, gzuncompress
 
 
 class TestPath(object):
@@ -25,37 +24,37 @@ class TestPath(object):
 
     def test_public(self):
         path = Path()
-        url = path.url('mangacube', drpver='v2_3_1', plate=8485, ifu='1901', wave='LOG')
+        url = path.url('mangacube', drpver='v2_3_1', plate=8485, ifu='1901')
         assert 'mangawork' in url
 
         release = 'dr14'
         path = Path(public=True, release=release)
-        url = path.url('mangacube', drpver='v2_3_1', plate=8485, ifu='1901', wave='LOG')
+        url = path.url('mangacube', drpver='v2_3_1', plate=8485, ifu='1901')
         assert release in url
 
     @pytest.mark.parametrize('place, exp', [('local', False), ('remote', True)])
     def test_existence(self, path, place, exp):
-        full = path.full('mangaimage', drpver='v2_5_3', plate=8116, ifu=1901, dir3d='mastar')
+        full = path.full('mangaimage', drpver='v2_4_3', plate=8116, ifu=1901, dir3d='mastar')
         exists = path.exists('', full=full, remote=(place == 'remote'))
         assert exp == exists
 
     def test_lookup_names(self, path):
         assert 'mangacube' in path.lookup_names()
 
-    @pytest.mark.parametrize('name, keys', [('mangacube', ['drpver', 'ifu', 'plate', 'wave']),
+    @pytest.mark.parametrize('name, keys', [('mangacube', ['drpver', 'ifu', 'plate']),
                                             ('plateLines', ['plateid'])])
     def test_lookup_keys(self, path, name, keys):
         realkeys = path.lookup_keys(name)
         assert set(keys) == set(realkeys)
 
     @pytest.mark.parametrize('name, special, keys, exp',
-                             [('plateLines', '@platedir', {'plateid': 8485},
+                             [('plateLines', '%platedir', {'plateid': 8485},
                                '0084XX/008485/plateLines-008485.png'),
-                              ('plateLines', '@platedir', {'plateid': 11002},
+                              ('plateLines', '%platedir', {'plateid': 11002},
                                '0110XX/011002/plateLines-11002.png'),
-                              ('spAll', '@spectrodir', {'run2d': 103},
+                              ('spAll', '%spectrodir', {'run2d': 103},
                                'sas/sdsswork/sdss/spectro'),
-                              ('spAll', '@spectrodir', {'run2d': 100},
+                              ('spAll', '%spectrodir', {'run2d': 100},
                                'sas/ebosswork/eboss/spectro')],
                              ids=['platedir_p4', 'platedir_p5', 'spectrodir_r1', 'spectrodir_r2'])
     def test_special_function(self, path, name, special, keys, exp):
@@ -66,21 +65,21 @@ class TestPath(object):
     def test_envvar_expansion(self, path):
         name = 'mangacube'
         assert '$MANGA_SPECTRO_REDUX' in path.templates[name]
-        full = path.full(name, drpver='v2_4_3', plate=8485, ifu=1901, wave='LOG')
+        full = path.full(name, drpver='v2_4_3', plate=8485, ifu=1901)
         exp = 'sas/mangawork/manga/spectro/redux/v2_4_3/8485'
         assert exp in full
 
     @pytest.mark.parametrize('name, example, keys',
                              [('mangacube',
                                'mangawork/manga/spectro/redux/v2_4_3/8485/stack/manga-8485-1901-LOGCUBE.fits.gz',
-                               {'drpver': 'v2_4_3', 'plate': '8485', 'ifu': '1901', 'wave': 'LOG'}),
+                               {'drpver': 'v2_4_3', 'plate': '8485', 'ifu': '1901'}),
                               ('REJECT_MASK', 'ebosswork/eboss/lss/reject_mask/mask.html',
                                {'type': 'mask', 'format': 'html'}),
-                              ('fpBIN', 'ebosswork/eboss/photo/redux/1/45/objcs/3/fpBIN-000045-g3-0123.fit',
+                              ('fpC', 'ebosswork/eboss/photo/redux/1/45/objcs/3/fpC-000045-g3-0123.fit',
                                {'rerun': '1', 'field': '0123', 'filter': 'g', 'camcol': '3', 'run': '000045'}),
                               ('galaxy', 'ebosswork/eboss/lss/galaxy_DR12v1.0_1_n.fits.gz', 
                                {'sample': '1', 'dr': 'DR12', 'version': 'v1.0', 'ns': 'n'})],
-                             ids=['mangacube', 'reject', 'fpbin', 'galaxy'])
+                             ids=['mangacube', 'reject', 'fpc', 'galaxy'])
     def test_extract(self, path, name, example, keys):
         fullpath = os.path.join(os.environ['SAS_BASE_DIR'], example)
         realkeys = path.extract(name, fullpath)
@@ -91,8 +90,8 @@ class TestPath(object):
         assert 'def full(self' in code
         assert 'template = self._call_special_functions' in code
 
-    def full(self, path, name='mangacube'):
-        full = path.full(name, drpver='v2_4_3', plate=8485, ifu='*', wave='LOG')
+    def full(self, path):
+        full = path.full('mangacube', drpver='v2_4_3', plate=8485, ifu='*')
         return full
 
     def test_location(self, path):
@@ -144,31 +143,3 @@ class TestPath(object):
         items = path.refine(n, r'(.*?)-19\d{2}-(.*?)')
         for item in items:
             assert re.search('8485-190[1-2]', item)
-
-    @pytest.mark.parametrize('copydata',
-                             [('mangawork/manga/spectro/redux/v2_4_3/8485/stack/manga-8485-1901-LOGCUBE.fits.gz')], 
-                             indirect=True, ids=['data'])
-    def test_uncompress(self, copydata, monkeysas, path):
-        ''' test to find unzipped files with zipped path templates '''
-        assert path.templates['mangacube'].endswith('.gz')
-        with gzuncompress(copydata) as f:
-            full = path.full('mangacube', drpver='v2_4_3', plate=8485, ifu=1901, wave='LOG')
-            assert not full.endswith('.gz')
-            assert full.endswith('.fits')
-
-    @pytest.mark.parametrize('copydata',
-                             [('mangawork/manga/spectro/redux/v2_5_3/8485/images/1901.png')],
-                             indirect=True, ids=['data'])
-    def test_compress(self, copydata, monkeysas, path):
-        ''' test to find zipped files with non-zipped path templates '''
-        assert not path.templates['mangaimage'].endswith('.gz')
-        with gzcompress(copydata) as f:
-            full = path.full('mangaimage', drpver='v2_5_3', plate=8485, ifu=1901)
-            assert not full.endswith('.png')
-            assert full.endswith('.gz')
-
-    def test_uncompress_nofileexists(self, monkeysas, path):
-        ''' test if no file exists, full returns original template path '''
-        assert path.templates['mangacube'].endswith('.gz')
-        full = path.full('mangacube', drpver='v2_4_3', plate=8485, ifu=1901, wave='LOG')
-        assert full.endswith('.gz')
