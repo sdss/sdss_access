@@ -49,35 +49,36 @@ class BasePath(object):
 
     _netloc = {"dtn": "sdss@dtn01.sdss.org", "sdss": "data.sdss.org", "mirror": "data.mirror.sdss.org"}
 
-    def __init__(self, mirror=False, public=False, release=None, verbose=False):
+    def __init__(self, pathfile, mirror=False, public=False, release=None, verbose=False):
         self.mirror = mirror
-        self.release = release or 'sdsswork'
-        self.public = 'dr' in self.release.lower() or public
+        self.public = public
+        self.release = release
         self.verbose = verbose
         self.set_netloc()
         self.set_remote_base()
-        self._compressions = ['.gz', '.bz2', '.zip']
-        self._comp_regex = r'({0})$'.format('|'.join(self._compressions))
-        # set the path templates from the tree
-        self.templates = tree.paths
-        if self.release and self.release.lower() not in tree.config_name:
-            self.replant_tree(release=self.release)
+        self._pathfile = pathfile
+        self._config = RawConfigParser()
+        self._config.optionxform = str
+        self.templates = OrderedDict()
+        self._input_templates()
+        if release != tree.config_name:
+            self.replant_tree()
 
-    def replant_tree(self, release=None):
-        ''' replants the tree based on release
-
-        Resets the path definitions given a specified release
-
-        Parameters:
-            release (str):
-                A release to use when replanting the tree
-        '''
-        release = release or self.release
-        if release:
-            release = release.lower().replace('-', '')
+    def replant_tree(self):
+        ''' replants the tree based on release '''
+        release = self.release.lower() if self.release else None
         tree.replant_tree(release)
-        self.templates = tree.paths
-        self.release = release
+
+    def _input_templates(self):
+        """Read the path template file.
+        """
+        foo = self._config.read([self._pathfile])
+        if len(foo) == 1:
+            for k, v in self._config.items('paths'):
+                self.templates[k] = v
+        else:
+            raise ValueError("Could not read {0}!".format(self._pathfile))
+        return
 
     def lookup_keys(self, name):
         ''' Lookup the keyword arguments needed for a given path name
@@ -119,7 +120,7 @@ class BasePath(object):
         '''
         keys = []
         # find any %method names in the template string
-        functions = re.findall(r"\@\w+", self.templates[name])
+        functions = re.findall(r"\%\w+", self.templates[name])
         if not functions:
             return keys
 
@@ -188,16 +189,6 @@ class BasePath(object):
         '''
         return self.templates.keys()
 
-    def has_name(self, name):
-        ''' Check if a given path name exists in the set of templates
-
-        Parameters:
-            name (str):
-                The path name to lookup
-        '''
-        assert isinstance(name, six.string_types), 'name must be a string'
-        return name in self.lookup_names()
-
     def extract(self, name, example):
         ''' Extract keywords from an example path '''
 
@@ -218,30 +209,27 @@ class BasePath(object):
         template = os.path.expandvars(template)
 
         # handle special functions; perform a drop in replacement
-        if re.match('@spectrodir', template):
-            template = re.sub('@spectrodir', os.environ['BOSS_SPECTRO_REDUX'], template)
-        elif re.search('@platedir', template):
-            template = re.sub('@platedir', r'(.*)/{plateid:0>6}', template)
-        elif re.search('@definitiondir', template):
-            template = re.sub('@definitiondir', '{designid:0>6}', template)
-        if re.search('@plateid6', template):
-            template = re.sub('@plateid6', '{plateid:0>6}', template)
+        if re.match('%spectrodir', template):
+            template = re.sub('%spectrodir', os.environ['BOSS_SPECTRO_REDUX'], template)
+        elif re.search('%platedir', template):
+            template = re.sub('%platedir', '(.*)/{plateid:0>6}', template)
+        elif re.search('%definitiondir', template):
+            template = re.sub('%definitiondir', '{designid:0>6}', template)
+        if re.search('%plateid6', template):
+            template = re.sub('%plateid6', '{plateid:0>6}', template)
 
         # check if template has any brackets
         haskwargs = re.search('[{}]', template)
         if not haskwargs:
             return None
 
-        # escape the envvar $ and any dots (use re in case of @platedir sub)
-        template = self._remove_compression(template)
-        subtemp = template.replace('$', '\\$')
-        subtemp = re.sub(r'[.](?!\*)', '\\.', subtemp)
+        # escape the envvar $ and any dots
+        subtemp = template.replace('$', '\\$').replace('.', '\\.')
         # define search pattern; replace all template keywords with regex "(.*)" group
-        research = re.sub('{(.*?)}', '(.*?)', subtemp)
-        research += '$'  # mark the end of a search string (captures cases when {} at end of string)
+        research = re.sub('{(.*?)}', '(.*)', subtemp)
         # look for matches in template and example
-        pmatch = re.search(research, self._remove_compression(template))
-        tmatch = re.search(research, self._remove_compression(example))
+        pmatch = re.search(research, template)
+        tmatch = re.search(research, example)
 
         path_dict = {}
         # if example match extract keys and values from the match groups
@@ -376,7 +364,7 @@ class BasePath(object):
             full = self.full(filetype, **kwargs)
 
         # assert '*' in full, 'Wildcard must be present in full path'
-        files = glob(self._add_compression_wild(full))
+        files = glob(full)
 
         # return as urls?
         as_url = kwargs.get('as_url', None)
@@ -544,50 +532,6 @@ class BasePath(object):
             # Now call special functions as appropriate
             template = self._call_special_functions(filetype, template, **kwargs)
 
-        return self._check_compression(template)
-
-    def _remove_compression(self, template):
-        ''' remove a compression suffix '''
-        is_comp = re.search(self._comp_regex, template)
-        if is_comp:
-            temp_split = re.split(self._comp_regex, template)
-            template = temp_split[0]
-        return template
-
-    def _add_compression_wild(self, template):
-        ''' add a compression wildcard '''
-        is_comp = re.search(self._comp_regex, template)
-        if is_comp:
-            for comp in self._compressions:
-                template = template.replace(comp, '*')
-        else:
-            template = template + '*'
-        return template
-
-    def _check_compression(self, template):
-        ''' check if filepath is actually compressed '''
-
-        exists = self.exists('', full=template)
-        if exists:
-            return template
-
-        # check if file is not compressed compared to template
-        is_comp = re.search(self._comp_regex, template)
-        if is_comp:
-            base = os.path.splitext(template)[0]
-            exists = self.exists('', full=base)
-            if exists:
-                return base
-
-        # check if file on disk is actually compressed compared to template
-        alternates = glob(template + '*')
-        if alternates:
-            suffixes = list(set([re.search(self._comp_regex, c).group(0)
-                                 for c in alternates if re.search(self._comp_regex, c)]))
-            if suffixes:
-                assert len(suffixes) == 1, 'should only be one suffix per file template '
-                template = template + suffixes[0]
-
         return template
 
     def _call_special_functions(self, filetype, template, **kwargs):
@@ -609,7 +553,7 @@ class BasePath(object):
             The expanded template path
         '''
         # Now call special functions as appropriate
-        functions = re.findall(r"\@\w+", template)
+        functions = re.findall(r"\%\w+", template)
         if not functions:
             return template
 
@@ -706,7 +650,13 @@ class Path(BasePath):
     """Class for construction of paths in general.  Sets a particular template file.
     """
     def __init__(self, mirror=False, public=False, release=None, verbose=False):
-        super(Path, self).__init__(mirror=mirror, public=public, release=release, verbose=verbose)
+        try:
+            tree_dir = os.environ['TREE_DIR']
+        except KeyError:
+            raise NameError("Could not find TREE_DIR in the environment!  Did you load the tree product?")
+        pathfile = os.path.join(tree_dir, 'data', 'sdss_paths.ini')
+
+        super(Path, self).__init__(pathfile, mirror=mirror, public=public, release=release, verbose=verbose)
 
     def plateid6(self, filetype, **kwargs):
         """Print plate ID, accounting for 5-6 digit plate IDs.

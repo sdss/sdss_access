@@ -9,12 +9,9 @@
 # @Last Modified time: 2019-08-07 12:30:00
 
 from __future__ import print_function, division, absolute_import
-import gzip
 import os
 import pytest
 import yaml
-import contextlib
-import shutil
 
 from sdss_access import RsyncAccess, HttpAccess, CurlAccess
 from sdss_access.path import Path
@@ -38,7 +35,6 @@ def pytest_runtest_setup(item):
 def path():
     ''' Fixture to create a generic Path object '''
     path = Path()
-    path.replant_tree()
     yield path
     path = None
 
@@ -180,50 +176,3 @@ def cstream(cadd):
     ''' fixture to set the stream for an parametrized curl object '''
     cadd.set_stream()
     yield cadd
-
-
-@pytest.fixture()
-def monkeysas(tmpdir, monkeypatch, path):
-    ''' fixture to monkeypatch the sas_base_dir '''
-    tmppath = tmpdir / 'sas'
-    os.makedirs(tmppath, exist_ok=True)
-    monkeypatch.setenv('SAS_BASE_DIR', str(tmppath))
-    path.replant_tree()
-
-
-@pytest.fixture()
-def copydata(tmpdir, request):
-    ''' fixture to copy a file into a temporary directory '''
-    srcpath = os.path.join(os.getenv("SAS_BASE_DIR"), request.param)
-    # skip the test if no real data exists to copy
-    if not os.path.exists(srcpath):
-        pytest.skip('file does not exist cannot copy')
-    sasdir = tmpdir / 'sas'
-    destpath = sasdir / request.param
-    os.makedirs(os.path.dirname(destpath), exist_ok=True)
-    shutil.copy(srcpath, destpath)
-    yield destpath
-
-
-@contextlib.contextmanager
-def gzuncompress(filename):
-    ''' Context manager than gunzips a file temporarily. '''
-    import pathlib
-    pp = pathlib.Path(filename)
-    decompfile = pp.parent / pp.stem
-    with gzip.open(filename, 'rb') as f_in:
-        with open(decompfile, 'wb') as f_out:
-            shutil.copyfileobj(f_in, f_out)
-    os.remove(filename)
-    yield
-
-
-@contextlib.contextmanager
-def gzcompress(filename):
-    ''' Context manager than gzips a file temporarily. '''
-    compfile = filename + '.gz'
-    with open(filename, 'rb') as f_in:
-        with gzip.open(compfile, 'wb') as f_out:
-            shutil.copyfileobj(f_in, f_out)
-    os.remove(filename)
-    yield
