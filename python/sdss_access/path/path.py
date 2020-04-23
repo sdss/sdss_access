@@ -199,7 +199,27 @@ class BasePath(object):
         return name in self.lookup_names()
 
     def extract(self, name, example):
-        ''' Extract keywords from an example path '''
+        ''' Extract keywords from an example path
+
+        Attempts to extract the defined keyword values from an example filepath
+        for a given path name.  The filepath must be a full SDSS SAS filepath.
+
+        Parameters:
+            name (str):
+                The name of the path definition
+            example (str):
+                The absolute filepath to the example file
+
+        Returns:
+            A dictionary of path keyword values
+
+        Example:
+            >>> from sdss_access.path import Path
+            >>> path = Path()
+            >>> filepath = '/Users/Brian/Work/sdss/sas/mangawork/manga/spectro/redux/v2_5_3/8485/stack/manga-8485-1901-LOGCUBE.fits'
+            >>> path.extract('mangacube', filepath)
+            >>> {'drpver': 'v2_5_3', 'plate': '8485', 'ifu': '1901', 'wave': 'LOG'}
+        '''
 
         # if pathlib not available do nothing
         if not pathlib:

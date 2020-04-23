@@ -43,10 +43,10 @@ The syntax for all paths defined in `sdss_access`, for most methods, is ``(name,
 a **name** and several **keyword arguments**, indicated in the template filepath by **{keyword_name}**.  For example,
 the path to a MaNGA data cube has **name** ``mangacube`` and path keywords, **plate**, **drpver**, **ifu**, and **wave**,
 defined in the path ``$MANGA_SPECTRO_REDUX/{drpver}/{plate}/stack/manga-{plate}-{ifu}-{wave}CUBE.fits.gz``.  All paths
-are defined inside the SDSS `tree` product, within the `sdss_paths.ini` file, and available to you as a dictionary,
-``path.templates``::
+are defined inside the SDSS `tree` product, within a `[PATHS]` section in the environment configuration files, e.g. `data/sdsswork.cfg`
+or `data/dr15.cfg`.  Within `sdss_access`, all paths are available as a dictionary, ``path.templates``::
 
-    from sdss_access import SDSSPath
+    from sdss_access.path import SDSSPath
     path = SDSSPath()
 
     # show the dictionary of available paths
