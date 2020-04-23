@@ -11,10 +11,12 @@ This document records the main changes to the sdss_access code.
 
 Refactored
 ^^^^^^^^^^
-- Modified sdss_access to use the new versioned tree.  Removes input and dependency on single sdss_paths.ini file.
-
-0.2.11 (unreleased)
--------------------
+- Modified sdss_access to use the new versioned tree.  Removes input and dependency on single `sdss_paths.ini` file.
+- sdss_access no longer uses ConfigParser to parse the `sdss_paths.ini` file
+- path templates are passed in directly from the `tree` python product
+- The symbol for "special function" path definition has changed from `%` to `@`
+- `sdss_access` now checks for compressed/uncompressed files on disk compared to its path template definition
+- remote access classes, i.e `RsyncAaccess`, no longer need both public and release to be specified to access DRs.  Sets public=True automatically if `DR` in release name.
 
 0.2.10 (2020-04-23)
 -------------------
