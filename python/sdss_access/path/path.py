@@ -284,7 +284,7 @@ class BasePath(object):
         return os.path.dirname(full)
 
     def name(self, filetype, **kwargs):
-        """Return the directory containing a file of a given type.
+        """Return the name of a file of a given type.
 
         Parameters
         ----------
