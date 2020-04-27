@@ -79,6 +79,16 @@ class BasePath(object):
         self.templates = tree.paths
         self.release = release
 
+    @staticmethod
+    def get_available_releases(public=None):
+        ''' Get the available releases
+
+        Parameters:
+            public (bool):
+                If True, only return public data releases
+        '''
+        return tree.get_available_releases(public=public)
+
     def lookup_keys(self, name):
         ''' Lookup the keyword arguments needed for a given path name
 
