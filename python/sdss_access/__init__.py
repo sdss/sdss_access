@@ -2,41 +2,33 @@
 # encoding: utf-8
 
 from __future__ import absolute_import, division, print_function, unicode_literals
-
-from pkg_resources import parse_version
 import os
-
-import yaml
-
-# set up the TREE, but match the TREE_VER if it is already there
+from sdsstools import get_config, get_logger, get_package_version
 from tree import Tree
 
-# Inits the logging system. Only shell logging, and exception and warning catching.
-# File logging can be started by calling log.start_file_logger(name).
-from .misc import log
 
 # check if posix-based operating system
-from os import name
-is_posix = ( name == "posix" )
-
-# set up the TREE, but match the TREE_VER if it is already there
-from tree import Tree
-config = os.environ.get('TREE_VER', 'sdsswork')
-tree = Tree(config=config)
-log.debug("SDSS_ACCESS> Using %r" % tree)
-
-from .path import Path as SDSSPath, AccessError
-from .sync import HttpAccess, Access, BaseAccess, RsyncAccess, CurlAccess
+is_posix = (os.name == "posix")
 
 
 NAME = 'sdss_access'
 
-# Loads config
-yaml_version = parse_version(yaml.__version__)
-with open(os.path.dirname(__file__) + '/etc/{0}.cfg'.format(NAME)) as ff:
-    if yaml_version >= parse_version('5.1'):
-        config = yaml.load(ff, Loader=yaml.FullLoader)
-    else:
-        config = yaml.load(ff)
+# init the logger
+log = get_logger(NAME)
 
-__version__ = '1.0.0dev'
+# set up the TREE, but match the TREE_VER if it is already there
+config = os.environ.get('TREE_VER', 'sdsswork')
+tree = Tree(config=config)
+log.debug("SDSS_ACCESS> Using {0}".format(tree))
+
+
+# Loads config
+config = get_config(NAME)
+
+
+#__version__ = '1.0.0dev'
+__version__ = get_package_version(path=__file__, package_name=NAME)
+
+
+from .path import Path as SDSSPath, AccessError
+from .sync import HttpAccess, Access, BaseAccess, RsyncAccess, CurlAccess
