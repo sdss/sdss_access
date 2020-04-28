@@ -17,6 +17,10 @@ Refactored
 - The symbol for "special function" path definition has changed from `%` to `@`
 - `sdss_access` now checks for compressed/uncompressed files on disk compared to its path template definition
 - remote access classes, i.e `RsyncAaccess`, no longer need both public and release to be specified to access DRs.  Sets public=True automatically if `DR` in release name.
+- Added ``path.changelog`` module with new ``compute_changelog`` and ``get_path_templates`` functions to compute changes in paths between releases
+- Moved tests out of ``sdss_access`` python package to top level.
+- Deprecated included logger and config in favor of ``sdsstools`` logger and config.
+- Simplified python package setup.cfg and consolidated requirements files
 
 0.2.10 (2020-04-23)
 -------------------
