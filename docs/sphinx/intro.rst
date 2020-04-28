@@ -8,7 +8,7 @@ SDSS Access provides a convenient way of navigating local and remote filesystem 
 `sdss_access` uses the SDSS Tree product for all path look-ups.
 
 Path Generation
-^^^^^^^^^^^^^^^
+---------------
 
 You can generate full paths to local files easily with `Path.full`::
 
@@ -17,14 +17,14 @@ You can generate full paths to local files easily with `Path.full`::
     path = SDSSPath()
 
     # generate a file system path
-    path.full('mangacube', drpver='v2_3_1', plate='8485', ifu='1901')
+    path.full('mangacube', drpver='v2_3_1', plate='8485', ifu='1901', wave='LOG')
     '/Users/Brian/Work/sdss/sas/mangawork/manga/spectro/redux/v2_3_1/8485/stack/manga-8485-1902-LOGCUBE.fits.gz'
 
 Note that this only generates a path. The file may not actually exist locally.  If you want to generate a URL path to
 the file on the SAS at Utah, you can use `Path.url`::
 
     # generate a http path to the file
-    path.url('mangacube', drpver='v2_3_1', plate='8485', ifu='1901')
+    path.url('mangacube', drpver='v2_3_1', plate='8485', ifu='1901', wave='LOG')
     'https://data.sdss.org/sas/mangawork/manga/spectro/redux/v2_3_1/8485/stack/manga-8485-1902-LOGCUBE.fits.gz'
 
 You can also pass in the full path directly as a string in cases.  In those cases, the first argument passed in must
@@ -32,12 +32,12 @@ be an empty string.
 ::
 
     # pass in the full path directly to path.url
-    full = path.full('mangacube', drpver='v2_3_1', plate='8485', ifu='1901')
+    full = path.full('mangacube', drpver='v2_3_1', plate='8485', ifu='1901', wave='LOG')
     path.url('', full=full)
     'https://data.sdss.org/sas/mangawork/manga/spectro/redux/v2_3_1/8485/stack/manga-8485-1902-LOGCUBE.fits.gz'
 
 Path Names
-^^^^^^^^^^
+----------
 
 The syntax for all paths defined in `sdss_access`, for most methods, is ``(name, **kwargs)``.  Each path is defined by
 a **name** and several **keyword arguments**, indicated in the template filepath by **{keyword_name}**.  For example,
@@ -62,7 +62,7 @@ To look up what keywords are needed for a given path, you can use ``path.lookup_
 
     # look up the keyword arguments needed to define a MaNGA cube path
     path.lookup_keys('mangacube')
-    ['plate', 'drpver', 'ifu']
+    ['plate', 'drpver', 'ifu', 'wave']
 
 The full list of paths can also be found :ref:`here <paths>`.  To create a new path, see
 `Add Paths into the Tree <https://sdss-tree.readthedocs.io/en/latest/paths.html>`_ and follow
@@ -73,15 +73,15 @@ the ``remote`` keyword argument
 ::
 
     # check for local path existence
-    path.exists('mangacube', drpver='v2_3_1', plate='8485', ifu='1901')
+    path.exists('mangacube', drpver='v2_3_1', plate='8485', ifu='1901', wave='LOG')
     True
 
     # check for remote path existence on the SAS
-    path.exists('mangacube', drpver='v2_3_1', plate='8485', ifu='1901', remote=True)
+    path.exists('mangacube', drpver='v2_3_1', plate='8485', ifu='1901', wave='LOG', remote=True)
     True
 
 Downloading Files
-^^^^^^^^^^^^^^^^^
+-----------------
 
 You can download files from the SAS and place them in your local SAS.  `sdss_access` expects a local SAS filesystem
 that mimics the real SAS at Utah.  If you do not already have a `SAS_BASE_DIR` set, one will be defined in your
@@ -108,7 +108,7 @@ Using the `HttpAccess` class.
     http_access.remote()
 
     # get the file
-    http_access.get('mangacube', drpver='v2_3_1', plate='8485', ifu='1901')
+    http_access.get('mangacube', drpver='v2_3_1', plate='8485', ifu='1901', wave='LOG')
 
 Using the `RsyncAccess` class.  `RsyncAccess` is generally much faster then `HttpAccess` as it spreads multiple
 file downloads across multiple continuous rsync download streams.
@@ -124,7 +124,7 @@ file downloads across multiple continuous rsync download streams.
 
     # add all the file(s) you want to download
     # let's download all MPL-6 MaNGA cubes for plate 8485
-    rsync.add('mangacube', drpver='v2_3_1', plate='8485', ifu='*')
+    rsync.add('mangacube', drpver='v2_3_1', plate='8485', ifu='*', wave='LOG')
 
     # set the stream tasks
     rsync.set_stream()
@@ -172,10 +172,34 @@ In all all cases, successful `sdss_access` downloads will return a code of 0. An
 occurred.  If no verbose message is displayed, you may need to check the `sdss_access_XX.log` and `sdss_access_XX.err`
 files within the temporary directory.
 
+Accessing Public Data Products
+------------------------------
+
+The default configuration of all ``sdss_access`` classes, i.e. ``Path``, ``Access``, ``RsyncAccess``, etc. is to use the
+``sdsswork`` environment configuration, for access to the most up-to-date filepaths.  To specify paths, or download files, of products from public
+data releases, specify the ``release`` keyword and/or the ``public`` keyword.  ``sdss_access`` will automatically set ``public=True`` when the
+input release contains ``DRXX``.  You can also explicitly set the ``public`` keyword.
+::
+
+    # import the path and set it to use the DR15 release
+    from sdss_access.path import Path
+    path = Path(release='DR15')
+
+    # check if a public path
+    path.public
+    True
+
+    # generate a file system path
+    path.full('mangacube', drpver='v2_4_3', plate=8485, ifu=1901, wave='LOG')
+    '/Users/Brian/Work/sdss/sas/dr15/manga/spectro/redux/v2_4_3/8485/stack/manga-8485-1901-LOGCUBE.fits.gz'
+
+    # setup rsync access to download public data from DR15
+    rsync = RsyncAccess(public=True, release='DR15')
+
 .. _sdss-access-windows:
 
 Notes for Windows Users
-^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------
 
 `sdss_access` downloads files into a directory defined by the `SAS_BASE_DIR` enviroment variable.  If this path points
 to another drive other than the C drive, make sure that the new drive and paths have full write permissions available
@@ -184,7 +208,7 @@ to `curl`.  `CurlAccess` may not work properly until correct permissions are set
 .. _sdss-access-api:
 
 Reference/API
-^^^^^^^^^^^^^
+-------------
 
 .. rubric:: Class
 
