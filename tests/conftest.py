@@ -185,10 +185,15 @@ def cstream(cadd):
 @pytest.fixture()
 def monkeysas(tmpdir, monkeypatch, path):
     ''' fixture to monkeypatch the sas_base_dir '''
+    orig = os.getenv("SAS_BASE_DIR")
     tmppath = tmpdir / 'sas'
     os.makedirs(tmppath, exist_ok=True)
     monkeypatch.setenv('SAS_BASE_DIR', str(tmppath))
     path.replant_tree()
+    yield
+    os.environ["SAS_BASE_DIR"] = orig
+    path.replant_tree()
+
 
 
 @pytest.fixture()

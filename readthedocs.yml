@@ -1,6 +1,12 @@
-python:
-   version: 3.6
-   #setup_py_install: true
-   pip_install: true
+version: 2
 
-requirements_file: requirements_doc.txt
+build:
+   image: latest
+
+python:
+   version: 3.7
+   install:
+      - method: pip
+        path: .
+        extra_requirements:
+            - docs

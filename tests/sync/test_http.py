@@ -1,6 +1,6 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
-# 
+#
 # Filename: test_http.py
 # Project: sync
 # Author: Brian Cherinka
@@ -17,7 +17,7 @@ from __future__ import print_function, division, absolute_import
 class TestHttp(object):
 
     def test_http(self, http, datapath):
-        name = http.release.lower() if http.release and 'DR' in http.release else datapath['work']
+        name = http.release.lower() if http.release and 'dr' in http.release.lower() else datapath['work']
         path = http.url(datapath['name'], **datapath['params'])
         assert datapath['location'] in path
         assert 'https://data.sdss.org' in path

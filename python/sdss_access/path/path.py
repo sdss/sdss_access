@@ -728,7 +728,7 @@ class BasePath(object):
         location = self.location(filetype, **kwargs)
         url = join(self.remote_base, sasdir, location) if self.remote_base and location else None
         if not is_posix:
-            url = url.replace(sep,'/')
+            url = url.replace(sep, '/')
         return url
 
 

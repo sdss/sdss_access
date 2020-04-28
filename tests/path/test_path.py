@@ -13,7 +13,7 @@ import os
 import re
 import pytest
 from sdss_access.path import Path
-from sdss_access.tests.conftest import gzcompress, gzuncompress
+from tests.conftest import gzcompress, gzuncompress
 
 
 class TestPath(object):
@@ -78,7 +78,7 @@ class TestPath(object):
                                {'type': 'mask', 'format': 'html'}),
                               ('fpBIN', 'ebosswork/eboss/photo/redux/1/45/objcs/3/fpBIN-000045-g3-0123.fit',
                                {'rerun': '1', 'field': '0123', 'filter': 'g', 'camcol': '3', 'run': '000045'}),
-                              ('galaxy', 'ebosswork/eboss/lss/galaxy_DR12v1.0_1_n.fits.gz', 
+                              ('galaxy', 'ebosswork/eboss/lss/galaxy_DR12v1.0_1_n.fits.gz',
                                {'sample': '1', 'dr': 'DR12', 'version': 'v1.0', 'ns': 'n'})],
                              ids=['mangacube', 'reject', 'fpbin', 'galaxy'])
     def test_extract(self, path, name, example, keys):
@@ -146,7 +146,7 @@ class TestPath(object):
             assert re.search('8485-190[1-2]', item)
 
     @pytest.mark.parametrize('copydata',
-                             [('mangawork/manga/spectro/redux/v2_4_3/8485/stack/manga-8485-1901-LOGCUBE.fits.gz')], 
+                             [('mangawork/manga/spectro/redux/v2_4_3/8485/stack/manga-8485-1901-LOGCUBE.fits.gz')],
                              indirect=True, ids=['data'])
     def test_uncompress(self, copydata, monkeysas, path):
         ''' test to find unzipped files with zipped path templates '''
