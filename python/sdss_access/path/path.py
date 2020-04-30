@@ -779,6 +779,28 @@ class Path(BasePath):
         subdir = "{:0>4d}".format(plateid100) + "XX"
         return os.path.join(subdir, "{:0>6d}".format(plateid))
 
+    def plategrp(self, filetype, **kwargs):
+        ''' Returns plate group subdirectory
+
+        Parameters
+        ----------
+        filetype : str
+            File type parameter.
+        plate : int or str
+            Plate ID number.  Will be converted to int internally.
+
+        Returns
+        -------
+        plategrp : str
+            Plate group directory in the format ``NNNNXX``.
+
+        '''
+
+        plate = kwargs.get('plate', kwargs.get('plateid', None))
+        if not plate:
+            return 'XX'
+        return '{:0>4d}XX'.format(int(plate) // 100)
+
     def spectrodir(self, filetype, **kwargs):
         """Returns :envvar:`SPECTRO_REDUX` or :envvar:`BOSS_SPECTRO_REDUX`
         depending on the value of `run2d`.
