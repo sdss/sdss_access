@@ -172,3 +172,78 @@ class TestPath(object):
         assert path.templates['mangacube'].endswith('.gz')
         full = path.full('mangacube', drpver='v2_4_3', plate=8485, ifu=1901, wave='LOG')
         assert full.endswith('.gz')
+
+    @pytest.mark.parametrize('mirror', [(True), (False)])
+    def test_netloc(self, mirror):
+        ''' test the net location and remote_base '''
+        path = Path(mirror=mirror)
+        if mirror:
+            assert path.netloc == 'data.mirror.sdss.org'
+            assert path.remote_base == 'https://data.mirror.sdss.org'
+        else:
+            assert path.netloc == 'data.sdss.org'
+            assert path.remote_base == 'https://data.sdss.org'
+
+    def test_path_versions(self, path):
+        ff = path.full('mangaimage', plate=8485, ifu=1901, drpver='v2_4_3')
+        assert 'stack' not in ff
+        assert path.templates['mangaimage'] == '$MANGA_SPECTRO_REDUX/{drpver}/{plate}/images/{ifu}.png'
+
+        path = Path(release='DR13')
+        ff = path.full('mangaimage', plate=8485, ifu=1901, drpver='v2_4_3', dir3d='stack')
+        assert 'stack' in ff
+        assert path.templates['mangaimage'] == '$MANGA_SPECTRO_REDUX/{drpver}/{plate}/{dir3d}/images/{ifu}.png'
+
+    def test_svn_paths(self, path):
+        ff = path.full('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007')
+        assert 'mangapreim/trunk/data' in ff
+        assert not ff.startswith(os.getenv("SAS_BASE_DIR"))
+        assert ff.startswith(os.getenv("PRODUCT_ROOT"))
+        loc = path.location('', full=ff)
+        assert loc.startswith('data')
+
+    @pytest.mark.parametrize('dr', [(True), (False)])
+    def test_svn_urls(self, dr):
+        if dr:
+            path = Path(release='DR15')
+        else:
+            path = Path()
+        ff = path.full('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007')
+        url = path.url('', full=ff)
+        assert url.startswith('https://svn.sdss.org/')
+        if dr:
+            assert 'svn.sdss.org/public' in url
+
+    def test_svn_tags(self, path):
+        ff = path.full('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007')
+        assert 'mangapreim/trunk/data' in ff
+
+        path = Path(release='DR15')
+        ff = path.full('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007')
+        assert 'mangapreim/v2_5/data' in ff
+
+        url = path.url('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007')
+        assert 'mangapreim/tags/v2_5/data' in url
+
+    def test_svn_url_tag(self):
+        path = Path(release='DR15')
+        ff = path.full('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007')
+        assert 'mangapreim/v2_5/data' in ff
+
+        url1 = path.url('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007')
+        url2 = path.url('', full=ff)
+
+        assert 'mangapreim/tags/v2_5/data' in url1
+        assert 'mangapreim/tags/v2_5/data' in url2
+        assert url1 == url2
+
+    def test_svn_force_module(self, monkeypatch, path):
+        monkeypatch.setenv("MANGAPREIM_DIR", '/tmpdir/data/manga/mangapreim/trunk')
+
+        path = Path(release='DR15')
+        ff = path.full('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007')
+        assert 'mangapreim/v2_5/data' in ff
+
+        ff = path.full('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007',
+                       force_module=True)
+        assert 'mangapreim/trunk/data' in ff

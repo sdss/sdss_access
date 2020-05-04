@@ -1,6 +1,6 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
-# 
+#
 # Filename: test_access.py
 # Project: sync
 # Author: Brian Cherinka
@@ -36,4 +36,4 @@ def test_access(monkey_posix):
     core, mode = exp[sdss_access.is_posix]
     assert Access.access_mode == mode
     assert issubclass(Access, core)
-    
+

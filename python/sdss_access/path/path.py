@@ -9,7 +9,6 @@ import six
 from glob import glob
 from os.path import join, sep
 from random import choice, sample
-from collections import OrderedDict
 from sdss_access import tree
 from sdss_access import is_posix
 
@@ -41,21 +40,37 @@ Depends on the tree product. In particular requires path templates in:
 class BasePath(object):
     """Class for construction of paths in general.
 
+    Parameters
+    ----------
+    release : str
+        The release name, e.g. 'DR15', 'MPL-9'.
+    public : bool
+        If True, uses public urls.  Only needed for public data releases. Automatically set to True when release contains "DR".
+    mirror : bool
+        If True, uses the mirror data domain url.  Default is False.
+    verbose: bool
+        If True, turns on verbosity.  Default is False.
+    force_modules: bool
+        If True, forces software products to use any existing Module environment paths
+
     Attributes
     ----------
     templates : dict
         The set of templates read from the configuration file.
     """
 
-    _netloc = {"dtn": "sdss@dtn01.sdss.org", "sdss": "data.sdss.org", "mirror": "data.mirror.sdss.org"}
+    _netloc = {"dtn": "sdss@dtn01.sdss.org", "sdss": "data.sdss.org",
+               "mirror": "data.mirror.sdss.org", 'svn': 'svn.sdss.org'}
 
-    def __init__(self, mirror=False, public=False, release=None, verbose=False):
-        self.mirror = mirror
+    def __init__(self, release=None, public=False, mirror=False, verbose=False, force_modules=None):
         self.release = release or 'sdsswork'
         self.public = 'dr' in self.release.lower() or public
+        self.mirror = mirror
         self.verbose = verbose
+        self.force_modules = force_modules
         self.set_netloc()
         self.set_remote_base()
+
         self._compressions = ['.gz', '.bz2', '.zip']
         self._comp_regex = r'({0})$'.format('|'.join(self._compressions))
         # set the path templates from the tree
@@ -245,7 +260,7 @@ class BasePath(object):
         template = self.templates[name]
 
         # expand the environment variable
-        template = os.path.expandvars(template)
+        template = _expandvars(template)
 
         # handle special functions; perform a drop in replacement
         if re.match('@spectrodir', template):
@@ -530,17 +545,21 @@ class BasePath(object):
         return subset
 
     def full(self, filetype, **kwargs):
-        """Return the full name of a given type of file.
+        """Return the full local path of a given type of file.
 
         Parameters
         ----------
         filetype : str
             File type parameter.
+        force_module: bool
+            If True, forces software products to use any existing Module environment paths
+        kwargs: dict
+            Any path template keyword arguments
 
         Returns
         -------
         full : str
-            The full path to the file.
+            The full local path to the file.
         """
 
         # check if full already in kwargs
@@ -553,28 +572,75 @@ class BasePath(object):
                                             'in the currently loaded tree'.format(filetype))
         template = self.templates[filetype]
         if not is_posix:
-            template = template.replace('/',sep)
+            template = template.replace('/', sep)
+
+        # Check if forcing module paths
+        force_module = kwargs.get('force_module', None)
+        if force_module or self.force_modules:
+            template = self.check_modules(template, permanent=self.force_modules)
 
         # Now replace {} items
-        if template:
-            # check for missing keyword arguments
-            keys = self.lookup_keys(filetype)
-            # split keys to remove :format from any "key:format"
-            keys = [k.split(':')[0] for k in keys]
-            missing_keys = set(keys) - set(kwargs.keys())
-            if missing_keys:
-                raise KeyError('Missing required keyword arguments: {0}'.format(list(missing_keys)))
-            else:
-                template = template.format(**kwargs)
+        # check for missing keyword arguments
+        keys = self.lookup_keys(filetype)
+        # split keys to remove :format from any "key:format"
+        keys = [k.split(':')[0] for k in keys]
+        missing_keys = set(keys) - set(kwargs.keys())
+        if missing_keys:
+            raise KeyError('Missing required keyword arguments: {0}'.format(list(missing_keys)))
+        else:
+            template = template.format(**kwargs)
 
-        if template:
-            # Now replace environmental variables
-            template = os.path.expandvars(template)
+        # Now replace environmental variables
+        template = _expandvars(template)
 
-            # Now call special functions as appropriate
-            template = self._call_special_functions(filetype, template, **kwargs)
+        # Now call special functions as appropriate
+        template = self._call_special_functions(filetype, template, **kwargs)
+
+        # Now match on any software product tags
+        skip_tag_check = kwargs.get('skip_tag_check', None)
+        if not skip_tag_check:
+            template = re.sub(r'tags/(v?[0-9._]+)', r'\1', template, count=1)
 
         return self._check_compression(template)
+
+    @staticmethod
+    def check_modules(template, permanent=None):
+        ''' Check for any existing Module path environment
+
+        For software product paths, overrides the tree environment paths with existing
+        original envvars from os.environ that may be set from shell bash or module environments.
+        Checks the original os.environ for any environment variables and replaces the template
+        envvar with the original os version.  Ignores all SAS data paths.  If permanent is True,
+        then permanently replaces the envvar in existing os.environ with the original.
+        Assumes original environment variables points to definitions created by module files or bash
+        profiles.
+
+        Parameters:
+            template (str):
+                The path template to check
+            permanent (bool):
+                If True, sets the original module environment variable into os.environ
+
+        Returns:
+            The template with updated environment variable path
+        '''
+        # if template starts with $SAS_BASE_DIR, then do nothing
+        expanded_template = _expandvars(template)
+        if expanded_template.startswith(os.getenv("SAS_BASE_DIR")):
+            return template
+
+        # match template against envvar $ENVVAR_DIR
+        ev_match = re.match(r'^\$(\w+)', template)
+        if ev_match:
+            envvar = ev_match.group()
+            envvar_name = ev_match.groups()[0]
+            orig_os = tree.get_orig_os_environ()
+            if envvar_name in orig_os:
+                orig_envvar = orig_os.get(envvar_name)
+                # update the real os environment
+                if permanent:
+                    os.environ[envvar_name] = orig_envvar
+                return template.replace(envvar, orig_envvar)
 
     def _remove_compression(self, template):
         ''' remove a compression suffix '''
@@ -654,36 +720,167 @@ class BasePath(object):
 
         return template
 
-    def set_netloc(self, netloc=None, sdss=None, dtn=None):
+    def get_netloc(self, netloc=None, sdss=None, dtn=None, svn=None, mirror=None):
+        ''' Get a net url domain
+
+        Returns an SDSS url domain location.  Options are the SDSS SAS domain, the rsync download
+        server, the svn server, or the mirror data domain.  The mirror data domain is retrieved
+        either by the ``mirror`` input keyword argument or by the ``path.mirror`` attribute.
+
+        Parameters
+        ----------
+            netloc : str
+                An exact net location to return directly
+            sdss : bool
+                If True, returns SDSS data domain: data.sdss.org
+            dtn : bool
+                If True, returns SDSS rsync server domain: dtn01.sdss.org
+            svn: bool
+                If True, returns SDSS svn domain: svn.sdss.org
+            mirror: bool
+                If True, return SDSS mirror domain: data.mirror.sdss.org.
+
+        Returns
+        -------
+            An http domain name
+        '''
         if netloc:
-            self.netloc = netloc
-            return
+            return netloc
 
         if dtn:
-            self.netloc = self._netloc["dtn"]
+            return self._netloc["dtn"]
         elif sdss:
-            self.netloc = self._netloc['sdss']
-        elif self.mirror:
-            self.netloc = self._netloc["mirror"]
+            return self._netloc['sdss']
+        elif mirror or self.mirror:
+            return self._netloc["mirror"]
+        elif svn:
+            return '{0}{1}'.format(self._netloc['svn'], '/public' if self.public else '')
         else:
-            self.netloc = self._netloc['sdss']
-        #self.netloc = netloc if netloc else self._netloc["sdss"] if sdss else self._netloc["dtn"] if dtn else self._netloc["mirror"] if self.mirror else self._netloc["sdss"]
+            return self._netloc['sdss']
 
-    def set_remote_base(self, scheme=None):
-        self.remote_base = self.get_remote_base(scheme=scheme) if scheme else self.get_remote_base()
+    def set_netloc(self, netloc=None, sdss=None, dtn=None, svn=None, mirror=None):
+        ''' Set a url domain location
 
-    def get_remote_base(self, scheme="https"):
-        return "{scheme}://{netloc}".format(scheme=scheme, netloc=self.netloc)
+        Sets an SDSS url domain location.  Options are the SDSS SAS domain, the rsync download
+        server, the svn server, or the mirror data domain.  The mirror data domain is set
+        either by the ``mirror`` input keyword argument or by the ``path.mirror`` attribute.
+
+        Parameters
+        ----------
+            netloc : str
+                An exact net location to use directly
+            sdss : bool
+                If True, sets the SDSS data domain: data.sdss.org
+            dtn : bool
+                If True, sets the SDSS rsync server domain: dtn01.sdss.org
+            svn: bool
+                If True, sets the SDSS svn domain: svn.sdss.org
+            mirror: bool
+                If True, sets the SDSS mirror domain: data.mirror.sdss.org.
+
+        '''
+        self.netloc = self.get_netloc(netloc=netloc, sdss=sdss, dtn=dtn, svn=svn, mirror=mirror)
+
+    def set_remote_base(self, scheme='https'):
+        self.remote_base = self.get_remote_base(scheme=scheme or 'https')
+
+    def get_remote_base(self, scheme="https", svn=None):
+        ''' Get the remote base path
+
+        Parameters
+        ----------
+        scheme : str
+            The url scheme. Either "https" or "rsync".
+        svn : bool
+            If True, uses the svn url domain svn.sdss.org as the netloc
+        '''
+        netloc = self.netloc
+        if svn:
+            netloc = self.get_netloc(svn=True)
+        return "{scheme}://{netloc}".format(scheme=scheme, netloc=netloc)
 
     def set_base_dir(self, base_dir=None):
+        ''' Sets the base directory
 
+        Sets the ``base_dir`` attribute.  Defaults to $SAS_BASE_DIR.  Can be
+        overridden by passing in ``base_dir`` keyword argument.  The ``base_dir`` sets
+        the beginning part of all local paths.
+
+        Parameters
+        ----------
+            base_dir : str
+                A directory path to use as the base
+
+        '''
         if base_dir:
-            self.base_dir = base_dir
+            self.base_dir = join(base_dir, '')
         else:
             try:
                 self.base_dir = join(os.environ['SAS_BASE_DIR'], '')
             except Exception:
                 pass
+
+    @staticmethod
+    def yield_product_root():
+        ''' yields a product root environment name '''
+
+        for root in tree._product_roots:
+            yield root
+
+    def find_location(self, filetype, **kwargs):
+        ''' Finds a relative location of a product path
+
+        Attempts to find a relative path location for a software product path.
+        Loops over all product_roots defined in the tree and tests if a relative location
+        can be extracted, i.e. if the path starts with a given root path.  The root environment
+        paths searched are the following in order of precendence:
+        PRODUCT_ROOT, SDSS_SVN_ROOT, SDSS_INSTALL_PRODUCT_ROOT, SDSS_PRODUCT_ROOT,
+        SDSS4_PRODUCT_ROOT. If no root is found uses one directory up from SAS_BASE_DIR.
+
+        Parameters
+        ----------
+        filetype : str
+            File type parameter.
+        kwargs : dict
+            Path definition keyword arguments
+
+        Returns
+        -------
+            The relative path location (to the base_dir)
+
+        '''
+
+        # loop over all potential git/svn product roots
+        loc = None
+        for root in tree._product_roots:
+            loc = self._extract_location(filetype, base_dir=os.getenv(root), **kwargs)
+            if loc:
+                self.product_root = os.getenv(root)
+                break
+        return loc
+
+    def _extract_location(self, filetype, base_dir=None, **kwargs):
+        ''' Extracts the relative path location of the file
+
+        Parameters
+        ----------
+        filetype : str
+            File type parameter.
+        base_dir : str
+            A root directory to use as the base.  Defaults to SAS_BASE_DIR.
+
+        Returns
+        -------
+            The relative path location (to the base_dir)
+
+        '''
+        full = kwargs.get('full', None)
+        if not full:
+            full = self.full(filetype, **kwargs)
+
+        self.set_base_dir(base_dir=base_dir)
+        location = full[len(self.base_dir):] if full and full.startswith(self.base_dir) else None
+        return location
 
     def location(self, filetype, base_dir=None, **kwargs):
         """Return the location of the relative sas path of a given type of file.
@@ -692,19 +889,20 @@ class BasePath(object):
         ----------
         filetype : str
             File type parameter.
+        base_dir : str
+            A root directory to use as the base.  Defaults to SAS_BASE_DIR.
 
         Returns
         -------
-        full : str
-            The relative sas path to the file.
+            The relative path location (to the base_dir)
         """
 
-        full = kwargs.get('full', None)
-        if not full:
-            full = self.full(filetype, **kwargs)
+        # extract the location using SAS_BASE_DIR as the base
+        location = self._extract_location(filetype, base_dir=base_dir, **kwargs)
 
-        self.set_base_dir(base_dir=base_dir)
-        location = full[len(self.base_dir):] if full and full.startswith(self.base_dir) else None
+        # attempt to find a product location
+        if not location:
+            location = self.find_location(filetype, **kwargs)
 
         if location and '//' in location:
             location = location.replace('//', '/')
@@ -718,6 +916,8 @@ class BasePath(object):
         ----------
         filetype : str
             File type parameter.
+        base_dir : str
+            A root directory to use as the base.  Defaults to SAS_BASE_DIR.
 
         Returns
         -------
@@ -725,18 +925,77 @@ class BasePath(object):
             The sas url to the file.
         """
 
-        location = self.location(filetype, **kwargs)
-        url = join(self.remote_base, sasdir, location) if self.remote_base and location else None
+        # determine the remote domain location
+        remote_base = self.remote_base
+        full = self.full(filetype, skip_tag_check=True, **kwargs)
+        # if not on the SAS, assume it is an SVN product path
+        if not full.startswith(os.getenv("SAS_BASE_DIR")):
+            remote_base = self.get_remote_base(svn=True)
+            sasdir = ''
+
+        # get the location and set the url
+        location = self.location(filetype, skip_tag_check=True, base_dir=base_dir, **kwargs)
+        if not location:
+            raise AccessError('Cannot construct url.  A path.location could not extracted. ')
+
+        # create the url path
+        url = join(remote_base, sasdir, location) if remote_base and location else None
         if not is_posix:
             url = url.replace(sep, '/')
+
+        # handle edge case when a full path is passed in as path.url('', full=full)
+        # sanity check on svn tags
+        if 'svn.sdss.org' in url:
+            tag_match = re.search(r'tags/(v?[0-9._]+)', url)
+            if not tag_match:
+                url = re.sub(r'(/v?[0-9._]+/)', r'/tags\1', url, count=1)
         return url
+
+
+def _expandvars(template):
+    ''' Recursively run os.path.expandvars
+
+    Recursively calls os.path.expandvars
+
+    Parameters:
+        template (str):
+            sdss_access path template
+
+    Return:
+        A path template with expanded environment variables
+    '''
+    template = os.path.expandvars(template)
+    if template.startswith('$'):
+        return _expandvars(template)
+    return template
 
 
 class Path(BasePath):
     """Class for construction of paths in general.  Sets a particular template file.
+
+    Parameters
+    ----------
+    release : str
+        The release name, e.g. 'DR15', 'MPL-9'.
+    public : bool
+        If True, uses public urls.  Only needed for public data releases. Automatically set to True when release contains "DR".
+    mirror : bool
+        If True, uses the mirror data domain url.  Default is False.
+    verbose: bool
+        If True, turns on verbosity.  Default is False.
+    force_modules: bool
+        If True, forces software products to use any existing Module environment paths
+
+    Attributes
+    ----------
+    templates : dict
+        The set of templates read from the configuration file.
+
     """
-    def __init__(self, mirror=False, public=False, release=None, verbose=False):
-        super(Path, self).__init__(mirror=mirror, public=public, release=release, verbose=verbose)
+
+    def __init__(self, release=None, public=False, mirror=False, verbose=False, force_modules=None):
+        super(Path, self).__init__(release=release, public=public, mirror=mirror, verbose=verbose,
+                                   force_modules=force_modules)
 
     def plateid6(self, filetype, **kwargs):
         """Print plate ID, accounting for 5-6 digit plate IDs.

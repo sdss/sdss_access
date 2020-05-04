@@ -11,6 +11,7 @@
 from __future__ import print_function, division, absolute_import
 import os
 import pytest
+from sdss_access import Access, AccessError
 
 
 class TestRsync(object):
@@ -42,6 +43,16 @@ class TestRsync(object):
         print('path', path)
         assert os.path.exists(path) is True
         assert os.path.isfile(path) is True
+
+
+class TestRsyncFails(object):
+
+    def test_access_svn_fail(self):
+        with pytest.raises(AccessError) as cm:
+            access = Access()
+            access.remote()
+            access.add('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007')
+        assert 'Rsync/Curl Access not allowed for svn paths.  Please use HttpAccess.' in str(cm.value)
 
 
 class TestStream(object):

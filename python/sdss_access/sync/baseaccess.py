@@ -16,8 +16,11 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, SDSSPath)):
     remote_scheme = None
     access_mode = 'rsync' if is_posix else 'curl'
 
-    def __init__(self, label=None, stream_count=5, mirror=False, public=False, release=None, verbose=False):
-        super(BaseAccess, self).__init__(mirror=mirror, public=public, release=release, verbose=verbose)
+    def __init__(self, label=None, stream_count=5, mirror=False, public=False, release=None,
+                 verbose=False, force_modules=None):
+        super(BaseAccess, self).__init__(release=release, public=public,
+                                         mirror=mirror, verbose=verbose,
+                                         force_modules=force_modules)
         self.label = label
         self.auth = None
         self.stream = None
@@ -28,7 +31,6 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, SDSSPath)):
 
     def remote(self, username=None, password=None, inquire=None):
         """ Configures remote access """
-
         use_dtn = self.remote_scheme == 'rsync' and not self.public
         # simplifies things to have a single sdss machine in .netrc
         self.set_netloc(sdss=True)
@@ -48,6 +50,10 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, SDSSPath)):
         elif self.access_mode == 'curl':
             sasdir = 'sas'
         source = self.url(filetype, sasdir=sasdir, **kwargs)
+
+        # raise error if attempting to add a software product path
+        if 'svn.sdss.org' in source:
+            raise AccessError('Rsync/Curl Access not allowed for svn paths.  Please use HttpAccess.')
 
         if 'full' not in kwargs:
             destination = self.full(filetype, **kwargs)
@@ -81,7 +87,7 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, SDSSPath)):
 
             # set stream destination based on access mode
             if self.access_mode == 'rsync':
-                dest = join(self.base_dir, self.release.lower() 
+                dest = join(self.base_dir, self.release.lower()
                             if self.public else '') if self.base_dir else self.base_dir
             elif self.access_mode == 'curl':
                 dest = self.base_dir
@@ -109,7 +115,7 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, SDSSPath)):
         ''' return a Stream object '''
         stream = Stream(stream_count=self.stream_count, verbose=self.verbose)
         return stream
-        
+
     def set_auth(self, username=None, password=None, inquire=True):
         ''' set the authentication for accessing data '''
         self.auth = Auth(public=self.public, netloc=self.netloc, verbose=self.verbose)
@@ -121,7 +127,7 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, SDSSPath)):
             if not self.auth.ready():
                 self.auth.set_username(inquire=inquire)
                 self.auth.set_password(inquire=inquire)
-                
+
     def reset(self):
         ''' Reset all streams '''
 
@@ -132,22 +138,22 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, SDSSPath)):
         # reset the initial stream (otherwise old 'adds' remain in the new stream)
         if self.initial_stream:
             self.initial_stream.reset()
-            
+
     def shuffle(self):
         ''' Shuffle the stream '''
         self.stream.shuffle()
-        
+
     def get_locations(self, offset=None, limit=None):
         ''' Rreturn the locations for all paths in the stream '''
         return self.stream.get_locations(offset=offset, limit=limit) if self.stream else None
-        
+
     def get_paths(self, offset=None, limit=None):
         ''' Return the base paths for all paths in the stream '''
         locations = self.get_locations(offset=offset, limit=limit)
         sasdir = self.release.lower() if self.public else ''
         paths = [join(self.base_dir, sasdir, location) for location in locations] if locations else None
         return paths
-        
+
     def get_urls(self, offset=None, limit=None):
         ''' Return the urls for all paths in the stream '''
         locations = self.get_locations(offset=offset, limit=limit)
