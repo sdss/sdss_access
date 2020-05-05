@@ -12,6 +12,7 @@ from __future__ import print_function, division, absolute_import
 import os
 import re
 import pytest
+from sdss_access import tree
 from sdss_access.path import Path
 from tests.conftest import gzcompress, gzuncompress
 
@@ -237,13 +238,20 @@ class TestPath(object):
         assert 'mangapreim/tags/v2_5/data' in url2
         assert url1 == url2
 
-    def test_svn_force_module(self, monkeypatch, path):
-        monkeypatch.setenv("MANGAPREIM_DIR", '/tmpdir/data/manga/mangapreim/trunk')
+    def test_svn_force_module(self, monkeyoos, path):
 
         path = Path(release='DR15')
         ff = path.full('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007')
         assert 'mangapreim/v2_5/data' in ff
 
-        ff = path.full('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007',
-                       force_module=True)
+        ff = path.full('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007', force_module=True)
         assert 'mangapreim/trunk/data' in ff
+
+
+@pytest.fixture()
+def monkeyoos(monkeypatch):
+    ''' monkeypatch the original os environ from tree '''
+    oos = tree.get_orig_os_environ()
+    monkeypatch.setitem(oos, "MANGAPREIM_DIR", '/tmpdir/data/manga/mangapreim/trunk')
+    yield oos
+    monkeypatch.delitem(oos, "MANGAPREIM_DIR", raising=False)

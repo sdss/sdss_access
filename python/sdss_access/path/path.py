@@ -9,7 +9,7 @@ import six
 from glob import glob
 from os.path import join, sep
 from random import choice, sample
-from sdss_access import tree
+from sdss_access import tree, log
 from sdss_access import is_posix
 
 pathlib = None
@@ -641,6 +641,9 @@ class BasePath(object):
                 if permanent:
                     os.environ[envvar_name] = orig_envvar
                 return template.replace(envvar, orig_envvar)
+            else:
+                log.info('No existing envvar found for {0}. Returning input template'.format(envvar_name))
+                return template
 
     def _remove_compression(self, template):
         ''' remove a compression suffix '''
@@ -966,6 +969,12 @@ def _expandvars(template):
     '''
     template = os.path.expandvars(template)
     if template.startswith('$'):
+        # if the envvar isn't in os.environ, then exit
+        envvar = template.split('/', 1)[0]
+        if envvar[1:] not in os.environ:
+            return template
+
+        # recurse down
         return _expandvars(template)
     return template
 

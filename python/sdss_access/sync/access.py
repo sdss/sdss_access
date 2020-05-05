@@ -12,12 +12,8 @@ label = 'sdss_{0}'.format(access_mode)
 class Access(Base):
     """Class for providing Rsync or Curl access depending on posix
     """
-    def __init__(self, label=label, stream_count=5, mirror=False, public=False, release=None, 
-                 verbose=False):
-        self.access_mode = access_mode
-        super(Access, self).__init__(label=label, stream_count=stream_count, mirror=mirror, 
-                                     public=public, release=release, verbose=verbose)
+    access_mode = access_mode
 
     def __repr__(self):
         return '<Access(access_mode="{0}", using="{1}")>'.format(self.access_mode, self.netloc)
-    
+
