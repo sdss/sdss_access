@@ -9,7 +9,7 @@ import six
 from glob import glob
 from os.path import join, sep
 from random import choice, sample
-from sdss_access import tree, log
+from sdss_access import tree, log, config
 from sdss_access import is_posix
 
 pathlib = None
@@ -67,7 +67,7 @@ class BasePath(object):
         self.public = 'dr' in self.release.lower() or public
         self.mirror = mirror
         self.verbose = verbose
-        self.force_modules = force_modules
+        self.force_modules = force_modules or config.get('force_modules')
         self.set_netloc()
         self.set_remote_base()
 
@@ -75,7 +75,7 @@ class BasePath(object):
         self._comp_regex = r'({0})$'.format('|'.join(self._compressions))
         # set the path templates from the tree
         self.templates = tree.paths
-        if self.release and self.release.lower() not in tree.config_name:
+        if self.release:
             self.replant_tree(release=self.release)
 
     def replant_tree(self, release=None):
