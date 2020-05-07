@@ -6,8 +6,8 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
-1.0.0 (unreleased)
--------------------
+1.0.0 (2020-05-07)
+------------------
 
 Refactored
 ^^^^^^^^^^
