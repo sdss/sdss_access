@@ -22,6 +22,11 @@ Refactored
 - Deprecated included logger and config in favor of ``sdsstools`` logger and config.
 - Simplified python package setup.cfg and consolidated requirements files
 
+0.2.11 (2020-05-07)
+-------------------
+
+- Pinning sdss-tree requirement to <3.0
+
 0.2.10 (2020-04-23)
 -------------------
 
