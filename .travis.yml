@@ -1,3 +1,5 @@
+dist: xenial
+
 language: python
 
 cache:
@@ -7,10 +9,9 @@ cache:
 sudo: false
 
 python:
-- '2.7'
-- '3.5'
 - '3.6'
 - '3.7'
+- '3.8'
 
 os:
 - linux
@@ -35,14 +36,11 @@ before_install:
 install:
 - pip install -U pip wheel --quiet
 - pip install --upgrade setuptools --quiet
-- pip install -r requirements.txt --quiet
-- pip install pytest
-- pip install pytest-coverage
-- pip install coveralls
-- python setup.py install
+- pip install .[dev]
 
 script:
-- pytest python/sdss_access/tests --cov python/sdss_access --cov-report html
+- pytest tests --cov sdss_access --cov-report html
 
 after_success:
 - coveralls
+- codecov

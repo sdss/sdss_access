@@ -71,3 +71,12 @@ System Call
    :show-inheritance:
 
 
+.. _api-changelogs:
+
+Changelog Utilities
+-------------------
+
+.. automodule:: sdss_access.path.changelog
+   :members:
+   :undoc-members:
+   :show-inheritance:

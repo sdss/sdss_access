@@ -95,7 +95,7 @@ max-nested-blocks=5
 # Logging modules to check that the string format arguments are in logging
 # function parameter format
 logging-modules=logging
-
+logging-format-style=new
 
 [SPELLING]
 

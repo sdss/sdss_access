@@ -13,18 +13,20 @@
 # serve to show the default.
 
 import sphinx_bootstrap_theme
-import sys
-import os
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
-from sdss_access import __version__
 from pkg_resources import parse_version
 
+try:
+    from sdss_access import __version__
+except ModuleNotFoundError:
+    from sdsstools import get_package_version
+    __version__ = get_package_version(__file__, 'sdss_access') or 'dev'
+
 # add a local path to the Sphinx search path
-sys.path.insert(0, os.path.abspath('../../python/sdss_access/misc/'))
 
 # -- General configuration ------------------------------------------------
 
@@ -37,7 +39,7 @@ sys.path.insert(0, os.path.abspath('../../python/sdss_access/misc/'))
 # ones.
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon', 'sphinx.ext.autosummary',
               'sphinx.ext.todo', 'sphinx.ext.viewcode', 'sphinx.ext.mathjax',
-              'sphinx.ext.intersphinx', 'docupaths']
+              'sphinx.ext.intersphinx', 'sdss_access.misc.docupaths', 'recommonmark']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -48,9 +50,6 @@ templates_path = ['_templates']
 source_suffix = ['.rst', '.md']
 # source_suffix = '.rst'
 
-source_parsers = {
-    '.md': 'recommonmark.parser.CommonMarkParser',
-}
 
 # The master toctree document.
 master_doc = 'index'
