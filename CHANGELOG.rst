@@ -6,8 +6,10 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
-0.2.11 (unreleased)
+0.2.11 (2020-05-07)
 -------------------
+
+- Pinning sdss-tree requirement to <3.0
 
 0.2.10 (2020-04-23)
 -------------------
