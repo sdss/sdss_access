@@ -20,7 +20,7 @@ or to upgrage::
 
 Development
 -----------
-Clone the repo and run pip install.::
+Clone the repo and run pip install::
 
     git clone https://github.com/sdss/sdss_access
     cd sdss_access
