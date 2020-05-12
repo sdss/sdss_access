@@ -122,7 +122,7 @@ class Stream(object):
             streamlet['path'] = self.cli.get_path(index=streamlet['index'])
             path_txt = "{0}.txt".format(streamlet['path'])
             streamlet['command'] = self.command.format(path=path_txt, source=self.source, destination=self.destination)
-    
+
             if 'rsync -' in self.command:
                 self.cli.write_lines(path=path_txt, lines=[location for location in streamlet['location']])
             else:
@@ -139,7 +139,7 @@ class Stream(object):
             if self.verbose:
                 print("SDSS_ACCESS> rsync stream %s logging to %s" % (streamlet['index'],streamlet['logfile'].name))
 
-        self.cli.wait_for_processes(list(streamlet['process'] for streamlet in self.streamlet))
+        self.cli.wait_for_processes(list(streamlet['process'] for streamlet in self.streamlet), n_tasks=len(self.task))
 
         if any(self.cli.returncode):
             path = self.streamlet[0]['path'][:-3]

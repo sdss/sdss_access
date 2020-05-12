@@ -77,9 +77,13 @@ class Cli(object):
             background_process = None
         return background_process
 
-    def wait_for_processes(self, processes, pause=60):
+    def wait_for_processes(self, processes, pause=5, n_tasks=None):
         running_processes = [process.poll() is None for process in processes]
         pause_count = 0
+        from tqdm import tqdm
+        postfix = {'files': n_tasks} if n_tasks else {}
+        bar_fmt = '{l_bar}{bar} | {n_fmt} / {total_fmt} streams ({postfix})[{elapsed}s({remaining}s)]'
+        pbar = tqdm(total=len(processes), unit='streams', desc='Progress:', postfix=postfix, bar_format=bar_fmt)
         while any(running_processes):
             running_count = sum(running_processes)
             if self.verbose:
@@ -87,7 +91,11 @@ class Cli(object):
             sleep(pause)
             running_processes = [process.poll() is None for process in processes]
             pause_count += 1
+            #print('running processes', running_processes, running_processes.count(False))
+            pbar.update(running_processes.count(False))
         #print("SDSS_ACCESS> Done!")
+        #print('outside while loop')
+        pbar.close()
         self.returncode = tuple([process.returncode for process in processes])
 
     def foreground_run(self, command, test=False, logger=None, logall=False, message=None, outname=None, errname=None):
@@ -133,7 +141,7 @@ class Cli(object):
         if test:
             return (status, out, err)
 
-        # Perform the system call    
+        # Perform the system call
         if outname is None:
             outfile = TemporaryFile()
         else:
