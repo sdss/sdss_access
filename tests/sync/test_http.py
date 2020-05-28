@@ -14,7 +14,7 @@
 from __future__ import print_function, division, absolute_import
 import os
 import pytest
-from sdss_access import tree
+from sdss_access import tree, AccessError
 from sdss_access.sync import HttpAccess
 
 
@@ -57,3 +57,18 @@ class TestHttp(object):
                  mangaid='1-42007', remote=True)
 
         assert os.path.exists(full)
+
+    def test_nonetrc_fails(self, monkeyhome):
+        ''' test raise error when no netrc present '''
+        with pytest.raises(AccessError) as cm:
+            http = HttpAccess()
+            http.remote()
+        assert 'No netrc file found. Please create one.' in str(cm.value)
+
+    def test_nonetrc_public_pass(self, monkeyhome):
+        ''' test public access does not fail when no netrc '''
+        http = HttpAccess(release='DR14')
+        http.remote()
+        assert http.public is True
+        assert http.auth.username is None
+        assert http.auth.ready() is None
