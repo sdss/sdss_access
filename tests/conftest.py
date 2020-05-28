@@ -232,3 +232,10 @@ def gzcompress(filename):
             shutil.copyfileobj(f_in, f_out)
     os.remove(filename)
     yield
+
+
+@pytest.fixture()
+def monkeyhome(monkeypatch, tmp_path):
+    ''' monkeypatch the HOME directory '''
+    path = (tmp_path / 'tmp').mkdir()
+    monkeypatch.setenv("HOME", str(path))

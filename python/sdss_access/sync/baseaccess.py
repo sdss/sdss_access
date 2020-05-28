@@ -5,12 +5,12 @@ import abc
 import six
 from os.path import join, sep
 from sdss_access import SDSSPath
-from sdss_access.sync.auth import Auth
+from sdss_access.sync.auth import Auth, AuthMixin
 from sdss_access.sync.stream import Stream
 from sdss_access import is_posix, AccessError
 
 
-class BaseAccess(six.with_metaclass(abc.ABCMeta, SDSSPath)):
+class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, SDSSPath)):
     """Class for providing Rsync or Curl access to SDSS SAS Paths
     """
     remote_scheme = None
@@ -115,18 +115,6 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, SDSSPath)):
         ''' return a Stream object '''
         stream = Stream(stream_count=self.stream_count, verbose=self.verbose)
         return stream
-
-    def set_auth(self, username=None, password=None, inquire=True):
-        ''' set the authentication for accessing data '''
-        self.auth = Auth(public=self.public, netloc=self.netloc, verbose=self.verbose)
-        self.auth.set_username(username)
-        self.auth.set_password(password)
-        if not self.public:
-            if not self.auth.ready():
-                self.auth.load()
-            if not self.auth.ready():
-                self.auth.set_username(inquire=inquire)
-                self.auth.set_password(inquire=inquire)
 
     def reset(self):
         ''' Reset all streams '''

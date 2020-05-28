@@ -12,25 +12,18 @@ except:
 from os import makedirs
 from os.path import isfile, exists, dirname
 from sdss_access import SDSSPath
-from sdss_access.sync.auth import Auth
+from sdss_access.sync.auth import Auth, AuthMixin
 
 
-class HttpAccess(SDSSPath):
+class HttpAccess(AuthMixin, SDSSPath):
     """Class for providing HTTP access via urllib.request (python3) or urllib2 (python2) to SDSS SAS Paths
     """
 
-    def __init__(self, verbose=False, public=False, release=None, label='sdss_http'):
+    def __init__(self, verbose=None, public=None, release=None, label='sdss_http'):
         super(HttpAccess, self).__init__(public=public, release=release, verbose=verbose)
         self.verbose = verbose
         self.label = label
         self._remote = False
-
-    def set_auth(self, username=None, password=None):
-        self.auth = Auth(netloc=self.netloc, verbose=self.verbose)
-        self.auth.set_username(username)
-        self.auth.set_password(password)
-        if not self.auth.ready():
-            self.auth.load()
 
     def remote(self, remote_base=None, username=None, password=None):
         """
