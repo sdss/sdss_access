@@ -13,6 +13,7 @@ from os import makedirs
 from os.path import isfile, exists, dirname
 from sdss_access import SDSSPath
 from sdss_access.sync.auth import Auth, AuthMixin
+from tqdm import tqdm
 
 
 class HttpAccess(AuthMixin, SDSSPath):
@@ -121,12 +122,15 @@ class HttpAccess(AuthMixin, SDSSPath):
 
                     file_size_dl = 0
                     block_sz = 8192
-                    while True:
-                        buffer = u.read(block_sz)
-                        if not buffer:
-                            break
-                        file_size_dl += len(buffer)
-                        file.write(buffer)
+                    # set up progress bar
+                    with tqdm(total=file_size, unit='B', unit_scale=True, unit_divisor=1024, desc='Progress') as pbar:
+                        while True:
+                            buffer = u.read(block_sz)
+                            if not buffer:
+                                break
+                            file_size_dl += len(buffer)
+                            pbar.update(len(buffer))
+                            file.write(buffer)
 
                 if self.verbose:
                     if path_exists:

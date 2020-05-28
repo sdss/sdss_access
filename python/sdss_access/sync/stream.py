@@ -44,9 +44,11 @@ class Stream(object):
             try:
                 n = len(location)
                 ok = n == len(source) and n == len(destination)
-                streamlet['location'], streamlet['source'], streamlet['destination'] = (location, source, destination) if ok else (None, None, None)
+                streamlet['location'], streamlet['source'], streamlet['destination'] = (
+                    location, source, destination) if ok else (None, None, None)
             except Exception:
-                streamlet['location'], streamlet['source'], streamlet['destination'] = (None, None, None)
+                streamlet['location'], streamlet['source'], streamlet['destination'] = (
+                    None, None, None)
 
     def get_streamlet(self, index=None, increment=1):
         if index is None:
@@ -139,7 +141,11 @@ class Stream(object):
             if self.verbose:
                 print("SDSS_ACCESS> rsync stream %s logging to %s" % (streamlet['index'],streamlet['logfile'].name))
 
-        self.cli.wait_for_processes(list(streamlet['process'] for streamlet in self.streamlet), n_tasks=len(self.task))
+        # get the number of tasks per stream
+        tasks_per_stream = [len(streamlet['location']) for streamlet in self.streamlet]
+        # submit the stream subprocesses to the background
+        self.cli.wait_for_processes(list(streamlet['process'] for streamlet in self.streamlet),
+                                    n_tasks=len(self.task), tasks_per_stream=tasks_per_stream)
 
         if any(self.cli.returncode):
             path = self.streamlet[0]['path'][:-3]
