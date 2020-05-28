@@ -11,6 +11,7 @@ This document records the main changes to the sdss_access code.
 
 - Bug Fix :issue:`16` - HttpAccess used in public mode checks for netrc file
 - Combines separate `set_auth` methods in `BaseAccess` and `HttpAccess` into a single `set_auth` available as `AuthMixin`
+- `Auth.set_netrc` now raises an `AccessError` on failure to find a value netrc file.
 
 1.0.0 (2020-05-07)
 ------------------
