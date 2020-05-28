@@ -6,6 +6,12 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
+1.0.1 (unreleased)
+------------------
+
+- Bug Fix :issue:`16` - HttpAccess used in public mode checks for netrc file
+- Combines separate `set_auth` methods in `BaseAccess` and `HttpAccess` into a single `set_auth` available as `AuthMixin`
+
 1.0.0 (2020-05-07)
 ------------------
 
