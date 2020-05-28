@@ -1,4 +1,4 @@
-from .auth import Auth
+from .auth import Auth, AuthMixin
 from .cli import Cli
 from .stream import Stream
 from .http import HttpAccess
