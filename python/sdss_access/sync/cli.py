@@ -92,9 +92,10 @@ class Cli(object):
                 running_files = n_tasks - finished_files
 
                 if self.verbose:
-                    print("SDSS_ACCESS> syncing... please wait for {0} rsync streams ({1} files) to"
-                          " complete [running for {2} seconds]".format(running_count, running_files,
-                                                                       pause_count * pause))
+                    tqdm.write("SDSS_ACCESS> syncing... please wait for {0} rsync streams ({1} "
+                               "files) to complete [running for {2} seconds]".format(running_count,
+                                                                                     running_files,
+                                                                                     pause_count * pause))
 
                 # update the process polling
                 sleep(pause)
