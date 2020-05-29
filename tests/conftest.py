@@ -134,6 +134,7 @@ def radd(rsync, expdata):
     ''' fixture to add a path to an rsync object '''
     rsync.add(expdata['name'], **expdata['params'])
     yield rsync
+    rsync.reset()
 
 
 @pytest.fixture(scope='session')
@@ -141,6 +142,7 @@ def rstream(radd):
     ''' fixture to set the stream for an parametrized rsync object '''
     radd.set_stream()
     yield radd
+    radd.reset()
 
 
 @pytest.fixture(scope='session')

@@ -12,6 +12,7 @@ from __future__ import print_function, division, absolute_import
 import os
 import pytest
 from sdss_access import Access, AccessError
+from sdss_access.sync import RsyncAccess
 
 
 class TestRsync(object):
@@ -43,6 +44,17 @@ class TestRsync(object):
         print('path', path)
         assert os.path.exists(path) is True
         assert os.path.isfile(path) is True
+
+    @pytest.mark.parametrize('tree_ver, exp', [('sdsswork', 'work'), ('dr15', 'dr15'),
+                                               ('dr13', 'dr13'), ('mpl8', 'work')])
+    def test_release_from_module(self, monkeypatch, tree_ver, exp, datapath):
+        monkeypatch.setenv('TREE_VER', tree_ver)
+        rsync = RsyncAccess()
+        rsync.remote()
+        rsync.add(datapath['name'], **datapath['params'])
+        loc = rsync.initial_stream.task[0]['location']
+        assert rsync.release == tree_ver
+        assert exp in loc
 
 
 class TestRsyncFails(object):
