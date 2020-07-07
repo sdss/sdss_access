@@ -685,7 +685,8 @@ class BasePath(object):
                                  for c in alternates if re.search(self._comp_regex, c)]))
             if suffixes:
                 assert len(suffixes) == 1, 'should only be one suffix per file template '
-                template = template + suffixes[0]
+                if not template.endswith(suffixes[0]):
+                    template = template + suffixes[0]
 
         return template
 

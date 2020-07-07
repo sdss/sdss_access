@@ -152,9 +152,11 @@ class TestPath(object):
     def test_uncompress(self, copydata, monkeysas, path):
         ''' test to find unzipped files with zipped path templates '''
         assert path.templates['mangacube'].endswith('.gz')
+        assert path.templates['mangacube'].count('.gz') == 1
         with gzuncompress(copydata) as f:
             full = path.full('mangacube', drpver='v2_4_3', plate=8485, ifu=1901, wave='LOG')
             assert not full.endswith('.gz')
+            assert full.count('.gz') == 0
             assert full.endswith('.fits')
 
     @pytest.mark.parametrize('copydata',
@@ -163,16 +165,31 @@ class TestPath(object):
     def test_compress(self, copydata, monkeysas, path):
         ''' test to find zipped files with non-zipped path templates '''
         assert not path.templates['mangaimage'].endswith('.gz')
+        assert path.templates['mangaimage'].count('.gz') == 0
         with gzcompress(copydata) as f:
             full = path.full('mangaimage', drpver='v2_5_3', plate=8485, ifu=1901)
             assert not full.endswith('.png')
             assert full.endswith('.gz')
+            assert full.count('.gz') == 1
 
     def test_uncompress_nofileexists(self, monkeysas, path):
         ''' test if no file exists, full returns original template path '''
         assert path.templates['mangacube'].endswith('.gz')
-        full = path.full('mangacube', drpver='v2_4_3', plate=8485, ifu=1901, wave='LOG')
+        full = path.full('mangacube', drpver='v2_4_3', plate=8888, ifu=12345, wave='LOG')
         assert full.endswith('.gz')
+        assert full.count('.gz') == 1
+
+    @pytest.mark.parametrize('copymulti',
+                             [('mangawork/manga/spectro/redux/v2_4_3/8485/stack/manga-8485-*-LOGCUBE.fits.gz')],
+                             indirect=True, ids=['data'])
+    @pytest.mark.parametrize('plate, ifu', [(8888, '*'), (8888, 12345),
+                                            (8485, 1901), (8485, '*')],
+                             ids=['nodata-wild', 'nodata', 'glob', 'glob-wild'])
+    def test_compression_wildcards(self, copymulti, monkeysas, path, plate, ifu):
+        assert path.templates['mangacube'].endswith('.gz')
+        full = path.full('mangacube', drpver='v2_4_3', plate=plate, ifu=ifu, wave='LOG')
+        assert full.endswith('.gz')
+        assert full.count('.gz') == 1
 
     @pytest.mark.parametrize('mirror', [(True), (False)])
     def test_netloc(self, mirror):

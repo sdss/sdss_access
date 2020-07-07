@@ -9,6 +9,7 @@
 # @Last Modified time: 2019-08-07 12:30:00
 
 from __future__ import print_function, division, absolute_import
+import glob
 import gzip
 import os
 import pytest
@@ -195,7 +196,6 @@ def monkeysas(tmpdir, monkeypatch, path):
     path.replant_tree()
 
 
-
 @pytest.fixture()
 def copydata(tmpdir, request):
     ''' fixture to copy a file into a temporary directory '''
@@ -208,6 +208,21 @@ def copydata(tmpdir, request):
     os.makedirs(os.path.dirname(destpath), exist_ok=True)
     shutil.copy(srcpath, destpath)
     yield destpath
+
+
+@pytest.fixture()
+def copymulti(tmpdir, request):
+    ''' Fixture to copy multiple files into a temporary directory '''
+    srcpath = os.path.join(os.getenv("SAS_BASE_DIR"), request.param)
+    files = glob.glob(srcpath)
+    if not files:
+        pytest.skip('Files do not exist, cannot copy')
+    for item in files:
+        loc = item.split(os.getenv("SAS_BASE_DIR") + '/')[-1]
+        sasdir = tmpdir / 'sas'
+        destpath = sasdir / loc
+        os.makedirs(os.path.dirname(destpath), exist_ok=True)
+        shutil.copy(item, destpath)
 
 
 @contextlib.contextmanager
