@@ -63,7 +63,7 @@ class BasePath(object):
                "mirror": "data.mirror.sdss.org", 'svn': 'svn.sdss.org'}
 
     def __init__(self, release=None, public=False, mirror=False, verbose=False, force_modules=None):
-        self.release = release or 'sdsswork'
+        self.release = release or os.getenv('TREE_VER', 'sdsswork')
         self.public = 'dr' in self.release.lower() or public
         self.mirror = mirror
         self.verbose = verbose

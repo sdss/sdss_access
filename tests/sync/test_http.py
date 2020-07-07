@@ -72,3 +72,13 @@ class TestHttp(object):
         assert http.public is True
         assert http.auth.username is None
         assert http.auth.ready() is None
+
+    @pytest.mark.parametrize('tree_ver, exp', [('sdsswork', 'work'), ('dr15', 'dr15'),
+                                               ('dr13', 'dr13'), ('mpl8', 'work')])
+    def test_release_from_module(self, monkeypatch, tree_ver, exp, datapath):
+        monkeypatch.setenv('TREE_VER', tree_ver)
+        http = HttpAccess()
+        full = http.full(datapath['name'], **datapath['params'])
+        assert http.release == tree_ver
+        assert exp in full
+

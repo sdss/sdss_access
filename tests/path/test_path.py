@@ -264,6 +264,24 @@ class TestPath(object):
         ff = path.full('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007', force_module=True)
         assert 'mangapreim/trunk/data' in ff
 
+    @pytest.mark.parametrize('tree_ver', [('sdsswork'), ('dr15'), ('sdss5'), ('mpl8')])
+    def test_release_from_module(self, monkeypatch, tree_ver):
+        monkeypatch.setenv('TREE_VER', tree_ver)
+        path = Path()
+        assert path.release == tree_ver
+
+    def test_sdss5_paths(self, monkeypatch):
+        path = Path(release='sdss5')
+        assert 'rsFields' in path.templates
+        f1 = path.full('rsFields', plan='001', observatory='APO')
+
+        monkeypatch.setenv('TREE_VER', 'sdss5')
+        path = Path()
+        assert 'rsFields' in path.templates
+        f2 = path.full('rsFields', plan='001', observatory='APO')
+
+        assert f1 == f2
+
 
 @pytest.fixture()
 def monkeyoos(monkeypatch):
