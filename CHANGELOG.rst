@@ -6,6 +6,12 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
+1.1.0 (2020-07-07)
+------------------
+- Feature :issue:`7` - Adds a progress bar to downloads with `tqdm`
+- Feature :issue:`18` - Allow Path to work off of loaded module files
+- Bug Fix: issue appending compression suffixes when wildcards present
+
 1.0.1 (2020-05-28)
 ------------------
 
