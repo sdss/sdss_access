@@ -12,6 +12,7 @@ from glob import iglob
 from datetime import datetime
 from sdss_access import is_posix
 from tempfile import gettempdir
+from tqdm import tqdm
 
 
 class Cli(object):
@@ -77,17 +78,38 @@ class Cli(object):
             background_process = None
         return background_process
 
-    def wait_for_processes(self, processes, pause=60):
+    def wait_for_processes(self, processes, pause=5, n_tasks=None, tasks_per_stream=None):
         running_processes = [process.poll() is None for process in processes]
         pause_count = 0
-        while any(running_processes):
-            running_count = sum(running_processes)
-            if self.verbose:
-                print("SDSS_ACCESS> syncing... please wait for %r rsync streams to complete [running for %r seconds]" % (running_count, pause_count * pause))
-            sleep(pause)
-            running_processes = [process.poll() is None for process in processes]
-            pause_count += 1
-        #print("SDSS_ACCESS> Done!")
+        postfix = {'n_files': n_tasks, 'n_streams': len(processes)} if n_tasks else {}
+
+        # set a progress bar to monitor files/streams
+        with tqdm(total=n_tasks, unit='files', desc='Progress', postfix=postfix) as pbar:
+            while any(running_processes):
+                running_count = sum(running_processes)
+                finished_files = sum([tasks_per_stream[i]
+                                      for i, r in enumerate(running_processes) if r is False])
+                running_files = n_tasks - finished_files
+
+                if self.verbose:
+                    tqdm.write("SDSS_ACCESS> syncing... please wait for {0} rsync streams ({1} "
+                               "files) to complete [running for {2} seconds]".format(running_count,
+                                                                                     running_files,
+                                                                                     pause_count * pause))
+
+                # update the process polling
+                sleep(pause)
+                running_processes = [process.poll() is None for process in processes]
+                pause_count += 1
+
+                # count the number of downloaded files
+                done_files = sum([tasks_per_stream[i]
+                                  for i, r in enumerate(running_processes) if r is False])
+                new_files = done_files - finished_files
+
+                # update the progress bar
+                pbar.update(new_files)
+
         self.returncode = tuple([process.returncode for process in processes])
 
     def foreground_run(self, command, test=False, logger=None, logall=False, message=None, outname=None, errname=None):
@@ -133,7 +155,7 @@ class Cli(object):
         if test:
             return (status, out, err)
 
-        # Perform the system call    
+        # Perform the system call
         if outname is None:
             outfile = TemporaryFile()
         else:

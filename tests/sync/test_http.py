@@ -58,6 +58,13 @@ class TestHttp(object):
 
         assert os.path.exists(full)
 
+    def test_http_public_dl(self, monkeyprod):
+        http = HttpAccess(release='DR14')
+        http.remote()
+        full = http.full('spec-lite', run2d='v5_10_0', plateid=3606, mjd=55182, fiberid=537)
+        http.get('spec-lite', run2d='v5_10_0', plateid=3606, mjd=55182, fiberid=537)
+        assert os.path.exists(full)
+
     def test_nonetrc_fails(self, monkeyhome):
         ''' test raise error when no netrc present '''
         with pytest.raises(AccessError) as cm:
