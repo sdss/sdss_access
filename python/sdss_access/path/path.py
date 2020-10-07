@@ -1112,6 +1112,26 @@ class Path(BasePath):
         subdir = "{:0>4d}".format(designid100) + "XX"
         return subdir
 
+    def healpixgrp(self, filetype, **kwargs):
+        ''' Returns HEALPIX group subdirectory
+
+        Parameters
+        ----------
+        filetype : str
+            File type parameter.
+        healpix : int or str
+            HEALPix number.  Will be converted to int internally.
+
+        Returns
+        -------
+        healpixgrp : str
+            HEALPix group directory, HEALPix//100.
+
+        '''
+
+        healpix = int(kwargs['healpix'])
+        subdir = "{:d}".format(healpix//100)
+        return subdir
 
 class AccessError(Exception):
     pass
