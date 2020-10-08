@@ -1125,12 +1125,12 @@ class Path(BasePath):
         Returns
         -------
         healpixgrp : str
-            HEALPix group directory, HEALPix//100.
+            HEALPix group directory, HEALPix//1000.
 
         '''
 
         healpix = int(kwargs['healpix'])
-        subdir = "{:d}".format(healpix//100)
+        subdir = "{:d}".format(healpix//1000)
         return subdir
 
 class AccessError(Exception):
