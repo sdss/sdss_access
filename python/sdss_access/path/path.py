@@ -1133,5 +1133,58 @@ class Path(BasePath):
         subdir = "{:d}".format(healpix//1000)
         return subdir
 
+    def apgprefix(self, filetype, **kwargs):
+        ''' Returns APOGEE prefix using telescope/instrument.
+
+        Parameters
+        ----------
+        filetype : str
+            File type parameter.
+        telescope : str
+            The APOGEE telescope (apo25m, lco25m, apo1m).
+        instrument : str
+            The APOGEE instrument (apogee-n, apogee-s).
+
+        Returns
+        -------
+        prefix : str
+            The APOGEE prefix (ap/as).
+
+        '''
+
+        telescope = kwargs.get('telescope')
+        if telescope is not None:
+            prefix = {'apo25m':'ap', 'apo1m':'ap', 'lco25m':'as'}[telescope]
+            return prefix
+        instrument = kwargs.get('instrument')
+        if instrument is not None:
+            prefix = {'apogee-n':'ap', 'apogee-s':'as'}[instrument]
+            return prefix
+        return ''
+
+    def apginst(self, filetype, **kwargs):
+        ''' Returns APOGEE "instrument" from "telescope".
+
+        Parameters
+        ----------
+        filetype : str
+            File type parameter.
+        telescope : str
+            The APOGEE telescope (apo25m, lco25m, apo1m).
+
+        Returns
+        -------
+        instrument : str
+            The APOGEE instrument (apogee-n, apogee-s).
+
+        '''
+
+        telescope = kwargs.get('telescope')
+        if telescope is not None:
+            instrument = {'apo25m':'apogee-n', 'apo1m':'apogee-n', 'lco25m':'apogee-s'}[telescope]
+            return instrument
+        return ''    
+
+    
 class AccessError(Exception):
     pass
