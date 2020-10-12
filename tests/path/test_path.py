@@ -64,6 +64,37 @@ class TestPath(object):
         full = path.full(name, **keys)
         assert exp in full
 
+    @pytest.mark.parametrize('key, val, exp',
+                             [('telescope', 'apo25m', 'ap'),
+                              ('telescope', 'apo1m', 'ap'),
+                              ('telescope', 'lco25m', 'as'),
+                              ('telescope', None, ''),
+                              ('instrument', None, ''),
+                              ('instrument', 'apogee-n', 'ap'),
+                              ('instrument', 'apogee-s', 'as')])
+    def test_apgprefex(self, path, key, val, exp):
+        out = path.apgprefix('', **{key: val})
+        assert out == exp
+
+    @pytest.mark.parametrize('key, val, exp',
+                             [('telescope', 'apo25m', 'apogee-n'),
+                              ('telescope', 'apo1m', 'apogee-n'),
+                              ('telescope', 'lco25m', 'apogee-s'),
+                              ('telescope', None, '')])
+    def test_apginst(self, path, key, val, exp):
+        out = path.apginst('', **{key: val})
+        assert out == exp
+
+    @pytest.mark.parametrize('key, val, exp',
+                             [('healpix', '12334', '12'),
+                              ('healpix', 12334, '12'),
+                              ('healpix', '334', '0'),
+                              ('healpix', '5432', '5'),
+                              ('healpix', 333444, '333')])
+    def test_healpixgrp(self, path, key, val, exp):
+        out = path.healpixgrp('', **{key: val})
+        assert out == exp
+
     def test_envvar_expansion(self, path):
         name = 'mangacube'
         assert '$MANGA_SPECTRO_REDUX' in path.templates[name]
