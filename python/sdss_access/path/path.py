@@ -71,6 +71,8 @@ class BasePath(object):
         self.set_netloc()
         self.set_remote_base()
 
+        self._special_fxn_pattern = r"\@\w+[|]"
+
         self._compressions = ['.gz', '.bz2', '.zip']
         self._comp_regex = r'({0})$'.format('|'.join(self._compressions))
         # set the path templates from the tree
@@ -144,13 +146,13 @@ class BasePath(object):
         '''
         keys = []
         # find any %method names in the template string
-        functions = re.findall(r"\@\w+", self.templates[name])
+        functions = re.findall(self._special_fxn_pattern, self.templates[name])
         if not functions:
             return keys
 
         # loop over special method names and extract keywords
         for function in functions:
-            method = getattr(self, function[1:])
+            method = getattr(self, function[1:-1])
             # get source code of special method
             source = self._find_source(method)
             fkeys = re.findall(r'kwargs\[(.*?)\]', source)
@@ -709,13 +711,13 @@ class BasePath(object):
             The expanded template path
         '''
         # Now call special functions as appropriate
-        functions = re.findall(r"\@\w+", template)
+        functions = re.findall(self._special_fxn_pattern, template)
         if not functions:
             return template
 
         for function in functions:
             try:
-                method = getattr(self, function[1:])
+                method = getattr(self, function[1:-1])
             except AttributeError:
                 return None
             else:
@@ -1130,7 +1132,7 @@ class Path(BasePath):
         '''
 
         healpix = int(kwargs['healpix'])
-        subdir = "{:d}".format(healpix//1000)
+        subdir = "{:d}".format(healpix // 1000)
         return subdir
 
     def apgprefix(self, filetype, **kwargs):
@@ -1152,14 +1154,20 @@ class Path(BasePath):
 
         '''
 
-        telescope = kwargs.get('telescope')
+        telescope = kwargs.get('telescope', None)
         if telescope is not None:
-            prefix = {'apo25m':'ap', 'apo1m':'ap', 'lco25m':'as'}[telescope]
-            return prefix
-        instrument = kwargs.get('instrument')
+            prefix = {'apo25m': 'ap', 'apo1m': 'ap', 'lco25m': 'as'}
+            if telescope not in prefix:
+                raise ValueError(f'{telescope} not in allowed list of prefixes')
+            return prefix[telescope]
+
+        instrument = kwargs.get('instrument', None)
         if instrument is not None:
-            prefix = {'apogee-n':'ap', 'apogee-s':'as'}[instrument]
-            return prefix
+            prefix = {'apogee-n': 'ap', 'apogee-s': 'as'}
+            if instrument not in prefix:
+                raise ValueError(f'{instrument} not in allowed list of prefixes')
+            return prefix[instrument]
+
         return ''
 
     def apginst(self, filetype, **kwargs):
@@ -1179,12 +1187,14 @@ class Path(BasePath):
 
         '''
 
-        telescope = kwargs.get('telescope')
+        telescope = kwargs.get('telescope', None)
         if telescope is not None:
-            instrument = {'apo25m':'apogee-n', 'apo1m':'apogee-n', 'lco25m':'apogee-s'}[telescope]
-            return instrument
-        return ''    
+            instrument = {'apo25m': 'apogee-n', 'apo1m': 'apogee-n', 'lco25m': 'apogee-s'}
+            if telescope not in instrument:
+                raise ValueError(f'{telescope} not in allowed list of prefixes')
+            return instrument[telescope]
+        return ''
 
-    
+
 class AccessError(Exception):
     pass
