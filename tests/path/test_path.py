@@ -111,8 +111,12 @@ class TestPath(object):
                               ('fpBIN', 'ebosswork/eboss/photo/redux/1/45/objcs/3/fpBIN-000045-g3-0123.fit',
                                {'rerun': '1', 'field': '0123', 'filter': 'g', 'camcol': '3', 'run': '000045'}),
                               ('galaxy', 'ebosswork/eboss/lss/galaxy_DR12v1.0_1_n.fits.gz',
-                               {'sample': '1', 'dr': 'DR12', 'version': 'v1.0', 'ns': 'n'})],
-                             ids=['mangacube', 'reject', 'fpbin', 'galaxy'])
+                               {'sample': '1', 'dr': 'DR12', 'version': 'v1.0', 'ns': 'n'}),
+                              ('spec-lite', 'ebosswork/eboss/spectro/redux/v5_10_0/spectra/lite/3606/spec-3606-55182-0537.fits',
+                               {'fiberid': '0537', 'mjd': '55182', 'plateid': '3606', 'run2d': 'v5_10_0'}),
+                              ('apStar', 'apogeework/apogee/spectro/redux/r12/stars/apo25m/1234/apStar-r12-12345.fits',
+                               {'apred': 'r12', 'apstar': 'stars', 'telescope': 'apo25m', 'field': '1234', 'prefix': 'ap', 'obj': '12345'})],
+                             ids=['mangacube', 'reject', 'fpbin', 'galaxy', 'speclite', 'apstar'])
     def test_extract(self, path, name, example, keys):
         fullpath = os.path.join(os.environ['SAS_BASE_DIR'], example)
         realkeys = path.extract(name, fullpath)
