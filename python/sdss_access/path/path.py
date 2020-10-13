@@ -265,14 +265,18 @@ class BasePath(object):
         template = _expandvars(template)
 
         # handle special functions; perform a drop in replacement
-        if re.match('@spectrodir', template):
-            template = re.sub('@spectrodir', os.environ['BOSS_SPECTRO_REDUX'], template)
-        elif re.search('@platedir', template):
-            template = re.sub('@platedir', r'(.*)/{plateid:0>6}', template)
-        elif re.search('@definitiondir', template):
-            template = re.sub('@definitiondir', '{designid:0>6}', template)
-        if re.search('@plateid6', template):
-            template = re.sub('@plateid6', '{plateid:0>6}', template)
+        if re.match('@spectrodir|', template):
+            template = re.sub('@spectrodir|', os.environ['BOSS_SPECTRO_REDUX'], template)
+        elif re.search('@platedir|', template):
+            template = re.sub('@platedir|', r'(.*)/{plateid:0>6}', template)
+        elif re.search('@definitiondir|', template):
+            template = re.sub('@definitiondir|', '{designid:0>6}', template)
+        elif re.search('@apgprefix|', template):
+            template = re.sub('@apgprefix|', 'ap', template)
+        elif re.search('@healpixgrp|', template):
+            template = re.sub('@healpixgrp|', '111', template)
+        if re.search('@plateid6|', template):
+            template = re.sub('@plateid6|', '{plateid:0>6}', template)
 
         # check if template has any brackets
         haskwargs = re.search('[{}]', template)
