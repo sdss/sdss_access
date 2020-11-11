@@ -45,13 +45,17 @@ class BasePath(object):
     release : str
         The release name, e.g. 'DR15', 'MPL-9'.
     public : bool
-        If True, uses public urls.  Only needed for public data releases. Automatically set to True when release contains "DR".
+        If True, uses public urls.  Only needed for public data releases. Automatically set to True
+        when release contains "DR".
     mirror : bool
         If True, uses the mirror data domain url.  Default is False.
-    verbose: bool
+    verbose : bool
         If True, turns on verbosity.  Default is False.
-    force_modules: bool
-        If True, forces software products to use any existing Module environment paths
+    force_modules : bool
+        If True, forces svn or github software products to use any existing local Module
+        environment paths, e.g. PLATEDESIGN_DIR
+    preserve_envvars : bool
+        Flag to indicate some or all original environment variables to preserve
 
     Attributes
     ----------
@@ -62,12 +66,14 @@ class BasePath(object):
     _netloc = {"dtn": "sdss@dtn01.sdss.org", "sdss": "data.sdss.org",
                "mirror": "data.mirror.sdss.org", 'svn': 'svn.sdss.org'}
 
-    def __init__(self, release=None, public=False, mirror=False, verbose=False, force_modules=None):
+    def __init__(self, release=None, public=False, mirror=False, verbose=False,
+                 force_modules=None, preserve_envvars=None):
         self.release = release or os.getenv('TREE_VER', 'sdsswork')
         self.public = 'dr' in self.release.lower() or public
         self.mirror = mirror
         self.verbose = verbose
         self.force_modules = force_modules or config.get('force_modules')
+        self.preserve_envvars = preserve_envvars or config.get('preserve_envvars')
         self.set_netloc()
         self.set_remote_base()
 
@@ -81,18 +87,19 @@ class BasePath(object):
             self.replant_tree(release=self.release)
 
     def replant_tree(self, release=None):
-        ''' replants the tree based on release
+        ''' Replants the tree based on release
 
         Resets the path definitions given a specified release
 
-        Parameters:
-            release (str):
+        Parameters
+        ----------
+            release : str
                 A release to use when replanting the tree
         '''
         release = release or self.release
         if release:
             release = release.lower().replace('-', '')
-        tree.replant_tree(release)
+        tree.replant_tree(release, preserve_envvars=self.preserve_envvars)
         self.templates = tree.paths
         self.release = release
 
@@ -999,8 +1006,10 @@ class Path(BasePath):
         If True, uses the mirror data domain url.  Default is False.
     verbose: bool
         If True, turns on verbosity.  Default is False.
-    force_modules: bool
-        If True, forces software products to use any existing Module environment paths
+    force_modules : bool
+        If True, forces svn or github software products to use any existing local Module environment paths, e.g. PLATEDESIGN_DIR
+    preserve_envvars : bool
+        Flag to indicate some or all original environment variables to preserve
 
     Attributes
     ----------
@@ -1009,9 +1018,10 @@ class Path(BasePath):
 
     """
 
-    def __init__(self, release=None, public=False, mirror=False, verbose=False, force_modules=None):
+    def __init__(self, release=None, public=False, mirror=False, verbose=False, force_modules=None,
+                 preserve_envvars=None):
         super(Path, self).__init__(release=release, public=public, mirror=mirror, verbose=verbose,
-                                   force_modules=force_modules)
+                                   force_modules=force_modules, preserve_envvars=preserve_envvars)
 
     def plateid6(self, filetype, **kwargs):
         """Print plate ID, accounting for 5-6 digit plate IDs.

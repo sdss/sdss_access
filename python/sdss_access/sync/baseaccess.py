@@ -17,10 +17,11 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, SDSSPath)):
     access_mode = 'rsync' if is_posix else 'curl'
 
     def __init__(self, label=None, stream_count=5, mirror=False, public=False, release=None,
-                 verbose=False, force_modules=None):
+                 verbose=False, force_modules=None, preserve_envvars=None):
         super(BaseAccess, self).__init__(release=release, public=public,
                                          mirror=mirror, verbose=verbose,
-                                         force_modules=force_modules)
+                                         force_modules=force_modules,
+                                         preserve_envvars=preserve_envvars)
         self.label = label
         self.auth = None
         self.stream = None
