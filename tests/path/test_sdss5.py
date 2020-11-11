@@ -12,8 +12,10 @@
 
 
 from __future__ import print_function, division, absolute_import
+import os
 import pytest
 from sdss_access.path import Path
+from sdss_access import config
 
 
 @pytest.fixture(scope='module')
@@ -35,3 +37,60 @@ class TestSVPaths(object):
         assert special in path.templates[name]
         full = path.full(name, **keys)
         assert exp in full
+
+    def assert_orig_sdss5_envvars(self):
+        assert os.getenv("ROBOSTRATEGY_DATA") == '/tmp/robodata'
+        assert os.getenv("ALLWISE_DIR") == '/tmp/allwise'
+        assert os.getenv("EROSITA_DIR") == '/tmp/erosita'
+
+    def assert_updated_sdss5_envvars(self):
+        assert 'sdsswork/sandbox/robostrategy' in os.getenv("ROBOSTRATEGY_DATA")
+        assert 'sdsswork/target/catalogs/allwise' in os.getenv("ALLWISE_DIR")
+        assert 'sdsswork/target/catalogs/eRosita' in os.getenv("EROSITA_DIR")
+
+    def assert_all_envvars(self):
+        self.assert_orig_sdss5_envvars()
+        assert 'sdsswork/sandbox/robostrategy' not in os.getenv("ROBOSTRATEGY_DATA")
+
+    def assert_subset_envvars(self):
+        assert 'sdsswork/sandbox/robostrategy' in os.getenv("ROBOSTRATEGY_DATA")
+        assert os.getenv("ROBOSTRATEGY_DATA") != '/tmp/robodata'
+        assert os.getenv("ALLWISE_DIR") == '/tmp/allwise'
+        assert os.getenv("EROSITA_DIR") == '/tmp/erosita'
+
+    def test_replant_updated(self, monkeysdss5):
+        self.assert_orig_sdss5_envvars()
+        pp = Path(release='sdss5')
+        self.assert_updated_sdss5_envvars()
+        assert 'sdsswork/sandbox/robostrategy' in pp.full('rsFields', plan='A', observatory='apo')
+
+    def test_replant_preserve_all_envvars(self, monkeysdss5):
+        self.assert_orig_sdss5_envvars()
+        pp = Path(release='sdss5', preserve_envvars=True)
+        self.assert_all_envvars()
+        assert 'tmp/robodata' in pp.full('rsFields', plan='A', observatory='apo')
+        assert 'tmp/allwise' in pp.full('allwisecat', ver='1.0', num=1234)
+
+    def test_replant_preserve_subset_envvars(self, monkeysdss5):
+        self.assert_orig_sdss5_envvars()
+        pp = Path(release='sdss5', preserve_envvars=['ALLWISE_DIR', 'EROSITA_DIR'])
+        self.assert_subset_envvars()
+        assert 'sdsswork/sandbox/robostrategy' in pp.full('rsFields', plan='A', observatory='apo')
+        assert 'tmp/allwise' in pp.full('allwisecat', ver='1.0', num=1234)
+
+    def test_replant_preserve_all_from_config(self, monkeysdss5, monkeypatch):
+        monkeypatch.setitem(config, 'preserve_envvars', True)
+        self.assert_orig_sdss5_envvars()
+        pp = Path(release='sdss5')
+        self.assert_all_envvars()
+        assert 'tmp/robodata' in pp.full('rsFields', plan='A', observatory='apo')
+        assert 'tmp/allwise' in pp.full('allwisecat', ver='1.0', num=1234)
+
+    def test_replant_preserve_subset_from_config(self, monkeysdss5, monkeypatch):
+        monkeypatch.setitem(config, 'preserve_envvars', ['ALLWISE_DIR', 'EROSITA_DIR'])
+        self.assert_orig_sdss5_envvars()
+        pp = Path(release='sdss5')
+        self.assert_subset_envvars()
+        assert 'sdsswork/sandbox/robostrategy' in pp.full(
+            'rsFields', plan='A', observatory='apo')
+        assert 'tmp/allwise' in pp.full('allwisecat', ver='1.0', num=1234)
