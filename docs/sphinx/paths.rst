@@ -36,7 +36,7 @@ Internal SDSS Release Paths
 * :ref:`MPL-3<mpl3>`
 
 
-Lastest Path Evolution
+Latest Path Evolution
 ----------------------
 
 ``sdss_access`` paths sometimes change between various SDSS data releases.  Here we show changes for the latest public data release.  See

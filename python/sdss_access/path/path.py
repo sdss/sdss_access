@@ -54,8 +54,8 @@ class BasePath(object):
     force_modules : bool
         If True, forces svn or github software products to use any existing local Module
         environment paths, e.g. PLATEDESIGN_DIR
-    preserve_envvars : bool
-        Flag to indicate some or all original environment variables to preserve
+    preserve_envvars : bool | list
+        Flag(s) to indicate some or all original environment variables to preserve
 
     Attributes
     ----------
@@ -85,6 +85,9 @@ class BasePath(object):
         self.templates = tree.paths
         if self.release:
             self.replant_tree(release=self.release)
+
+    def __repr__(self):
+        return '<BasePath(release="{0}", public={1}, n_paths={2})'.format(self.release.lower(), self.public, len(self.templates))
 
     def replant_tree(self, release=None):
         ''' Replants the tree based on release
@@ -1008,8 +1011,8 @@ class Path(BasePath):
         If True, turns on verbosity.  Default is False.
     force_modules : bool
         If True, forces svn or github software products to use any existing local Module environment paths, e.g. PLATEDESIGN_DIR
-    preserve_envvars : bool
-        Flag to indicate some or all original environment variables to preserve
+    preserve_envvars : bool | list
+        Flag(s) to indicate some or all original environment variables to preserve
 
     Attributes
     ----------
@@ -1022,6 +1025,10 @@ class Path(BasePath):
                  preserve_envvars=None):
         super(Path, self).__init__(release=release, public=public, mirror=mirror, verbose=verbose,
                                    force_modules=force_modules, preserve_envvars=preserve_envvars)
+
+    def __repr__(self):
+        rep = super().__repr__()
+        return rep.replace('BasePath', 'Path')
 
     def plateid6(self, filetype, **kwargs):
         """Print plate ID, accounting for 5-6 digit plate IDs.
