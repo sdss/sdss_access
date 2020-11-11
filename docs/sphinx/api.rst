@@ -28,6 +28,13 @@ Auth
    :undoc-members:
    :show-inheritance:
 
+BaseAccess
+^^^^^^^^^^
+.. automodule:: sdss_access.sync.baseaccess
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Client
 ^^^^^^
 .. automodule:: sdss_access.sync.cli

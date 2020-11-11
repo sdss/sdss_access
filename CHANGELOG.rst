@@ -9,6 +9,7 @@ This document records the main changes to the sdss_access code.
 1.1.1 (unreleasd)
 -----------------
 - Feature - Adds new functions for mwm `healpixgrp`, `apginst`, and `apgprefix` to determine other keywords from existing `telescope` kwarg
+- Support :issue:`25` - Adds ``preserve_envvars`` option to preserve original os environment variables
 
 1.1.0 (2020-07-07)
 ------------------

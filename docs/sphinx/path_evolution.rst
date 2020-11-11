@@ -4,7 +4,7 @@
 Path Evolution
 ==============
 
-This page highlights how `sdss_access`` path definitions have evolved between releases, broken up into public data
+This page highlights how ``sdss_access`` path definitions have evolved between releases, broken up into public data
 releases (DRs) and internal SDSS data releases, e.g. MaNGA Product Launches (MPLs) for the MaNGA survey.
 
 Public Data Releases
@@ -71,3 +71,4 @@ MaNGA Product Launches (MPLs)
 .. changelog:: sdss_access.path.changelog:compute_changelog
    :prog: changes
    :drs: mpl4, mpl3
+

@@ -9,13 +9,15 @@
 
 This is the Sphinx documentation for the SDSS Python product sdss_access
 
-Introduction
-------------
+Contents
+--------
 
-* :ref:`What's new in sdss_access? <changelog>`
-* :ref:`Installation <install>`
-* :ref:`Introduction to sdss_access <intro>`
-* :ref:`sdss-access path definitions <paths>`
+.. toctree::
+  :maxdepth: 1
+
+  Installation <installation>
+  Introduction to sdss_access <intro>
+  Available sdss-access paths <paths>
 
 Reference
 ---------
@@ -24,6 +26,9 @@ Reference
    :maxdepth: 1
 
    api
+   CHANGELOG
+   path_evolution
+   path_defs
 
 Indices and tables
 ==================

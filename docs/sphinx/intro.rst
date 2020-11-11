@@ -5,12 +5,13 @@ Introduction to sdss_access
 ===============================
 
 SDSS Access provides a convenient way of navigating local and remote filesystem paths from the Science Archive Server (SAS).
-`sdss_access` uses the SDSS Tree product for all path look-ups.
+``sdss_access`` uses the SDSS Tree product for all path look-ups.
 
 Path Generation
 ---------------
 
-You can generate full paths to local files easily with `Path.full`::
+You can generate full paths to local files easily with `Path.full <.BasePath.full>`.
+::
 
     # import the path
     from sdss_access import SDSSPath
@@ -21,7 +22,8 @@ You can generate full paths to local files easily with `Path.full`::
     '/Users/Brian/Work/sdss/sas/mangawork/manga/spectro/redux/v2_3_1/8485/stack/manga-8485-1902-LOGCUBE.fits.gz'
 
 Note that this only generates a path. The file may not actually exist locally.  If you want to generate a URL path to
-the file on the SAS at Utah, you can use `Path.url`::
+the file on the SAS at Utah, you can use `Path.url <.BasePath.url>`.
+::
 
     # generate a http path to the file
     path.url('mangacube', drpver='v2_3_1', plate='8485', ifu='1901', wave='LOG')
@@ -39,12 +41,12 @@ be an empty string.
 Path Names
 ----------
 
-The syntax for all paths defined in `sdss_access`, for most methods, is ``(name, **kwargs)``.  Each path is defined by
+The syntax for all paths defined in ``sdss_access``, for most methods, is ``(name, **kwargs)``.  Each path is defined by
 a **name** and several **keyword arguments**, indicated in the template filepath by **{keyword_name}**.  For example,
 the path to a MaNGA data cube has **name** ``mangacube`` and path keywords, **plate**, **drpver**, **ifu**, and **wave**,
 defined in the path ``$MANGA_SPECTRO_REDUX/{drpver}/{plate}/stack/manga-{plate}-{ifu}-{wave}CUBE.fits.gz``.  All paths
-are defined inside the SDSS `tree` product, within a `[PATHS]` section in the environment configuration files, e.g. `data/sdsswork.cfg`
-or `data/dr15.cfg`.  Within `sdss_access`, all paths are available as a dictionary, ``path.templates``::
+are defined inside the SDSS ``tree`` product, within a `[PATHS]` section in the environment configuration files, e.g. `data/sdsswork.cfg`
+or `data/dr15.cfg`.  Within ``sdss_access``, all paths are available as a dictionary, ``path.templates``::
 
     from sdss_access.path import SDSSPath
     path = SDSSPath()
@@ -52,13 +54,15 @@ or `data/dr15.cfg`.  Within `sdss_access`, all paths are available as a dictiona
     # show the dictionary of available paths
     path.templates
 
-To look up what path names are available, you can use ``path.lookup_names``::
+To look up what path names are available, you can use `Path.lookup_names <.BasePath.lookup_names>`.
+::
 
     # look up the available path names
     path.lookup_names()
     ['BOSSLyaDR_cat', ..., 'mangacube', ..., 'xdqso_index']
 
-To look up what keywords are needed for a given path, you can use ``path.lookup_keys``::
+To look up what keywords are needed for a given path, you can use `Path.lookup_keys <.BasePath.lookup_keys>`.
+::
 
     # look up the keyword arguments needed to define a MaNGA cube path
     path.lookup_keys('mangacube')
@@ -80,24 +84,83 @@ the ``remote`` keyword argument
     path.exists('mangacube', drpver='v2_3_1', plate='8485', ifu='1901', wave='LOG', remote=True)
     True
 
+Environment Paths
+-----------------
+
+By default, when instantiating a new `.Path`, it will automatically load the ``tree`` environment from any currently loaded
+module file, identified with any `TREE_VER` environment variable.  Otherwise it loads the ``sdsswork`` environment, and all
+paths relevant to that environment.
+::
+
+    >>> # load the default environment / paths
+    >>> from sdss_access.path import Path
+    >>> path = Path()
+    >>> path
+    <Path(release="sdsswork", public=False, n_paths=358)
+
+To access paths from a different environment, you can change environments by passing in the ``release`` keyword argument.  The
+``release`` acts as an indicator for both a valid data release, e.g. "DR15", and a valid environment configuration,
+e.g. "sdsswork".
+::
+
+    >>> # load the sdss5 environment and paths
+    >>> from sdss_access.path import Path
+    >>> path = Path(release='sdss5')
+    >>> path
+    <Path(release="sdss5", public=False, n_paths=97)
+
+    >>> # switch to the environment for public data release DR15
+    >>> path = Path(release='DR15')
+    >>> path
+    <Path(release="dr15", public=True, n_paths=325)
+
+When reloading a new ``tree`` environment configuration, ``sdss_access`` automatically updates the Python session
+``os.environ`` with the relevant environment variables for the given release/configuration.  You can preserve your original
+``os.environ`` by setting the ``preserve_envvars`` keyword to True. This will preserve your original environment in its
+entirety.
+::
+
+    >>> # load the sdss5 environment but preserve your original os.environ
+    >>> path = Path(release='sdss5', preserve_envvars=True)
+
+Alternatively, you can preserve a subset of enviroment variables from your original ``os.environ`` by passing in a list of
+environment variables.
+::
+
+    >>> # preserve only a single environment variable
+    >>> path = Path(release='sdss5', preserve_envvars=['ROBOSTRATEGY_DATA'])
+
+If you wish to permanently preserve your locally set environment variables, you can set the ``preserve_envvars`` parameter to
+``true`` in a custom tree YAML configuration file located at ``~/.config/sdss/sdss_access.yml``.  For example
+::
+
+    preserve_envvars: true
+
+Alternatively, you can permanently set a subset of environment variables to preserve by defining a list.
+::
+
+    preserve_envvars:
+      - ROBOSTRATEGY_DATA
+      - ALLWISE_DIR
+
 Downloading Files
 -----------------
 
-You can download files from the SAS and place them in your local SAS.  `sdss_access` expects a local SAS filesystem
+You can download files from the SAS and place them in your local SAS.  ``sdss_access`` expects a local SAS filesystem
 that mimics the real SAS at Utah.  If you do not already have a `SAS_BASE_DIR` set, one will be defined in your
-home directory, as a new `sas` directory.
+home directory, as a new ``sas`` directory.
 
 sdss_access has four classes designed to facilitate access to SAS data.
 
-- **Access** - class that automatically decides between `RsyncAccess` and `CurlAccess` based on the operating system.
+- **Access** - class that automatically decides between `.RsyncAccess` and `.CurlAccess` based on the operating system.
 - **HttpAccess** - uses the `urllib` package to download data using a direct http request
 - **RsyncAccess** - uses `rsync` to download data.  Available for Linux and MacOS.
 - **CurlAccess** - uses `curl` to download data.  This is the only available method for use on Windows machines.
 
-Note that all remote access classes, after instantiation, must call the ``remote()`` method before adding paths to ensure
-successful downloading of data.
+Note that all remote access classes, after instantiation, must call the `Access.remote <.BaseAccess.remote>` method before
+adding paths to ensure successful downloading of data.
 
-Using the `HttpAccess` class.
+Using the `.HttpAccess` class.
 
 ::
 
@@ -110,7 +173,7 @@ Using the `HttpAccess` class.
     # get the file
     http_access.get('mangacube', drpver='v2_3_1', plate='8485', ifu='1901', wave='LOG')
 
-Using the `RsyncAccess` class.  `RsyncAccess` is generally much faster then `HttpAccess` as it spreads multiple
+Using the `.RsyncAccess` class.  `.RsyncAccess` is generally much faster then `.HttpAccess` as it spreads multiple
 file downloads across multiple continuous rsync download streams.
 
 ::
@@ -132,25 +195,25 @@ file downloads across multiple continuous rsync download streams.
     # start the download(s)
     rsync.commit()
 
-The default mode of `RsyncAccess` is for collaboration access.  You can also access data from publicly available
-SDSS data releases, by specifying the `public` and `release` keyword arguments on init.
+The default mode of `.RsyncAccess` is for collaboration access.  You can also access data from publicly available
+SDSS data releases, by specifying the ``public`` and ``release`` keyword arguments on init.
 
 ::
 
     # setup rsync access to download public data from DR14
     rsync = RsyncAccess(public=True, release='dr14')
 
-Using the `CurlAccess` class.  `CurlAccess` behaves exactly the same way as `RsyncAccess`.  After importing and
-instantiating a `CurlAccess` object, all methods and behavior are the same as in the `RsyncAccess` class.
+Using the `.CurlAccess` class.  `.CurlAccess` behaves exactly the same way as `.RsyncAccess`.  After importing and
+instantiating a `.CurlAccess` object, all methods and behavior are the same as in the `.RsyncAccess` class.
 ::
 
     # import the curl class
     from sdss_access import CurlAccess
     curl = CurlAccess()
 
-Using the `Access` class.  Depending on your operating system, `posix` or not, Access will either create itself using
-`RsyncAccess` or `CurlAccess`, and behave as either object.  Via `Acccess`, Windows machines will always use `CurlAccess`,
-while Linux or Macs will automatically utilize `RsyncAccess`.
+Using the `.Access` class.  Depending on your operating system, ``posix`` or not, Access will either create itself using
+`.RsyncAccess` or `.CurlAccess`, and behave as either object.  Via `.Acccess`, Windows machines will always use `.CurlAccess`,
+while Linux or Macs will automatically utilize `.RsyncAccess`.
 ::
 
     # import the access class
@@ -168,8 +231,8 @@ while Linux or Macs will automatically utilize `RsyncAccess`.
     access.set_stream()
     access.commit()
 
-In all all cases, successful `sdss_access` downloads will return a code of 0. Any other number indicates that a problem
-occurred.  If no verbose message is displayed, you may need to check the `sdss_access_XX.log` and `sdss_access_XX.err`
+In all all cases, successful ``sdss_access`` downloads will return a code of 0. Any other number indicates that a problem
+occurred.  If no verbose message is displayed, you may need to check the ``sdss_access_XX.log`` and ``sdss_access_XX.err``
 files within the temporary directory.
 
 Accessing Public Data Products
@@ -262,7 +325,7 @@ instantiation.
     path.full('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007')
     '/Users/Brian/Work/sdss/data/manga/mangapreim/trunk/data/D0084XX/8405/preimage-1-42007_irg.jpg'
 
-You can also set the ``force_modules`` parameter in your custom config file, ``~/.config/sdss_access/sdss_access.yml`` to
+You can also set the ``force_modules`` parameter in your custom config file, ``~/.config/sdss/sdss_access.yml`` to
 set it once permanently.
 
 .. _sdss-access-windows:
@@ -270,9 +333,9 @@ set it once permanently.
 Notes for Windows Users
 -----------------------
 
-`sdss_access` downloads files into a directory defined by the `SAS_BASE_DIR` enviroment variable.  If this path points
+``sdss_access`` downloads files into a directory defined by the `SAS_BASE_DIR` enviroment variable.  If this path points
 to another drive other than the C drive, make sure that the new drive and paths have full write permissions available
-to `curl`.  `CurlAccess` may not work properly until correct permissions are set up in your folder system.
+to `curl`.  `.CurlAccess` may not work properly until correct permissions are set up in your folder system.
 
 .. _sdss-access-api:
 
@@ -281,29 +344,29 @@ Reference/API
 
 .. rubric:: Class
 
-.. autosummary:: sdss_access.path.Path
-.. autosummary:: sdss_access.Access
-.. autosummary:: sdss_access.HttpAccess
-.. autosummary:: sdss_access.RsyncAccess
-.. autosummary:: sdss_access.CurlAccess
+.. autosummary:: sdss_access.path.path.Path
+.. autosummary:: sdss_access.sync.access.Access
+.. autosummary:: sdss_access.sync.http.HttpAccess
+.. autosummary:: sdss_access.sync.rsync.RsyncAccess
+.. autosummary:: sdss_access.sync.curl.CurlAccess
 
 .. rubric:: Methods
 
 .. autosummary::
 
-    sdss_access.SDSSPath.full
-    sdss_access.SDSSPath.url
-    sdss_access.SDSSPath.lookup_names
-    sdss_access.SDSSPath.lookup_keys
-    sdss_access.SDSSPath.extract
-    sdss_access.SDSSPath.location
-    sdss_access.SDSSPath.name
-    sdss_access.SDSSPath.dir
-    sdss_access.SDSSPath.any
-    sdss_access.SDSSPath.expand
-    sdss_access.SDSSPath.random
-    sdss_access.SDSSPath.one
-    sdss_access.Access.remote
-    sdss_access.Access.add
-    sdss_access.Access.set_stream
-    sdss_access.Access.commit
+    sdss_access.path.path.BasePath.full
+    sdss_access.path.path.BasePath.url
+    sdss_access.path.path.BasePath.lookup_names
+    sdss_access.path.path.BasePath.lookup_keys
+    sdss_access.path.path.BasePath.extract
+    sdss_access.path.path.BasePath.location
+    sdss_access.path.path.BasePath.name
+    sdss_access.path.path.BasePath.dir
+    sdss_access.path.path.BasePath.any
+    sdss_access.path.path.BasePath.expand
+    sdss_access.path.path.BasePath.random
+    sdss_access.path.path.BasePath.one
+    sdss_access.sync.baseaccess.BaseAccess.remote
+    sdss_access.sync.baseaccess.BaseAccess.add
+    sdss_access.sync.baseaccess.BaseAccess.set_stream
+    sdss_access.sync.baseaccess.BaseAccess.commit

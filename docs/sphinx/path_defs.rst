@@ -1,5 +1,12 @@
 
-:tocdepth: 1
+:tocdepth: 2
+
+Path Template Definitions
+=========================
+
+Here we describe, for each release, all the available path template definitions.  Each row indicates the
+shorthand path name, the template path for the filepath, and the list of input keyword arguments needed
+as input when generating dynamic filepaths.
 
 .. _sdsswork:
 

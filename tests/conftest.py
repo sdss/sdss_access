@@ -11,12 +11,14 @@
 from __future__ import print_function, division, absolute_import
 import glob
 import gzip
+import importlib
 import os
 import pytest
 import yaml
 import contextlib
 import shutil
 
+import tree.tree as treemod
 from sdss_access import RsyncAccess, HttpAccess, CurlAccess
 from sdss_access.path import Path
 
@@ -256,3 +258,11 @@ def monkeyhome(monkeypatch, tmp_path):
     ''' monkeypatch the HOME directory '''
     path = (tmp_path / 'tmp').mkdir()
     monkeypatch.setenv("HOME", str(path))
+
+
+@pytest.fixture()
+def monkeysdss5(monkeypatch):
+    monkeypatch.setenv('ALLWISE_DIR', '/tmp/allwise')
+    monkeypatch.setenv('EROSITA_DIR', '/tmp/erosita')
+    monkeypatch.setenv('ROBOSTRATEGY_DATA', '/tmp/robodata')
+    importlib.reload(treemod)
