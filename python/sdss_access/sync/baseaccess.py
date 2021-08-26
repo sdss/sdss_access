@@ -80,16 +80,15 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, SDSSPath)):
 
             # set stream source based on access mode
             if self.access_mode == 'rsync':
-                source = join(self.remote_base, self.release.lower()
-                              if self.public else 'sas') if self.remote_base else self.remote_base
+                source = join(self.remote_base, self.release.lower()) if self.remote_base
+                            else self.remote_base
             elif self.access_mode == 'curl':
                 source = join(self.remote_base, 'sas').replace(sep, '/')
             self.stream.source = source
 
             # set stream destination based on access mode
             if self.access_mode == 'rsync':
-                dest = join(self.base_dir, self.release.lower()
-                            if self.public else '') if self.base_dir else self.base_dir
+                dest = join(self.base_dir, self.release.lower()) if self.base_dir else self.base_dir
             elif self.access_mode == 'curl':
                 dest = self.base_dir
             self.stream.destination = dest
@@ -139,7 +138,7 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, SDSSPath)):
     def get_paths(self, offset=None, limit=None):
         ''' Return the base paths for all paths in the stream '''
         locations = self.get_locations(offset=offset, limit=limit)
-        sasdir = self.release.lower() if self.public else ''
+        sasdir = self.release.lower()
         paths = [join(self.base_dir, sasdir, location) for location in locations] if locations else None
         return paths
 
@@ -147,7 +146,7 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, SDSSPath)):
         ''' Return the urls for all paths in the stream '''
         locations = self.get_locations(offset=offset, limit=limit)
         remote_base = self.get_remote_base()
-        sasdir = self.release.lower() if self.public else 'sas'
+        sasdir = self.release.lower()
         urls = [join(remote_base, sasdir, location) for location in locations] if locations else None
         return urls
 
@@ -162,11 +161,11 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, SDSSPath)):
             if location and source and destination:
                 stream_has_task = True
                 self.stream.append_task(location=location, source=source, destination=destination)
-                """if self.verbose:
+                if self.verbose:
                     print("SDSS_ACCESS> Preparing to download: %s" % location)
                     print("SDSS_ACCESS> from: %s" % source)
                     print("SDSS_ACCESS> to: %s" % destination)
-                    print("-"*80)"""
+                    print("-"*80)
 
         if not stream_has_task:
             print('SDSS_ACCESS> Error: stream has nothing to do.')

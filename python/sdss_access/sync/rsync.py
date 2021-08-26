@@ -42,9 +42,7 @@ class RsyncAccess(BaseAccess):
     def generate_stream_task(self, task=None, out=None):
         ''' creates the task to put in the download stream '''
         if task and out:
-            depth = task['location'].count('/')
-            if self.public:
-                depth -= 1
+            depth = task['location'].count('/') - 1
             for result in out.split(b"\n"):
                 result = result.decode('utf-8')
                 if result.startswith(('d', '-', 'l')):
