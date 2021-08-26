@@ -63,7 +63,7 @@ class BasePath(object):
         The set of templates read from the configuration file.
     """
 
-    _netloc = {"dtn": "sdss@dtn01.sdss.org", "sdss": "data.sdss.org",
+    _netloc = {"dtn": "sdss@dtn.sdss.org", "sdss": "data.sdss.org",
                "mirror": "data.mirror.sdss.org", 'svn': 'svn.sdss.org'}
 
     def __init__(self, release=None, public=False, mirror=False, verbose=False,
@@ -754,7 +754,7 @@ class BasePath(object):
             sdss : bool
                 If True, returns SDSS data domain: data.sdss.org
             dtn : bool
-                If True, returns SDSS rsync server domain: dtn01.sdss.org
+                If True, returns SDSS rsync server domain: dtn.sdss.org
             svn: bool
                 If True, returns SDSS svn domain: svn.sdss.org
             mirror: bool
@@ -792,7 +792,7 @@ class BasePath(object):
             sdss : bool
                 If True, sets the SDSS data domain: data.sdss.org
             dtn : bool
-                If True, sets the SDSS rsync server domain: dtn01.sdss.org
+                If True, sets the SDSS rsync server domain: dtn.sdss.org
             svn: bool
                 If True, sets the SDSS svn domain: svn.sdss.org
             mirror: bool

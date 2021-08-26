@@ -33,7 +33,7 @@ class TestAuth(object):
         assert auth.ready() is None
         assert auth.netrc is None
 
-    @pytest.mark.parametrize('netloc', [('data.sdss.org'), ('dtn01.sdss.org')])
+    @pytest.mark.parametrize('netloc', [('data.sdss.org'), ('dtn.sdss.org')])
     def test_setnetloc(self, netloc):
         ''' test setting a url domain location '''
         auth = Auth(public=True, netloc=netloc)
