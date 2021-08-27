@@ -46,10 +46,7 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, SDSSPath)):
         location = self.location(filetype, **kwargs)
 
         # set proper sasdir based on access method
-        if self.access_mode == 'rsync':
-            sasdir = 'sas' if not self.public else ''
-        elif self.access_mode == 'curl':
-            sasdir = 'sas'
+        sasdir = 'sas' if self.access_mode == 'curl' else ''
         source = self.url(filetype, sasdir=sasdir, **kwargs)
 
         # raise error if attempting to add a software product path
