@@ -78,17 +78,12 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, SDSSPath)):
 
             # set stream source based on access mode
             if self.access_mode == 'rsync':
-                source = join(self.remote_base, self.release.lower()) if self.remote_base else self.remote_base
+                self.stream.source =  = self.remote_base
             elif self.access_mode == 'curl':
-                source = join(self.remote_base, 'sas').replace(sep, '/')
-            self.stream.source = source
+                self.stream.source =  = join(self.remote_base, 'sas').replace(sep, '/')
 
-            # set stream destination based on access mode
-            if self.access_mode == 'rsync':
-                dest = join(self.base_dir, self.release.lower()) if self.base_dir else self.base_dir
-            elif self.access_mode == 'curl':
-                dest = self.base_dir
-            self.stream.destination = dest
+            # set stream destination
+            self.stream.destination = self.base_dir
 
             # set client env dict based on access mode
             if self.access_mode == 'rsync':

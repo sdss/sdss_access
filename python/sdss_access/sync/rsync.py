@@ -42,7 +42,8 @@ class RsyncAccess(BaseAccess):
     def generate_stream_task(self, task=None, out=None):
         ''' creates the task to put in the download stream '''
         if task and out:
-            depth = task['location'].count('/') - 1
+            sas_module = task['sas_module']
+            depth = task['location'].count('/')
             for result in out.split(b"\n"):
                 result = result.decode('utf-8')
                 if result.startswith(('d', '-', 'l')):
@@ -50,10 +51,10 @@ class RsyncAccess(BaseAccess):
                         location = search(r"^.*\s{1,3}(.+)$", result).group(1)
                     except Exception:
                         location = None
-                    if location and location.count('/') == depth:
-                        source = join(self.stream.source, location) if self.remote_base else None
-                        destination = join(self.stream.destination, location)
-                        yield (location, source, destination)
+                    if  sas_module and location and location.count('/') == depth:
+                        source = join(self.stream.source, sas_module, location) if self.remote_base else None
+                        destination = join(self.stream.destination, sas_module, location)
+                        yield (sas_module, location, source, destination)
 
     def set_stream_task(self, task=None):
         out = self.get_task_out(task=task)
