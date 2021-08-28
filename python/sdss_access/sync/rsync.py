@@ -70,4 +70,4 @@ class RsyncAccess(BaseAccess):
 
     def _get_stream_command(self):
         ''' gets the stream command used when committing the download '''
-        return "rsync -avRK --files-from={path} {source}/{sas_module} {destination}/{sas_module}"
+        return "rsync -avRK --files-from={path} {source}/{sas_module} {destination}{sas_module}/"
