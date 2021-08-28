@@ -87,8 +87,8 @@ class Stream(object):
         subset = filter(lambda i: r.search(i), locations)
         self.task = [self.task[locations.index(s)] for s in subset]
 
-    def append_task(self, location=None, source=None, destination=None):
-        if location and source and destination:
+    def append_task(self, sas_module=None, location=None, source=None, destination=None):
+        if sas_module and location and source and destination:
             task = {'sas_module': sas_module, 'location': location, 'source': source,
                     'destination': destination, 'exists': None}
             self.task.append(task)

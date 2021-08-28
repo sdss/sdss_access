@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import abc
 import six
-from os.path import join, sep
+from os.path import join, sep, split
 from sdss_access import SDSSPath
 from sdss_access.sync.auth import Auth, AuthMixin
 from sdss_access.sync.stream import Stream
@@ -44,6 +44,7 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, SDSSPath)):
         """ Adds a filepath into the list of tasks to download"""
 
         location = self.location(filetype, **kwargs)
+        sas_module, location = split(location)
 
         # set proper sasdir based on access method
         sasdir = 'sas' if self.access_mode == 'curl' else ''
@@ -58,9 +59,9 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, SDSSPath)):
         else:
             destination = kwargs.get('full')
 
-        if location and source and destination:
+        if sas_module and location and source and destination:
             self.initial_stream.append_task(
-                location=location, source=source, destination=destination)
+                sas_module=sas_module, location=location, source=source, destination=destination)
         else:
             print("There is no file with filetype=%r to access in the tree module loaded" % filetype)
 
