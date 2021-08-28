@@ -149,15 +149,16 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, SDSSPath)):
     def set_stream_task(self, task=None, out=None):
         ''' sets the path input dictionary for a task in a stream '''
         stream_has_task = False
-        for location, source, destination in self.generate_stream_task(task=task, out=out):
-            if location and source and destination:
+        for sas_module, location, source, destination in self.generate_stream_task(task=task, out=out):
+            if sas_module and location and source and destination:
                 stream_has_task = True
-                self.stream.append_task(location=location, source=source, destination=destination)
-                """if self.verbose:
-                    print("SDSS_ACCESS> Preparing to download: %s" % location)
+                self.stream.append_task(sas_module=sas_module, location=location, source=source,
+                                        destination=destination)
+                if self.verbose:
+                    print("SDSS_ACCESS> Preparing to download: %s" % join(sas_module, location))
                     print("SDSS_ACCESS> from: %s" % source)
                     print("SDSS_ACCESS> to: %s" % destination)
-                    print("-"*80)"""
+                    print("-"*80)
 
         if not stream_has_task:
             print('SDSS_ACCESS> Error: stream has nothing to do.')
