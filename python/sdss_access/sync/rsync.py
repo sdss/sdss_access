@@ -47,14 +47,10 @@ class RsyncAccess(BaseAccess):
             for result in out.split(b"\n"):
                 result = result.decode('utf-8')
                 if result.startswith(('d', '-', 'l')):
-                    if self.verbose: print("GENERATE> result=%r" % result)
                     try:
                         location = search(r"^.*\s{1,3}(.+)$", result).group(1)
                     except Exception:
                         location = None
-                    if self.verbose:
-                        print("GENERATE> sas_module=%r" % sas_module)
-                        print("GENERATE> location=%r" % location)
                     if  sas_module and location and location.count('/') == depth:
                         source = join(self.stream.source, sas_module, location) if self.remote_base else None
                         destination = join(self.stream.destination, sas_module, location)
