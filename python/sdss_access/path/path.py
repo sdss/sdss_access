@@ -778,7 +778,7 @@ class BasePath(object):
         else:
             return self._netloc['sdss']
 
-    def set_netloc(self, netloc=None, sdss=None, dtn=None, svn=None, mirror=None):
+    def set_netloc(self, netloc=None, sdss=None, sdss5=None, dtn=None, svn=None, mirror=None):
         ''' Set a url domain location
 
         Sets an SDSS url domain location.  Options are the SDSS SAS domain, the rsync download
@@ -790,7 +790,9 @@ class BasePath(object):
             netloc : str
                 An exact net location to use directly
             sdss : bool
-                If True, sets the SDSS data domain: data.sdss.org
+                If True, sets the SDSS-IV data domain: data.sdss.org
+            sdss5 : bool
+                If True, sets the SDSS-V data domain: data.sdss5.org
             dtn : bool
                 If True, sets the SDSS rsync server domain: dtn.sdss.org
             svn: bool
@@ -799,7 +801,7 @@ class BasePath(object):
                 If True, sets the SDSS mirror domain: data.mirror.sdss.org.
 
         '''
-        self.netloc = self.get_netloc(netloc=netloc, sdss=sdss, dtn=dtn, svn=svn, mirror=mirror)
+        self.netloc = self.get_netloc(netloc=netloc, sdss=sdss, sdss5=sdss5, dtn=dtn, svn=svn, mirror=mirror)
 
     def set_remote_base(self, scheme='https'):
         self.remote_base = self.get_remote_base(scheme=scheme or 'https')

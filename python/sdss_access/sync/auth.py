@@ -21,9 +21,15 @@ class Auth(object):
         """ add the following username and password to your ~/.netrc file
             and remember to chmod 600 ~/.netrc
 
+            For SDSS-IV access:
             machine data.sdss.org
             login sdss
             password ***-******
+
+            For SDSS-V access:
+            machine data.sdss5.org
+            login sdss5
+            password *******-*
 
             Windows: recommending _netrc following
             https://stackoverflow.com/questions/6031214/git-how-to-use-netrc-file-on-windows-to-save-user-and-password

@@ -33,8 +33,10 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, SDSSPath)):
     def remote(self, username=None, password=None, inquire=None):
         """ Configures remote access """
         use_dtn = self.remote_scheme == 'rsync'
-        # simplifies things to have a single sdss machine in .netrc
-        self.set_netloc(sdss=True)
+        # simplifies things to have a single sdss (or sdss5) machine in
+        # .netrc for SDSS-IV  (or SDSS-V, respectively).
+        sdss5 = ( self.release == 'sdss5' )
+        self.set_netloc(sdss=not sdss5, sdss5=sdss5)
         self.set_auth(username=username, password=password, inquire=inquire)
         if use_dtn:
             self.set_netloc(dtn=use_dtn)
