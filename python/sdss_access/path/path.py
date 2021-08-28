@@ -63,7 +63,7 @@ class BasePath(object):
         The set of templates read from the configuration file.
     """
 
-    _netloc = {"dtn": "sdss@dtn.sdss.org", "sdss": "data.sdss.org",
+    _netloc = {"dtn": "dtn.sdss.org", "sdss": "data.sdss.org",
                "mirror": "data.mirror.sdss.org", 'svn': 'svn.sdss.org'}
 
     def __init__(self, release=None, public=False, mirror=False, verbose=False,
@@ -817,7 +817,12 @@ class BasePath(object):
         netloc = self.netloc
         if svn:
             netloc = self.get_netloc(svn=True)
-        return "{scheme}://{netloc}".format(scheme=scheme, netloc=netloc)
+        if self.public:
+            remote_base = "{scheme}://{netloc}".format(scheme=scheme, netloc=netloc)
+        else:
+            user = "sdss5" if self.release == "sdss5" else "sdss"
+            remote_base = "{scheme}://{user}@{netloc}".format(scheme=scheme, user=user, netloc=netloc)
+        return remote_base
 
     def set_base_dir(self, base_dir=None):
         ''' Sets the base directory
