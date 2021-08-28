@@ -38,12 +38,12 @@ class Stream(object):
         for index in range(0, self.stream_count):
             self.set_streamlet(index=index, sas_module=[], location=[], source=[], destination=[])
 
-    def set_streamlet(self, index=None, location=None, source=None, destination=None):
+    def set_streamlet(self, index=None, sas_module=None, location=None, source=None, destination=None):
         streamlet = self.get_streamlet(index=index)
         if streamlet:
             try:
                 n = len(location)
-                ok = n == len(source) and n == len(destination)
+                ok = n == len(sas_module) and n == len(source) and n == len(destination)
                 streamlet['sas_module'], streamlet['location'], streamlet['source'], streamlet['destination'] = (
                     sas_module, location, source, destination) if ok else (None, None, None, None)
             except Exception:
