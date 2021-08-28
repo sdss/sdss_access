@@ -67,7 +67,7 @@ class RsyncAccess(BaseAccess):
     def _get_sas_module(self):
         ''' gets the unique rsync sas module used when committing the download '''
         if self.stream and self.stream.streamlet:
-            sas_module = unique(self.stream.streamlet['sas_module'])
+            sas_module = list(set(self.stream.streamlet['sas_module']))
             sas_module = sas_module[0] if len(sas_module) == 1 else None
         else: sas_module = None
         return sas_module
