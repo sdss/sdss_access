@@ -170,8 +170,8 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, SDSSPath)):
     def commit(self, offset=None, limit=None):
         """ Start the download """
 
-        self.stream.sas_module = self._get_sas_module()
         self.stream.command = self._get_stream_command()
+        self.stream.sas_module = self._get_sas_module()
         self.stream.append_tasks_to_streamlets(offset=offset, limit=limit)
         self.stream.commit_streamlets()
         self.stream.run_streamlets()
