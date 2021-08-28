@@ -89,7 +89,8 @@ class Stream(object):
 
     def append_task(self, location=None, source=None, destination=None):
         if location and source and destination:
-            task = {'location': location, 'source': source, 'destination': destination, 'exists': None}
+            task = {'sas_module': sas_module, 'location': location, 'source': source,
+                    'destination': destination, 'exists': None}
             self.task.append(task)
 
     def append_tasks_to_streamlets(self, offset=None, limit=None):
@@ -124,22 +125,26 @@ class Stream(object):
         if streamlet:
             streamlet['path'] = self.cli.get_path(index=streamlet['index'])
             path_txt = "{0}.txt".format(streamlet['path'])
-            streamlet['command'] = self.command.format(path=path_txt, sas_module=self.sas_module, source=self.source, destination=self.destination)
+            streamlet['command'] = self.command.format(path=path_txt, sas_module=self.sas_module,
+                                                source=self.source, destination=self.destination)
 
             if 'rsync -' in self.command:
                 lines = [location for location in streamlet['location']]
             else:
                 if not is_posix:
-                    lines = ['url ' + join(self.source, location).replace(sep,'/')+'\n'+'output '+join(self.destination, location) for location in streamlet['location']]
+                    lines = ['url ' + join(self.source, location).replace(sep,'/')+'\n'+'output ' +
+                            join(self.destination, location) for location in streamlet['location']]
                 else:
-                    lines = ['url ' + join(self.source, location)+'\n'+'output '+join(self.destination, location) for location in streamlet['location']]
+                    lines = ['url ' + join(self.source, location)+'\n'+'output ' +
+                            join(self.destination, location) for location in streamlet['location']]
             self.cli.write_lines(path=path_txt, lines=lines)
 
     def run_streamlets(self):
         for streamlet in self.streamlet:
             streamlet['logfile'] = open("{0}.log".format(streamlet['path']), "w")
             streamlet['errfile'] = open("{0}.err".format(streamlet['path']), "w")
-            streamlet['process'] = self.cli.get_background_process(streamlet['command'], logfile=streamlet['logfile'], errfile=streamlet['errfile'])
+            streamlet['process'] = self.cli.get_background_process(streamlet['command'],
+                                        logfile=streamlet['logfile'], errfile=streamlet['errfile'])
             if self.verbose:
                 print("SDSS_ACCESS> rsync stream %s logging to %s" % (streamlet['index'],streamlet['logfile'].name))
 
