@@ -157,11 +157,11 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, SDSSPath)):
             if location and source and destination:
                 stream_has_task = True
                 self.stream.append_task(location=location, source=source, destination=destination)
-                if self.verbose:
+                """if self.verbose:
                     print("SDSS_ACCESS> Preparing to download: %s" % location)
                     print("SDSS_ACCESS> from: %s" % source)
                     print("SDSS_ACCESS> to: %s" % destination)
-                    print("-"*80)
+                    print("-"*80)"""
 
         if not stream_has_task:
             print('SDSS_ACCESS> Error: stream has nothing to do.')
