@@ -32,7 +32,7 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, SDSSPath)):
 
     def remote(self, username=None, password=None, inquire=None):
         """ Configures remote access """
-        use_dtn = self.remote_scheme == 'rsync' and not self.public
+        use_dtn = self.remote_scheme == 'rsync'
         # simplifies things to have a single sdss machine in .netrc
         self.set_netloc(sdss=True)
         self.set_auth(username=username, password=password, inquire=inquire)
