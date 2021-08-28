@@ -64,6 +64,14 @@ class RsyncAccess(BaseAccess):
         out = self.get_task_out(task=task)
         super(RsyncAccess, self).set_stream_task(task=task, out=out)
 
+    def _get_sas_module(self):
+        ''' gets the unique rsync sas module used when committing the download '''
+        if self.stream and self.stream.streamlet:
+            sas_module = unique(self.stream.streamlet['sas_module'])
+            sas_module = sas_module[0] if len(sas_module) == 1 else None
+        else: sas_module = None
+        return sas_module
+
     def _get_stream_command(self):
         ''' gets the stream command used when committing the download '''
-        return "rsync -avRK --files-from={path} {source} {destination}"
+        return "rsync -avRK --files-from={path} {source}/{sas_module} {destination}/{sas_module}"

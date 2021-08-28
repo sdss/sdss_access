@@ -178,6 +178,10 @@ class CurlAccess(BaseAccess):
         if status:
             super(CurlAccess, self).set_stream_task(task=task)
 
+    def _get_sas_module(self):
+        ''' gets the sas module used when committing the download '''
+        return "sas"
+
     def _get_stream_command(self):
         ''' gets the stream command used when committing the download '''
         auth = ''

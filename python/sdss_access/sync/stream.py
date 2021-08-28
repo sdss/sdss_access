@@ -125,20 +125,19 @@ class Stream(object):
         if streamlet:
             streamlet['path'] = self.cli.get_path(index=streamlet['index'])
             path_txt = "{0}.txt".format(streamlet['path'])
-            streamlet['command'] = self.command.format(path=path_txt, source=self.source,
-                                                        destination=self.destination)
-                                                        
-            sas_modules = [sas_module for sas_module in streamlet['sas_module']]
-            locations = [location for location in streamlet['location']]
-            lines = [join(sas_module, location) for (sas_module, location) in zip(sas_modules, locations)]
+            streamlet['location']
+            streamlet['command'] = self.command.format(path=path_txt, sas_module=self.sas_module,
+                                                        source=self.source, destination=self.destination)
 
-            if 'rsync -' not in self.command:
+            if 'rsync -' in self.command:
+                lines = [location for location in streamlet['location']]
+            else:
                 if not is_posix:
-                    lines = ['url ' + join(self.source, line).replace(sep,'/')+'\n'+'output ' +
-                            join(self.destination, line) for line in lines]
+                    lines = ['url ' + join(self.source, location).replace(sep,'/')+'\n'+'output ' +
+                            join(self.destination, location) for location in streamlet['location']]
                 else:
-                    lines = ['url ' + join(self.source, line)+'\n'+'output ' +
-                            join(self.destination, line) for line in lines]
+                    lines = ['url ' + join(self.source, location)+'\n'+'output ' +
+                            join(self.destination, location) for location in streamlet['location']]
             self.cli.write_lines(path=path_txt, lines=lines)
 
     def run_streamlets(self):
