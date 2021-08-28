@@ -78,9 +78,9 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, SDSSPath)):
 
             # set stream source based on access mode
             if self.access_mode == 'rsync':
-                self.stream.source =  = self.remote_base
+                self.stream.source = self.remote_base
             elif self.access_mode == 'curl':
-                self.stream.source =  = join(self.remote_base, 'sas').replace(sep, '/')
+                self.stream.source = join(self.remote_base, 'sas').replace(sep, '/')
 
             # set stream destination
             self.stream.destination = self.base_dir
