@@ -63,8 +63,8 @@ class BasePath(object):
         The set of templates read from the configuration file.
     """
 
-    _netloc = {"dtn": "dtn.sdss.org", "sdss": "data.sdss.org",
-               "mirror": "data.mirror.sdss.org", 'svn': 'svn.sdss.org'}
+    _netloc = {"dtn": "dtn.sdss.org", "sdss": "data.sdss.org", "sdss5": "data.sdss5.org",
+               "mirror": "data.mirror.sdss.org", "svn": "svn.sdss.org"}
 
     def __init__(self, release=None, public=False, mirror=False, verbose=False,
                  force_modules=None, preserve_envvars=None):
