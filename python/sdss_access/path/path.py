@@ -778,9 +778,9 @@ class BasePath(object):
         elif mirror or self.mirror:
             return self._netloc["mirror"]
         elif svn:
-            return '{0}{1}'.format(self._netloc['svn'], '/public' if self.public else '')
+            return '{0}{1}'.format(self._netloc["svn"], "/public" if self.public else '')
         else:
-            return self._netloc['sdss']
+            return self._netloc["sdss5"] if self.release == "sdss5" else self._netloc["sdss"]
 
     def set_netloc(self, netloc=None, sdss=None, sdss5=None, dtn=None, svn=None, mirror=None):
         ''' Set a url domain location
