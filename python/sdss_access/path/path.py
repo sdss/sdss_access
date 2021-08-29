@@ -823,7 +823,7 @@ class BasePath(object):
         netloc = self.netloc
         if svn:
             netloc = self.get_netloc(svn=True)
-        if self.public:
+        if self.public or scheme == "https":
             remote_base = "{scheme}://{netloc}".format(scheme=scheme, netloc=netloc)
         else:
             user = "sdss5" if self.release == "sdss5" else "sdss"
