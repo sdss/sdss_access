@@ -740,7 +740,7 @@ class BasePath(object):
 
         return template
 
-    def get_netloc(self, netloc=None, sdss=None, dtn=None, svn=None, mirror=None):
+    def get_netloc(self, netloc=None, sdss=None, sdss5=None, dtn=None, svn=None, mirror=None):
         ''' Get a net url domain
 
         Returns an SDSS url domain location.  Options are the SDSS SAS domain, the rsync download
@@ -753,6 +753,8 @@ class BasePath(object):
                 An exact net location to return directly
             sdss : bool
                 If True, returns SDSS data domain: data.sdss.org
+            sdss5 : bool
+                If True, sets the SDSS-V data domain: data.sdss5.org
             dtn : bool
                 If True, returns SDSS rsync server domain: dtn.sdss.org
             svn: bool
@@ -770,7 +772,9 @@ class BasePath(object):
         if dtn:
             return self._netloc["dtn"]
         elif sdss:
-            return self._netloc['sdss']
+            return self._netloc["sdss"]
+        elif sdss5:
+            return self._netloc["sdss5"]
         elif mirror or self.mirror:
             return self._netloc["mirror"]
         elif svn:
