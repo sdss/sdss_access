@@ -1,6 +1,6 @@
 
 remote_base:
-  work: rsync://dtn.sdss.org
+  work: rsync://sdss@dtn.sdss.org
   public: rsync://dtn.sdss.org
 
 paths:

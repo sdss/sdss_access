@@ -80,17 +80,18 @@ def expdata(release, datapath):
     remote = data.get('remote_base')
     # remote base
     base = remote['work'] if release == 'work' else remote['public']
-    # work or DR directory
-    name = datapath['work'] if release == 'work' else ''
+    # sas_module; a work or DR directory
+    sas_module = datapath['work'] if release == 'work' else release.lower()
     # file location
-    location = os.path.join(name, datapath['location'])
+    location = datapath['location']
     # full source file location
-    source = os.path.join(base, 'sas' if release == 'work' else release.lower(), location)
+    source = os.path.join(base, sas_module, location)
     # full final file location
-    destination = os.path.join(os.getenv('SAS_BASE_DIR'), '' if release == 'work' else release.lower(), location)
+    destination = os.path.join(os.getenv('SAS_BASE_DIR'), sas_module, location)
     # combined dict
-    result = {'name': datapath['name'], 'params': datapath['params'], 'base': base,
-              'location': location, 'source': source, 'destination': destination, 'release': release.lower()}
+    result = {'name': datapath['name'], 'params': datapath['params'], 'base': base, 
+              'sas_module': sas_module, 'location': location, 'source': source, 
+              'destination': destination, 'release': release.lower()}
     yield result
     result = None
 
@@ -99,10 +100,10 @@ def expdata(release, datapath):
 def inittask(expdata):
     ''' fixture to yield expected initial stream task based on test data '''
 
-    patch = '' if expdata['release'] == 'work' else expdata['release']
-    loc = os.path.join(patch, expdata['location'])
-    task = [{'location': loc, 'source': expdata['source'],
-             'destination': expdata['destination'], 'exists': None}]
+    #patch = '' if expdata['release'] == 'work' else expdata['release']
+    #loc = os.path.join(patch, expdata['location'])
+    task = [{'sas_module': expdata['sas_module'], 'location': expdata['location'], 
+             'source': expdata['source'], 'destination': expdata['destination'], 'exists': None}]
     yield task
     task = None
 
@@ -111,8 +112,8 @@ def inittask(expdata):
 def finaltask(expdata):
     ''' fixture to yield expected final stream task based on test data '''
 
-    task = [{'location': expdata['location'], 'source': expdata['source'],
-             'destination': expdata['destination'], 'exists': None}]
+    task = [{'sas_module': expdata['sas_module'], 'location': expdata['location'], 
+             'source': expdata['source'], 'destination': expdata['destination'], 'exists': None}]
     yield task
     task = None
 

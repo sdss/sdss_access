@@ -132,7 +132,7 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, SDSSPath)):
     def get_paths(self, offset=None, limit=None):
         ''' Return the base paths for all paths in the stream '''
         locations = self.get_locations(offset=offset, limit=limit)
-        sasdir = self.release.lower()
+        sasdir = self._get_sas_module()
         paths = [join(self.base_dir, sasdir, location) for location in locations] if locations else None
         return paths
 
@@ -140,7 +140,7 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, SDSSPath)):
         ''' Return the urls for all paths in the stream '''
         locations = self.get_locations(offset=offset, limit=limit)
         remote_base = self.get_remote_base()
-        sasdir = self.release.lower()
+        sasdir = self._get_sas_module()
         urls = [join(remote_base, sasdir, location) for location in locations] if locations else None
         return urls
 
