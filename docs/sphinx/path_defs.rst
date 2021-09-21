@@ -17,6 +17,14 @@ SDSSWORK
    :prog: sdsswork
    :templates:
 
+.. _dr17:
+
+DR17
+----
+
+.. datamodel:: sdss_access.path.path:Path
+   :prog: DR17
+   :templates:
 
 .. _dr16:
 
@@ -99,6 +107,23 @@ DR8
    :prog: DR8
    :templates:
 
+.. _mpl11:
+
+MPL11
+-----
+
+.. datamodel:: sdss_access.path.path:Path
+   :prog: MPL11
+   :templates:
+
+.. _mpl10:
+
+MPL10
+-----
+
+.. datamodel:: sdss_access.path.path:Path
+   :prog: MPL10
+   :templates:
 
 .. _mpl9:
 
