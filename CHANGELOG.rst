@@ -6,6 +6,11 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
+1.1.2 (unreleased)
+------------------
+- Support: switches access to use new sdss dtn.sdss.org server
+- Feature: adds support for "sdss5" to rsync, curl, and http
+
 1.1.1 (2020-11-11)
 -----------------
 - Feature - Adds new functions for mwm `healpixgrp`, `apginst`, and `apgprefix` to determine other keywords from existing `telescope` kwarg
