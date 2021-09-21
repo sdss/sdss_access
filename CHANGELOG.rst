@@ -8,11 +8,12 @@ This document records the main changes to the sdss_access code.
 
 2.0.0 (unreleased)
 ------------------
-- Breaking change: switches `sdss_access` to use new SDSS dtn.sdss.org server
-- Feature: adds support for "sdss5" to rsync, curl, and http
+- Breaking Change: switches `sdss_access` to use new SDSS dtn.sdss.org server
+- Feature: adds new "data.sdss5.org" server to support rsync, curl, and http downloads for sdss5 products
+- Adding new Sphinx docs for SDSS collaboration authentication
 
 1.1.1 (2020-11-11)
------------------
+------------------
 - Feature - Adds new functions for mwm `healpixgrp`, `apginst`, and `apgprefix` to determine other keywords from existing `telescope` kwarg
 - Support :issue:`25` - Adds ``preserve_envvars`` option to preserve original os environment variables
 

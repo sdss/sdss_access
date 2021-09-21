@@ -18,6 +18,7 @@ Contents
   Installation <installation>
   Introduction to sdss_access <intro>
   Available sdss-access paths <paths>
+  Collaboration Authentication <auth>
 
 Reference
 ---------
