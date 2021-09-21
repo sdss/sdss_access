@@ -6,9 +6,9 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
-1.1.2 (unreleased)
+2.0.0 (unreleased)
 ------------------
-- Support: switches access to use new sdss dtn.sdss.org server
+- Breaking change: switches `sdss_access` to use new SDSS dtn.sdss.org server
 - Feature: adds support for "sdss5" to rsync, curl, and http
 
 1.1.1 (2020-11-11)
