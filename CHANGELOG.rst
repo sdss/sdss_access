@@ -6,7 +6,7 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
-2.0.0 (unreleased)
+2.0.0 (2021-09-24)
 ------------------
 - Breaking Change: switches `sdss_access` to use new SDSS dtn.sdss.org server
 - Feature: adds new "data.sdss5.org" server to support rsync, curl, and http downloads for sdss5 products
