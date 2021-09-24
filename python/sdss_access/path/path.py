@@ -6,6 +6,7 @@ import requests
 import ast
 import inspect
 import six
+import datetime
 from glob import glob
 from os.path import join, sep
 from random import choice, sample
@@ -18,10 +19,10 @@ try:
 except ImportError:
     import pathlib2 as pathlib
 
-try:
-    from ConfigParser import RawConfigParser
-except ImportError:
-    from configparser import RawConfigParser
+# try:
+#     from ConfigParser import RawConfigParser
+# except ImportError:
+#     from configparser import RawConfigParser
 
 """
 Module for constructing paths to SDSS files.
@@ -35,6 +36,29 @@ Example use case:
 Depends on the tree product. In particular requires path templates in:
   $TREE_DIR/data/sdss_paths.ini
 """
+
+
+def check_public_release(release: str = None, public: bool = False) -> bool:
+    """ Check if a release is public 
+    
+    Checks a given release to see if it is public.  A release is public if it
+    contains "DR" in the release name, and if todays date is <= the release_date
+    as specified in the Tree. 
+    
+    Parameters
+    ----------
+    release : str
+        The name of the release to check
+    public : bool
+        If True, force the release to be public
+    Returns
+    -------
+    bool
+        If the release if public
+    """
+    today = datetime.datetime.now().date()
+    release_date = tree.release_date
+    return ('dr' in release.lower() and release_date <= today) or public
 
 
 class BasePath(object):
@@ -68,23 +92,29 @@ class BasePath(object):
 
     def __init__(self, release=None, public=False, mirror=False, verbose=False,
                  force_modules=None, preserve_envvars=None):
+        # set release
         self.release = release or os.getenv('TREE_VER', 'sdsswork')
-        self.public = 'dr' in self.release.lower() or public
-        self.mirror = mirror
         self.verbose = verbose
         self.force_modules = force_modules or config.get('force_modules')
         self.preserve_envvars = preserve_envvars or config.get('preserve_envvars')
-        self.set_netloc()
-        self.set_remote_base()
 
+        # set attributes
         self._special_fxn_pattern = r"\@\w+[|]"
-
         self._compressions = ['.gz', '.bz2', '.zip']
         self._comp_regex = r'({0})$'.format('|'.join(self._compressions))
+
         # set the path templates from the tree
         self.templates = tree.paths
         if self.release:
             self.replant_tree(release=self.release)
+            
+        # set public and mirror keywords
+        self.public = check_public_release(release=self.release, public=public)
+        self.mirror = mirror
+            
+        # set the server location and remote base
+        self.set_netloc()
+        self.set_remote_base()
 
     def __repr__(self):
         return '<BasePath(release="{0}", public={1}, n_paths={2})'.format(self.release.lower(), self.public, len(self.templates))
