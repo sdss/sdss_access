@@ -12,8 +12,10 @@ from __future__ import print_function, division, absolute_import
 import os
 import re
 import pytest
+import datetime
 from sdss_access import tree
 from sdss_access.path import Path
+from sdss_access.path.path import check_public_release
 from tests.conftest import gzcompress, gzuncompress
 
 
@@ -327,3 +329,16 @@ def monkeyoos(monkeypatch, mocker):
     mocker.patch('tree.tree.orig_environ', new=oos)
     yield oos
     monkeypatch.delitem(oos, "MANGAPREIM_DIR", raising=False)
+
+
+def test_public_release():
+    tree.replant_tree('dr15')
+    assert check_public_release('DR15') is True
+    assert check_public_release('MPL10') is False
+    assert check_public_release('sdsswork') is False
+
+def test_bad_release_old_tree(monkeypatch):
+    tree.replant_tree('dr15')
+    monkeypatch.setattr(tree.__class__, "release_date", None)
+    with pytest.raises(AttributeError, match='Cannot find a valid release date in the sdss-tree product.  Try upgrading to min. version 3.1.0.'):
+        check_public_release('DR15')

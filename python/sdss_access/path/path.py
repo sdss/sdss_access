@@ -51,13 +51,24 @@ def check_public_release(release: str = None, public: bool = False) -> bool:
         The name of the release to check
     public : bool
         If True, force the release to be public
+
     Returns
     -------
     bool
         If the release if public
+        
+    Raises
+    ------
+    AttributeError
+        when tree does not have a valid release date for a DR tree config
     """
     today = datetime.datetime.now().date()
-    release_date = tree.release_date
+    release_date = getattr(tree, 'release_date', None)
+    
+    # check if tree has a valid release date attr
+    if release_date is None and "DR" in tree.release:
+        raise AttributeError("Cannot find a valid release date in the sdss-tree product.  Try upgrading to min. version 3.1.0.")
+
     return ('dr' in release.lower() and release_date <= today) or public
 
 
