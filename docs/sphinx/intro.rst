@@ -253,7 +253,21 @@ When specifying ``release="sdss5"``, you may notice the new server location, e.g
     <Access(access_mode="rsync", using="data.sdss5.org")>
 
 As with SDSS-IV, ``sdss_access`` requires valid authentication to download 
-proprietary data for SDSS-V.  See :ref:`auth` for more information.
+proprietary data for SDSS-V.  See :ref:`auth` for more information.  Here is an example accessing
+the robostrategy completeness files for SDSS-V.
+
+.. warning::
+    The below example contains large data, ~8 GB, and may take a while to download.    
+
+::
+
+    from sdss_access import Access
+    access = Access(release='sdss5')
+    access.remote()
+    access.add('rsCompleteness', observatory='apo', plan='epsilon-2-core-*')
+    access.set_stream()
+    access.commit()
+
 
 Accessing Public Data Products
 ------------------------------
