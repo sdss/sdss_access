@@ -12,6 +12,10 @@ Public Data Releases
 
 .. changelog:: sdss_access.path.changelog:compute_changelog
    :prog: changes
+   :drs: dr17, dr16
+
+.. changelog:: sdss_access.path.changelog:compute_changelog
+   :prog: changes
    :drs: dr16, dr15
 
 .. changelog:: sdss_access.path.changelog:compute_changelog
@@ -47,6 +51,14 @@ Internal Data Releases
 
 MaNGA Product Launches (MPLs)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. changelog:: sdss_access.path.changelog:compute_changelog
+   :prog: changes
+   :drs: mpl11, mpl10
+
+.. changelog:: sdss_access.path.changelog:compute_changelog
+   :prog: changes
+   :drs: mpl10, mpl9
 
 .. changelog:: sdss_access.path.changelog:compute_changelog
    :prog: changes

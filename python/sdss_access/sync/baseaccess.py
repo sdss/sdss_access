@@ -32,9 +32,11 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, SDSSPath)):
 
     def remote(self, username=None, password=None, inquire=None):
         """ Configures remote access """
-        use_dtn = self.remote_scheme == 'rsync' and not self.public
-        # simplifies things to have a single sdss machine in .netrc
-        self.set_netloc(sdss=True)
+        use_dtn = self.remote_scheme == 'rsync'
+        # simplifies things to have a single sdss (or sdss5) machine in
+        # .netrc for SDSS-IV  (or SDSS-V, respectively).
+        sdss5 = ( self.release == 'sdss5' )
+        self.set_netloc(sdss=not sdss5, sdss5=sdss5)
         self.set_auth(username=username, password=password, inquire=inquire)
         if use_dtn:
             self.set_netloc(dtn=use_dtn)
@@ -44,12 +46,10 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, SDSSPath)):
         """ Adds a filepath into the list of tasks to download"""
 
         location = self.location(filetype, **kwargs)
+        sas_module, location = location.split(sep, 1) if location else (None, location)
 
         # set proper sasdir based on access method
-        if self.access_mode == 'rsync':
-            sasdir = 'sas' if not self.public else ''
-        elif self.access_mode == 'curl':
-            sasdir = 'sas'
+        sasdir = 'sas' if self.access_mode == 'curl' else ''
         source = self.url(filetype, sasdir=sasdir, **kwargs)
 
         # raise error if attempting to add a software product path
@@ -61,9 +61,9 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, SDSSPath)):
         else:
             destination = kwargs.get('full')
 
-        if location and source and destination:
+        if sas_module and location and source and destination:
             self.initial_stream.append_task(
-                location=location, source=source, destination=destination)
+                sas_module=sas_module, location=location, source=source, destination=destination)
         else:
             print("There is no file with filetype=%r to access in the tree module loaded" % filetype)
 
@@ -80,19 +80,12 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, SDSSPath)):
 
             # set stream source based on access mode
             if self.access_mode == 'rsync':
-                source = join(self.remote_base, self.release.lower()
-                              if self.public else 'sas') if self.remote_base else self.remote_base
+                self.stream.source = self.remote_base
             elif self.access_mode == 'curl':
-                source = join(self.remote_base, 'sas').replace(sep, '/')
-            self.stream.source = source
+                self.stream.source = join(self.remote_base, 'sas').replace(sep, '/')
 
-            # set stream destination based on access mode
-            if self.access_mode == 'rsync':
-                dest = join(self.base_dir, self.release.lower()
-                            if self.public else '') if self.base_dir else self.base_dir
-            elif self.access_mode == 'curl':
-                dest = self.base_dir
-            self.stream.destination = dest
+            # set stream destination
+            self.stream.destination = self.base_dir
 
             # set client env dict based on access mode
             if self.access_mode == 'rsync':
@@ -139,7 +132,7 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, SDSSPath)):
     def get_paths(self, offset=None, limit=None):
         ''' Return the base paths for all paths in the stream '''
         locations = self.get_locations(offset=offset, limit=limit)
-        sasdir = self.release.lower() if self.public else ''
+        sasdir = self._get_sas_module()
         paths = [join(self.base_dir, sasdir, location) for location in locations] if locations else None
         return paths
 
@@ -147,7 +140,7 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, SDSSPath)):
         ''' Return the urls for all paths in the stream '''
         locations = self.get_locations(offset=offset, limit=limit)
         remote_base = self.get_remote_base()
-        sasdir = self.release.lower() if self.public else 'sas'
+        sasdir = self._get_sas_module()
         urls = [join(remote_base, sasdir, location) for location in locations] if locations else None
         return urls
 
@@ -158,12 +151,13 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, SDSSPath)):
     def set_stream_task(self, task=None, out=None):
         ''' sets the path input dictionary for a task in a stream '''
         stream_has_task = False
-        for location, source, destination in self.generate_stream_task(task=task, out=out):
-            if location and source and destination:
+        for sas_module, location, source, destination in self.generate_stream_task(task=task, out=out):
+            if sas_module and location and source and destination:
                 stream_has_task = True
-                self.stream.append_task(location=location, source=source, destination=destination)
+                self.stream.append_task(sas_module=sas_module, location=location, source=source,
+                                        destination=destination)
                 """if self.verbose:
-                    print("SDSS_ACCESS> Preparing to download: %s" % location)
+                    print("SDSS_ACCESS> Preparing to download: %s" % join(sas_module, location))
                     print("SDSS_ACCESS> from: %s" % source)
                     print("SDSS_ACCESS> to: %s" % destination)
                     print("-"*80)"""
@@ -179,6 +173,7 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, SDSSPath)):
         """ Start the download """
 
         self.stream.command = self._get_stream_command()
+        self.stream.sas_module = self._get_sas_module()
         self.stream.append_tasks_to_streamlets(offset=offset, limit=limit)
         self.stream.commit_streamlets()
         self.stream.run_streamlets()

@@ -52,7 +52,7 @@ class TestRsync(object):
         rsync = RsyncAccess()
         rsync.remote()
         rsync.add(datapath['name'], **datapath['params'])
-        loc = rsync.initial_stream.task[0]['location']
+        loc = rsync.initial_stream.task[0]['sas_module']
         assert rsync.release == tree_ver
         assert exp in loc
 

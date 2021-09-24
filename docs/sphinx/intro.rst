@@ -150,6 +150,9 @@ You can download files from the SAS and place them in your local SAS.  ``sdss_ac
 that mimics the real SAS at Utah.  If you do not already have a `SAS_BASE_DIR` set, one will be defined in your
 home directory, as a new ``sas`` directory.
 
+``sdss_access`` requires valid authentication to download proprietary data.  See :ref:`auth` 
+for more information.
+
 sdss_access has four classes designed to facilitate access to SAS data.
 
 - **Access** - class that automatically decides between `.RsyncAccess` and `.CurlAccess` based on the operating system.
@@ -234,6 +237,37 @@ while Linux or Macs will automatically utilize `.RsyncAccess`.
 In all all cases, successful ``sdss_access`` downloads will return a code of 0. Any other number indicates that a problem
 occurred.  If no verbose message is displayed, you may need to check the ``sdss_access_XX.log`` and ``sdss_access_XX.err``
 files within the temporary directory.
+
+Accessing SDSS-V Products
+-------------------------
+
+As of version 2.0.0, ``sdss_access`` has been updated to support downloading of 
+SDSS-V products.  The usage of ``sdss_access`` remains the same.  The only difference is SDSS-V 
+products are now delivered by the "data.sdss5.org" server instead of "data.sdss.org".  
+When specifying ``release="sdss5"``, you may notice the new server location, e.g.
+::
+
+    >>> from sdss_access import Access
+    >>> access = Access(release='sdss5')
+    >>> access
+    <Access(access_mode="rsync", using="data.sdss5.org")>
+
+As with SDSS-IV, ``sdss_access`` requires valid authentication to download 
+proprietary data for SDSS-V.  See :ref:`auth` for more information.  Here is an example accessing
+the robostrategy completeness files for SDSS-V.
+
+.. warning::
+    The below example contains large data, ~8 GB, and may take a while to download.    
+
+::
+
+    from sdss_access import Access
+    access = Access(release='sdss5')
+    access.remote()
+    access.add('rsCompleteness', observatory='apo', plan='epsilon-2-core-*')
+    access.set_stream()
+    access.commit()
+
 
 Accessing Public Data Products
 ------------------------------

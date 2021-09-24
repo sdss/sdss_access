@@ -42,9 +42,8 @@ class RsyncAccess(BaseAccess):
     def generate_stream_task(self, task=None, out=None):
         ''' creates the task to put in the download stream '''
         if task and out:
+            sas_module = task['sas_module']
             depth = task['location'].count('/')
-            if self.public:
-                depth -= 1
             for result in out.split(b"\n"):
                 result = result.decode('utf-8')
                 if result.startswith(('d', '-', 'l')):
@@ -52,15 +51,23 @@ class RsyncAccess(BaseAccess):
                         location = search(r"^.*\s{1,3}(.+)$", result).group(1)
                     except Exception:
                         location = None
-                    if location and location.count('/') == depth:
-                        source = join(self.stream.source, location) if self.remote_base else None
-                        destination = join(self.stream.destination, location)
-                        yield (location, source, destination)
+                    if  sas_module and location and location.count('/') == depth:
+                        source = join(self.stream.source, sas_module, location) if self.remote_base else None
+                        destination = join(self.stream.destination, sas_module, location)
+                        yield (sas_module, location, source, destination)
 
     def set_stream_task(self, task=None):
         out = self.get_task_out(task=task)
         super(RsyncAccess, self).set_stream_task(task=task, out=out)
 
+    def _get_sas_module(self):
+        ''' gets the unique rsync sas module used when committing the download '''
+        if self.stream and self.stream.task:
+            sas_module = list({task['sas_module'] for task in self.stream.task})
+            sas_module = sas_module[0] if len(sas_module) == 1 else None
+        else: sas_module = None
+        return sas_module
+
     def _get_stream_command(self):
         ''' gets the stream command used when committing the download '''
-        return "rsync -avRK --files-from={path} {source} {destination}"
+        return "rsync -avRK --files-from={path} {source}/{sas_module} {destination}{sas_module}/"

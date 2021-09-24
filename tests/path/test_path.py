@@ -12,8 +12,10 @@ from __future__ import print_function, division, absolute_import
 import os
 import re
 import pytest
+import datetime
 from sdss_access import tree
 from sdss_access.path import Path
+from sdss_access.path.path import check_public_release
 from tests.conftest import gzcompress, gzuncompress
 
 
@@ -295,9 +297,10 @@ class TestPath(object):
         path = Path(release='DR15')
         ff = path.full('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007')
         assert 'mangapreim/v2_5/data' in ff
-
+        
         ff = path.full('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007', force_module=True)
         assert 'mangapreim/trunk/data' in ff
+
 
     @pytest.mark.parametrize('tree_ver', [('sdsswork'), ('dr15'), ('sdss5'), ('mpl8')])
     def test_release_from_module(self, monkeypatch, tree_ver):
@@ -319,9 +322,23 @@ class TestPath(object):
 
 
 @pytest.fixture()
-def monkeyoos(monkeypatch):
+def monkeyoos(monkeypatch, mocker):
     ''' monkeypatch the original os environ from tree '''
     oos = tree.get_orig_os_environ()
     monkeypatch.setitem(oos, "MANGAPREIM_DIR", '/tmpdir/data/manga/mangapreim/trunk')
+    mocker.patch('tree.tree.orig_environ', new=oos)
     yield oos
     monkeypatch.delitem(oos, "MANGAPREIM_DIR", raising=False)
+
+
+def test_public_release():
+    tree.replant_tree('dr15')
+    assert check_public_release('DR15') is True
+    assert check_public_release('MPL10') is False
+    assert check_public_release('sdsswork') is False
+
+def test_bad_release_old_tree(monkeypatch):
+    tree.replant_tree('dr15')
+    monkeypatch.setattr(tree.__class__, "release_date", None)
+    with pytest.raises(AttributeError, match='Cannot find a valid release date in the sdss-tree product.  Try upgrading to min. version 3.1.0.'):
+        check_public_release('DR15')

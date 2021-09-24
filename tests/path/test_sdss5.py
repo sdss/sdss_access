@@ -37,6 +37,9 @@ class TestSVPaths(object):
         assert special in path.templates[name]
         full = path.full(name, **keys)
         assert exp in full
+        
+    def test_netloc(self, path):
+        assert path.netloc == 'data.sdss5.org'
 
     def assert_orig_sdss5_envvars(self):
         assert os.getenv("ROBOSTRATEGY_DATA") == '/tmp/robodata'

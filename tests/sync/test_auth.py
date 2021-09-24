@@ -33,7 +33,7 @@ class TestAuth(object):
         assert auth.ready() is None
         assert auth.netrc is None
 
-    @pytest.mark.parametrize('netloc', [('data.sdss.org'), ('dtn01.sdss.org')])
+    @pytest.mark.parametrize('netloc', [('data.sdss.org'), ('dtn.sdss.org')])
     def test_setnetloc(self, netloc):
         ''' test setting a url domain location '''
         auth = Auth(public=True, netloc=netloc)
@@ -92,8 +92,17 @@ class TmpAccess(AuthMixin, object):
 
 class TestAuthMixin(object):
 
-    def test_set_auth(self):
-        ''' test the set_auth method '''
+    def test_set_auth_sdss5(self):
+        ''' test the set_auth method for SDSS-V access'''
+        ta = TmpAccess(netloc='data.sdss5.org')
+        ta.set_auth()
+        assert ta.netloc == 'data.sdss5.org'
+        assert ta.auth is not None
+        assert ta.auth.netloc == 'data.sdss5.org'
+        assert ta.auth.username == 'sdss5'
+
+    def test_set_auth_sdss4(self):
+        ''' test the set_auth method for SDSS-IV access'''
         ta = TmpAccess(netloc='data.sdss.org')
         ta.set_auth()
         assert ta.netloc == 'data.sdss.org'
