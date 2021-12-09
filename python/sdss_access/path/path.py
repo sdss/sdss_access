@@ -326,6 +326,8 @@ class BasePath(object):
             template = re.sub('@apgprefix[|]', '{prefix}', template)
         elif re.search('@healpixgrp[|]', template):
             template = re.sub('@healpixgrp[|]', '{healpixgrp}', template)
+        elif re.search('@configgrp[|]', template):
+            template = re.sub('@configgrp[|]', '{configgrp}', template)             
         if re.search('@plateid6[|]', template):
             template = re.sub('@plateid6[|]', '{plateid:0>6}', template)
 
@@ -1268,6 +1270,27 @@ class Path(BasePath):
             return instrument[telescope]
         return ''
 
+    def configgrp(self, filetype, **kwargs):
+        ''' Returns configuration summary file group subdirectory
+
+        Parameters
+        ----------
+        filetype : str
+            File type parameter.
+        configid : int or str
+            Configuration ID number.  Will be converted to int internally.
+
+        Returns
+        -------
+        configgrp : str
+            Configuration group directory in the format ``NNNNXX``.
+
+        '''
+
+        configid = kwargs.get('configid', None)
+        if not configid:
+            return '0000XX'
+        return '{:0>4d}XX'.format(int(configid) // 100)
 
 class AccessError(Exception):
     pass
