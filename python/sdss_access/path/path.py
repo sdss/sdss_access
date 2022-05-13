@@ -39,12 +39,12 @@ Depends on the tree product. In particular requires path templates in:
 
 
 def check_public_release(release: str = None, public: bool = False) -> bool:
-    """ Check if a release is public 
-    
+    """ Check if a release is public
+
     Checks a given release to see if it is public.  A release is public if it
     contains "DR" in the release name, and if todays date is <= the release_date
-    as specified in the Tree. 
-    
+    as specified in the Tree.
+
     Parameters
     ----------
     release : str
@@ -56,7 +56,7 @@ def check_public_release(release: str = None, public: bool = False) -> bool:
     -------
     bool
         If the release if public
-        
+
     Raises
     ------
     AttributeError
@@ -64,7 +64,7 @@ def check_public_release(release: str = None, public: bool = False) -> bool:
     """
     today = datetime.datetime.now().date()
     release_date = getattr(tree, 'release_date', None)
-    
+
     # check if tree has a valid release date attr
     if release_date is None and "DR" in tree.release:
         raise AttributeError("Cannot find a valid release date in the sdss-tree product.  Try upgrading to min. version 3.1.0.")
@@ -118,11 +118,11 @@ class BasePath(object):
         self.templates = tree.paths
         if self.release:
             self.replant_tree(release=self.release)
-            
+
         # set public and mirror keywords
         self.public = check_public_release(release=self.release, public=public)
         self.mirror = mirror
-            
+
         # set the server location and remote base
         self.set_netloc()
         self.set_remote_base()
@@ -327,7 +327,7 @@ class BasePath(object):
         elif re.search('@healpixgrp[|]', template):
             template = re.sub('@healpixgrp[|]', '{healpixgrp}', template)
         elif re.search('@configgrp[|]', template):
-            template = re.sub('@configgrp[|]', '{configgrp}', template)             
+            template = re.sub('@configgrp[|]', '{configgrp}', template)
         if re.search('@plateid6[|]', template):
             template = re.sub('@plateid6[|]', '{plateid:0>6}', template)
 
@@ -444,8 +444,9 @@ class BasePath(object):
         if remote:
             # check for remote existence using a HEAD request
             url = self.url('', full=full)
+            verify = kwargs.get('verify', True)
             try:
-                resp = requests.head(url, allow_redirects=True)
+                resp = requests.head(url, allow_redirects=True, verify=verify)
             except Exception as e:
                 raise AccessError('Cannot check for remote file existence for {0}: {1}'.format(url, e))
             else:

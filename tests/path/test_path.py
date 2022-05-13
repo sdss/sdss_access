@@ -39,7 +39,7 @@ class TestPath(object):
     @pytest.mark.parametrize('place, exp', [('local', False), ('remote', True)])
     def test_existence(self, path, place, exp):
         full = path.full('mangaimage', drpver='v2_5_3', plate=8116, ifu=1901, dir3d='mastar')
-        exists = path.exists('', full=full, remote=(place == 'remote'))
+        exists = path.exists('', full=full, remote=(place == 'remote'), verify=False)
         assert exp == exists
 
     def test_lookup_names(self, path):
@@ -297,7 +297,7 @@ class TestPath(object):
         path = Path(release='DR15')
         ff = path.full('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007')
         assert 'mangapreim/v2_5/data' in ff
-        
+
         ff = path.full('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007', force_module=True)
         assert 'mangapreim/trunk/data' in ff
 
