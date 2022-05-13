@@ -28,16 +28,31 @@ def path():
 class TestSVPaths(object):
 
     @pytest.mark.parametrize('name, special, keys, exp',
-                             [('apStar', '@apgprefix',
+                             [('apStar', '@healpixgrp',
                                {'apred': 'r12', 'apstar': 'stars', 'telescope': 'apo25m',
                                 'healpix': '12345', 'obj': '12345'},
-                               'r12/stars/apo25m/12/12345/apStar-r12-12345.fits')],
+                               'r12/stars/apo25m/12/12345/apStar-r12-apo25m-12345.fits')],
                              ids=['apStar'])
     def test_apogee_paths(self, path, name, special, keys, exp):
         assert special in path.templates[name]
         full = path.full(name, **keys)
         assert exp in full
-        
+
+    @pytest.mark.parametrize('name, special, keys, exp',
+                             [('confSummary', '@configgrp', {'configid': 1234, 'obs': 'apo'},
+                               '0012XX/confSummary-1234.par'),
+                              ('apField', '@apgprefix', {'telescope': 'apo25m', 'apred': 'r12', 'field': '2J01'},
+                               'redux/r12/stars/apo25m/2J01/apField-2J01.fits'),
+                              ('apField', '@apgprefix', {'telescope': 'lco25m', 'apred': 'r12', 'field': '2J01'},
+                               'redux/r12/stars/lco25m/2J01/asField-2J01.fits'),
+                              ('apHist', '@apgprefix', {'apred': 'r12', 'mjd': '52123', 'chip':'b', 'instrument': 'apogee-n'},
+                               'r12/exposures/apogee-n/52123/apHist-b-52123.fits')],
+                             ids=['configgrp', 'apgprefix-apo', 'apgprefix-lco', 'apgprefix-ins'])
+    def test_special_function(self, path, name, special, keys, exp):
+        assert special in path.templates[name]
+        full = path.full(name, **keys)
+        assert exp in full
+
     def test_netloc(self, path):
         assert path.netloc == 'data.sdss5.org'
 
