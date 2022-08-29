@@ -1338,7 +1338,8 @@ class Path(BasePath):
         run2d = kwargs.get('run2d', None)
         if not run2d: return ''
         elif run2d in ['v6_0_1','v6_0_2', 'v6_0_3', 'v6_0_4']: return ''
-        else: fieldid = kwargs.get('fieldid', None)
+        else: 
+            fieldid = kwargs.get('fieldid', None)
             if not fieldid: return ''
             if len(str(fieldid)) < 6: return '0'*(6 - len(str(fieldid)))
             else: return ''
