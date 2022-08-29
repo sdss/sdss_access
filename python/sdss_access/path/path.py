@@ -330,7 +330,7 @@ class BasePath(object):
             template = re.sub('@configgrp[|]', '{configgrp}', template)
         elif re.search('@isplate[|]', template):
             template = re.sub('@isplate[|]', '{isplate}', template)
-        elif re.search('@pad_fieldid[|]', '{pad_fieldid}', template)
+        elif re.search('@pad_fieldid[|]', '{pad_fieldid}', template):
             template = re.sub('@pad_fieldid[|]', '{pad_fieldid}', template)
         if re.search('@plateid6[|]', template):
             template = re.sub('@plateid6[|]', '{plateid:0>6}', template)
