@@ -52,8 +52,13 @@ class TestSVPaths(object):
                               ('spField', '@pad_fieldid', {'run2d': 'v6_0_8', 'mjd': '59630', 'fieldid': '021160'},
                                 'v6_0_8/021160/spField-021160-59630.fits'),
                               ('spField', '@pad_fieldid', {'run2d': 'v6_0_8', 'mjd': '59760', 'fieldid': '112359'},
-                                'v6_0_8/112359/spField-112359-59760.fits')],
-                             ids=['configgrp', 'apgprefix-apo', 'apgprefix-lco', 'apgprefix-ins', 'isplate-v6_0_4','pad_fieldid-5','pad_fieldid-6'])
+                                'v6_0_8/112359/spField-112359-59760.fits'),
+                              ('spFrame', '@pad_fieldid', {'run2d': 'v6_0_8', 'br': 'b', 'id': '1', 'frame': '5432', 'fieldid':'1234'},
+                                'v6_0_8/001234/spFrame-b1-00005432.fits.gz'),
+                              ('spFrame', '@pad_fieldid', {'run2d': 'v6_0_4', 'br': 'b', 'id': '1', 'frame': '5432', 'fieldid':'1234'},
+                                'v6_0_4/1234p/spFrame-b1-00005432.fits.gz')],
+                             ids=['configgrp', 'apgprefix-apo', 'apgprefix-lco', 'apgprefix-ins',
+                                  'isplate-v6_0_4','pad_fieldid-5','pad_fieldid-6', 'frame-pad', 'frame-nopadp'])
     def test_special_function(self, path, name, special, keys, exp):
         assert special in path.templates[name]
         full = path.full(name, **keys)
