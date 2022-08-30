@@ -1314,9 +1314,11 @@ class Path(BasePath):
         '''
 
         run2d = kwargs.get('run2d', None)
-        if not run2d: return ''
-        elif run2d in ['v6_0_1','v6_0_2', 'v6_0_3', 'v6_0_4']: return 'p'
-        else: return ''
+        if not run2d: 
+            return ''
+        if run2d in ['v6_0_1','v6_0_2', 'v6_0_3', 'v6_0_4']: 
+            return 'p'
+        return ''
 
     def pad_fieldid(self, filetype, **kwargs):
         ''' Returns the fieldid zero padded to its proper length for the BOSS idlspec2d run2d version
@@ -1332,17 +1334,19 @@ class Path(BasePath):
 
         Returns
         -------
-        padd_fieldid : str
+        fieldid : str
             padd_fieldid in the form of N*'0' where N is the number of necessary zeros to pad fieldid
         '''
+
+        fieldid = kwargs.get('fieldid', None)
         run2d = kwargs.get('run2d', None)
-        if not run2d: return ''
-        elif run2d in ['v6_0_1','v6_0_2', 'v6_0_3', 'v6_0_4']: return ''
-        else: 
-            fieldid = kwargs.get('fieldid', None)
-            if not fieldid: return ''
-            if len(str(fieldid)) < 6: return '0'*(6 - len(str(fieldid)))
-            else: return ''
+        
+        if (not run2d) & (not fieldid): 
+            return ''
+        if run2d in ['v6_0_1','v6_0_2', 'v6_0_3', 'v6_0_4']: 
+            return str(fieldid)
+        return str(fieldid).zfill(6)
+        
 
 class AccessError(Exception):
     pass
