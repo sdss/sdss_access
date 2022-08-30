@@ -330,8 +330,8 @@ class BasePath(object):
             template = re.sub('@configgrp[|]', '{configgrp}', template)
         elif re.search('@isplate[|]', template):
             template = re.sub('@isplate[|]', '{isplate}', template)
-        elif re.search('@pad_fieldid[|]', '{pad_fieldid}', template):
-            template = re.sub('@pad_fieldid[|]', '{pad_fieldid}', template)
+        elif re.search('@pad_fieldid[|]', template):
+           template = re.sub('@pad_fieldid[|]', '{fieldid}', template)
         if re.search('@plateid6[|]', template):
             template = re.sub('@plateid6[|]', '{plateid:0>6}', template)
 
@@ -1306,7 +1306,7 @@ class Path(BasePath):
             File type paramter
         run2d : str
             BOSS idlspec2d run2d version
-        
+
         Returns
         -------
         isplate : str
@@ -1314,9 +1314,9 @@ class Path(BasePath):
         '''
 
         run2d = kwargs.get('run2d', None)
-        if not run2d: 
+        if not run2d:
             return ''
-        if run2d in ['v6_0_1','v6_0_2', 'v6_0_3', 'v6_0_4']: 
+        if run2d in ['v6_0_1','v6_0_2', 'v6_0_3', 'v6_0_4']:
             return 'p'
         return ''
 
@@ -1340,13 +1340,13 @@ class Path(BasePath):
 
         fieldid = kwargs.get('fieldid', None)
         run2d = kwargs.get('run2d', None)
-        
-        if (not run2d) & (not fieldid): 
+
+        if (not run2d) & (not fieldid):
             return ''
-        if run2d in ['v6_0_1','v6_0_2', 'v6_0_3', 'v6_0_4']: 
+        if run2d in ['v6_0_1','v6_0_2', 'v6_0_3', 'v6_0_4']:
             return str(fieldid)
         return str(fieldid).zfill(6)
-        
+
 
 class AccessError(Exception):
     pass
