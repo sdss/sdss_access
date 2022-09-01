@@ -1243,8 +1243,9 @@ class Path(BasePath):
         component : str
             The component name if given, otherwise a blank string.
         '''
-        return kwargs.get('component', '')
-        
+        # the (..) or '' resolves None to ''
+        return str(kwargs.get('component', '') or '')
+
     def apgprefix(self, filetype, **kwargs):
         ''' Returns APOGEE prefix using telescope/instrument.
 
