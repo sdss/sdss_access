@@ -6,6 +6,10 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
+2.0.2 (unreleased)
+------------------
+- Adds new `isplate` and `pad_fieldid` special functions for BHM paths.
+
 2.0.1 (2022-05-13)
 ------------------
 - Adds new `configgrp` special function.

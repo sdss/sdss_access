@@ -328,6 +328,10 @@ class BasePath(object):
             template = re.sub('@healpixgrp[|]', '{healpixgrp}', template)
         elif re.search('@configgrp[|]', template):
             template = re.sub('@configgrp[|]', '{configgrp}', template)
+        elif re.search('@isplate[|]', template):
+            template = re.sub('@isplate[|]', '{isplate}', template)
+        elif re.search('@pad_fieldid[|]', template):
+           template = re.sub('@pad_fieldid[|]', '{fieldid}', template)
         if re.search('@plateid6[|]', template):
             template = re.sub('@plateid6[|]', '{plateid:0>6}', template)
 
@@ -1292,6 +1296,57 @@ class Path(BasePath):
         if not configid:
             return '0000XX'
         return '{:0>4d}XX'.format(int(configid) // 100)
+
+    def isplate(self, filetype, **kwargs):
+        ''' Returns the plate flag for BOSS idlspec2d run2d versions that utilize it
+
+        Parameters
+        ---------
+        filetype : str
+            File type paramter
+        run2d : str
+            BOSS idlspec2d run2d version
+
+        Returns
+        -------
+        isplate : str
+            isplate flag = 'p' for relevent run2d plates else flag = ''
+        '''
+
+        run2d = kwargs.get('run2d', None)
+        if not run2d:
+            return ''
+        if run2d in ['v6_0_1','v6_0_2', 'v6_0_3', 'v6_0_4']:
+            return 'p'
+        return ''
+
+    def pad_fieldid(self, filetype, **kwargs):
+        ''' Returns the fieldid zero padded to its proper length for the BOSS idlspec2d run2d version
+
+        Parameters
+        ---------
+        filetype : str
+            File type paramter
+        run2d : str
+            BOSS idlspec2d run2d version
+        fieldid : str or int
+            Field ID number. Will be converted to str internally.
+
+        Returns
+        -------
+        fieldid : str
+            padd_fieldid in the form of N*'0' where N is the number of necessary zeros to pad fieldid
+        '''
+
+        fieldid = kwargs.get('fieldid', None)
+        run2d = kwargs.get('run2d', None)
+
+        if (not run2d) & (not fieldid):
+            return ''
+        if run2d in ['v6_0_1','v6_0_2', 'v6_0_3', 'v6_0_4']:
+            return str(fieldid)
+        return str(fieldid).zfill(6)
+
 
 class AccessError(Exception):
     pass

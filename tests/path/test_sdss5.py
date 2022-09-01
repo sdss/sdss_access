@@ -46,8 +46,19 @@ class TestSVPaths(object):
                               ('apField', '@apgprefix', {'telescope': 'lco25m', 'apred': 'r12', 'field': '2J01'},
                                'redux/r12/stars/lco25m/2J01/asField-2J01.fits'),
                               ('apHist', '@apgprefix', {'apred': 'r12', 'mjd': '52123', 'chip':'b', 'instrument': 'apogee-n'},
-                               'r12/exposures/apogee-n/52123/apHist-b-52123.fits')],
-                             ids=['configgrp', 'apgprefix-apo', 'apgprefix-lco', 'apgprefix-ins'])
+                               'r12/exposures/apogee-n/52123/apHist-b-52123.fits'),
+                              ('spField', '@isplate', {'run2d': 'v6_0_4', 'mjd': '59187', 'fieldid': '15007'},
+                                'v6_0_4/15007p/spField-15007-59187.fits'),
+                              ('spField', '@pad_fieldid', {'run2d': 'v6_0_8', 'mjd': '59630', 'fieldid': '021160'},
+                                'v6_0_8/021160/spField-021160-59630.fits'),
+                              ('spField', '@pad_fieldid', {'run2d': 'v6_0_8', 'mjd': '59760', 'fieldid': '112359'},
+                                'v6_0_8/112359/spField-112359-59760.fits'),
+                              ('spFrame', '@pad_fieldid', {'run2d': 'v6_0_8', 'br': 'b', 'id': '1', 'frame': '5432', 'fieldid':'1234'},
+                                'v6_0_8/001234/spFrame-b1-00005432.fits.gz'),
+                              ('spFrame', '@pad_fieldid', {'run2d': 'v6_0_4', 'br': 'b', 'id': '1', 'frame': '5432', 'fieldid':'1234'},
+                                'v6_0_4/1234p/spFrame-b1-00005432.fits.gz')],
+                             ids=['configgrp', 'apgprefix-apo', 'apgprefix-lco', 'apgprefix-ins',
+                                  'isplate-v6_0_4','pad_fieldid-5','pad_fieldid-6', 'frame-pad', 'frame-nopadp'])
     def test_special_function(self, path, name, special, keys, exp):
         assert special in path.templates[name]
         full = path.full(name, **keys)
