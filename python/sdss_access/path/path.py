@@ -330,6 +330,8 @@ class BasePath(object):
             template = re.sub('@configgrp[|]', '{configgrp}', template)
         if re.search('@plateid6[|]', template):
             template = re.sub('@plateid6[|]', '{plateid:0>6}', template)
+        if re.search('@component_default[|]', template):
+            template = re.sub('@component_default[|]', '{component_default}', template)
 
         # check if template has any brackets
         haskwargs = re.search('[{}]', template)
@@ -1211,6 +1213,38 @@ class Path(BasePath):
         subdir = "{:d}".format(healpix // 1000)
         return subdir
 
+    def component_default(self, filetype, **kwargs):
+        ''' Return the component name, if given.
+
+        The component designates a stellar or planetary body following the 
+        Washington Multiplicity Catalog, which was adopted by the XXIV meeting
+        of the International Astronomical Union. When no component is given,
+        the star is assumed to be without a discernible companion. When a
+        component is given it follows the system (Hessman et al., arXiv:1012.0707):
+
+        – the brightest component is called “A”, whether it is initially resolved 
+          into sub-components or not;
+        – subsequent distinct components not contained within “A” are labeled “B”, 
+          “C”, etc.;
+        – sub-components are designated by the concatenation of on or more suffixes 
+          with the primary label, starting with lowercase letters for the 2nd 
+          hierarchical level and then with numbers for the 3rd.
+        
+        Parameters
+        ----------
+        filetype : str
+            File type parameter. This argument is not used here, but is required for 
+            all special functions in the `sdss_access` product.
+        component : str [optional]
+            The component name as given by the fields.
+        
+        Returns
+        -------
+        component : str
+            The component name if given, otherwise a blank string.
+        '''
+        return kwargs.get('component', '')
+        
     def apgprefix(self, filetype, **kwargs):
         ''' Returns APOGEE prefix using telescope/instrument.
 
