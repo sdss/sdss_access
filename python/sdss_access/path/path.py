@@ -332,6 +332,8 @@ class BasePath(object):
             template = re.sub('@plateid6[|]', '{plateid:0>6}', template)
         if re.search('@component_default[|]', template):
             template = re.sub('@component_default[|]', '{component_default}', template)
+        if re.search('@catalogid_groups[|]', template):
+            template = re.sub('@catalogid_groups[|]', '{catalogid_groups}', template)
 
         # check if template has any brackets
         haskwargs = re.search('[{}]', template)
@@ -1212,6 +1214,26 @@ class Path(BasePath):
         healpix = int(kwargs['healpix'])
         subdir = "{:d}".format(healpix // 1000)
         return subdir
+
+    def catalogid_groups(self, filetype, **kwargs):
+        ''' 
+        Return a folder structure to group data together based on their catalog
+        identifier so that we don't have too many files in any one folder.
+        
+        Parameters
+        ----------
+        filetype : str
+            File type parameter.
+        catalogid : int or str
+            SDSS-V catalog identifier
+        
+        Returns
+        -------
+        catalogid_group : str
+            A set of folders.
+        '''
+        catalogid = int(kwargs['catalogid'])
+        return f"{catalogid % 10000:.0f}/{catalogid % 100:.0f}"
 
     def component_default(self, filetype, **kwargs):
         ''' Return the component name, if given.
