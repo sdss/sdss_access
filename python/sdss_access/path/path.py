@@ -334,6 +334,10 @@ class BasePath(object):
            template = re.sub('@pad_fieldid[|]', '{fieldid}', template)
         if re.search('@plateid6[|]', template):
             template = re.sub('@plateid6[|]', '{plateid:0>6}', template)
+        if re.search('@component_default[|]', template):
+            template = re.sub('@component_default[|]', '{component_default}', template)
+        if re.search('@catalogid_groups[|]', template):
+            template = re.sub('@catalogid_groups[|]', '{catalogid_groups}', template)
 
         # check if template has any brackets
         haskwargs = re.search('[{}]', template)
@@ -1214,6 +1218,59 @@ class Path(BasePath):
         healpix = int(kwargs['healpix'])
         subdir = "{:d}".format(healpix // 1000)
         return subdir
+
+    def catalogid_groups(self, filetype, **kwargs):
+        ''' 
+        Return a folder structure to group data together based on their catalog
+        identifier so that we don't have too many files in any one folder.
+        
+        Parameters
+        ----------
+        filetype : str
+            File type parameter.
+        catalogid : int or str
+            SDSS-V catalog identifier
+        
+        Returns
+        -------
+        catalogid_group : str
+            A set of folders.
+        '''
+        catalogid = int(kwargs['catalogid'])
+        return f"{catalogid % 10000:.0f}/{catalogid % 100:.0f}"
+
+    def component_default(self, filetype, **kwargs):
+        ''' Return the component name, if given.
+
+        The component designates a stellar or planetary body following the 
+        Washington Multiplicity Catalog, which was adopted by the XXIV meeting
+        of the International Astronomical Union. When no component is given,
+        the star is assumed to be without a discernible companion. When a
+        component is given it follows the system (Hessman et al., arXiv:1012.0707):
+
+        – the brightest component is called “A”, whether it is initially resolved 
+          into sub-components or not;
+        – subsequent distinct components not contained within “A” are labeled “B”, 
+          “C”, etc.;
+        – sub-components are designated by the concatenation of on or more suffixes 
+          with the primary label, starting with lowercase letters for the 2nd 
+          hierarchical level and then with numbers for the 3rd.
+        
+        Parameters
+        ----------
+        filetype : str
+            File type parameter. This argument is not used here, but is required for 
+            all special functions in the `sdss_access` product.
+        component : str [optional]
+            The component name as given by the fields.
+        
+        Returns
+        -------
+        component : str
+            The component name if given, otherwise a blank string.
+        '''
+        # the (..) or '' resolves None to ''
+        return str(kwargs.get('component', '') or '')
 
     def apgprefix(self, filetype, **kwargs):
         ''' Returns APOGEE prefix using telescope/instrument.

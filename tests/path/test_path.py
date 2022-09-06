@@ -97,6 +97,29 @@ class TestPath(object):
         out = path.healpixgrp('', **{key: val})
         assert out == exp
 
+    @pytest.mark.parametrize('key, val, exp',
+                             [('catalogid', '213948712937684123', '123/23'),
+                              ('catalogid', 213948712937684123, '123/23')])
+    def test_catalogid_groups(self, path, key, val, exp):
+        out = path.catalogid_groups('', **{key: val})
+        assert out == exp
+    
+
+    @pytest.mark.parametrize('key, val, exp',
+                             [('component', None, ''),
+                              ('component', 'A', 'A'),
+                              ('component', 'B', 'B'),
+                              ('component', 'Ca', 'Ca'),
+                              # If component not given, return ''
+                              ('some_other_kwd', 'any_value', ''),
+                              # This convention is against WMC, but the path
+                              # definition will be forgiving and resolve to string.                              
+                              ('component', 1, '1'),
+                              ('component', 0, '0')])
+    def test_component_default(self, path, key, val, exp):
+        out = path.component_default('', **{key: val})
+        assert out == exp
+
     def test_envvar_expansion(self, path):
         name = 'mangacube'
         assert '$MANGA_SPECTRO_REDUX' in path.templates[name]
