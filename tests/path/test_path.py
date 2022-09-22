@@ -98,8 +98,8 @@ class TestPath(object):
         assert out == exp
 
     @pytest.mark.parametrize('key, val, exp',
-                             [('catalogid', '213948712937684123', '123/23'),
-                              ('catalogid', 213948712937684123, '123/23')])
+                             [('catalogid', '213948712937684123', '123/136'),
+                              ('catalogid', 213948712937684123, '123/136')])
     def test_catalogid_groups(self, path, key, val, exp):
         out = path.catalogid_groups('', **{key: val})
         assert out == exp
