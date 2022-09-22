@@ -1237,7 +1237,7 @@ class Path(BasePath):
             A set of folders.
         '''
         catalogid = int(kwargs['catalogid'])
-        return f"{catalogid % 10000:.0f}/{catalogid % 100:.0f}"
+        return f"{catalogid % 1_000:.0f}/{catalogid & 1_000:.0f}"
 
     def component_default(self, filetype, **kwargs):
         ''' Return the component name, if given.
