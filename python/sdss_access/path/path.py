@@ -1236,8 +1236,10 @@ class Path(BasePath):
         catalogid_group : str
             A set of folders.
         '''
+        # with k = 100 then even with 10 M sources, each folder will have ~1,000 files
+        k = 100
         catalogid = int(kwargs['catalogid'])
-        return f"{catalogid % 1_000:.0f}/{catalogid & 1_000:.0f}"
+        return f"{(catalogid // k) % k:0>2.0f}/{catalogid % k:0>2.0f}"
 
     def component_default(self, filetype, **kwargs):
         ''' Return the component name, if given.
