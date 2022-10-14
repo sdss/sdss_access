@@ -336,8 +336,8 @@ class BasePath(object):
             template = re.sub('@plateid6[|]', '{plateid:0>6}', template)
         if re.search('@component_default[|]', template):
             template = re.sub('@component_default[|]', '{component_default}', template)
-        if re.search('@catalogid_groups[|]', template):
-            template = re.sub('@catalogid_groups[|]', '{catalogid_groups}', template)
+        if re.search('@cat_id_groups[|]', template):
+            template = re.sub('@cat_id_groups[|]', '{cat_id_groups}', template)
 
         # check if template has any brackets
         haskwargs = re.search('[{}]', template)
@@ -1219,7 +1219,7 @@ class Path(BasePath):
         subdir = "{:d}".format(healpix // 1000)
         return subdir
 
-    def catalogid_groups(self, filetype, **kwargs):
+    def cat_id_groups(self, filetype, **kwargs):
         ''' 
         Return a folder structure to group data together based on their catalog
         identifier so that we don't have too many files in any one folder.
@@ -1228,7 +1228,7 @@ class Path(BasePath):
         ----------
         filetype : str
             File type parameter.
-        catalogid : int or str
+        cat_id : int or str
             SDSS-V catalog identifier
         
         Returns
@@ -1238,8 +1238,8 @@ class Path(BasePath):
         '''
         # with k = 100 then even with 10 M sources, each folder will have ~1,000 files
         k = 100
-        catalogid = int(kwargs['catalogid'])
-        return f"{(catalogid // k) % k:0>2.0f}/{catalogid % k:0>2.0f}"
+        cat_id = int(kwargs['cat_id'])
+        return f"{(cat_id // k) % k:0>2.0f}/{cat_id % k:0>2.0f}"
 
     def component_default(self, filetype, **kwargs):
         ''' Return the component name, if given.
