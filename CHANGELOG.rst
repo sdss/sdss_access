@@ -6,7 +6,11 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
-2.0.2 (unreleased)
+2.0.3 (2022-10-15)
+------------------
+- Minor path fixes for MWM and Astra paths
+
+2.0.2 (2022-09-08)
 ------------------
 - Adds new `isplate` and `pad_fieldid` special functions for BHM paths.
 
