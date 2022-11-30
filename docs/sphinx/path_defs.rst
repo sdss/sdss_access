@@ -17,6 +17,15 @@ SDSSWORK
    :prog: sdsswork
    :templates:
 
+.. _dr18:
+
+DR18
+----
+
+.. datamodel:: sdss_access.path.path:Path
+   :prog: DR18
+   :templates:
+
 .. _dr17:
 
 DR17
@@ -195,4 +204,13 @@ SDSS-V
 
 .. datamodel:: sdss_access.path.path:Path
    :prog: sdss5
+   :templates:
+
+.. _ipl1:
+
+IPL1
+----
+
+.. datamodel:: sdss_access.path.path:Path
+   :prog: IPL1
    :templates:

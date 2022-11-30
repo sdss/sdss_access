@@ -15,7 +15,8 @@ Current Working Paths
 
 Public Data Release Paths
 
-* :ref:`DR17 <dr17>` - paths defined for public data release 17
+* :ref:`DR18 <dr18>` - paths defined for public data release 18
+* :ref:`DR17 <dr17>`
 * :ref:`DR16 <dr16>`
 * :ref:`DR15 <dr15>`
 * :ref:`DR14 <dr14>`
@@ -28,8 +29,10 @@ Public Data Release Paths
 
 Internal SDSS Release Paths
 
+* :ref:`IPL-1 <ipl1>` - Internal Product Launch 1
+
 * :ref:`MPL-11<mpl11>` - MaNGA Product Launch 11
-* :ref:`MPL-10<mpl10>` 
+* :ref:`MPL-10<mpl10>`
 * :ref:`MPL-9<mpl9>`
 * :ref:`MPL-8<mpl8>`
 * :ref:`MPL-7<mpl7>`
