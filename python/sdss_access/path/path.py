@@ -100,6 +100,7 @@ class BasePath(object):
 
     _netloc = {"dtn": "dtn.sdss.org", "sdss": "data.sdss.org", "sdss5": "data.sdss5.org",
                "mirror": "data.mirror.sdss.org", "svn": "svn.sdss.org"}
+    _s5cfgs = ['sdss5', 'ipl1']  # list of collab-only SDSS-V releases/configs
 
     def __init__(self, release=None, public=False, mirror=False, verbose=False,
                  force_modules=None, preserve_envvars=None):
@@ -832,7 +833,7 @@ class BasePath(object):
         elif svn:
             return '{0}{1}'.format(self._netloc["svn"], "/public" if self.public else '')
         else:
-            return self._netloc["sdss5"] if self.release == "sdss5" else self._netloc["sdss"]
+            return self._netloc["sdss5"] if self.release in self._s5cfgs else self._netloc["sdss"]
 
     def set_netloc(self, netloc=None, sdss=None, sdss5=None, dtn=None, svn=None, mirror=None):
         ''' Set a url domain location
@@ -878,7 +879,7 @@ class BasePath(object):
         if self.public or scheme == "https":
             remote_base = "{scheme}://{netloc}".format(scheme=scheme, netloc=netloc)
         else:
-            user = "sdss5" if self.release == "sdss5" else "sdss"
+            user = "sdss5" if self.release in self._s5cfgs else "sdss"
             remote_base = "{scheme}://{user}@{netloc}".format(scheme=scheme, user=user, netloc=netloc)
         return remote_base
 
