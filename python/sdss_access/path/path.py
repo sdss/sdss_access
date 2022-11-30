@@ -1220,17 +1220,17 @@ class Path(BasePath):
         return subdir
 
     def cat_id_groups(self, filetype, **kwargs):
-        ''' 
+        '''
         Return a folder structure to group data together based on their catalog
         identifier so that we don't have too many files in any one folder.
-        
+
         Parameters
         ----------
         filetype : str
             File type parameter.
         cat_id : int or str
             SDSS-V catalog identifier
-        
+
         Returns
         -------
         catalogid_group : str
@@ -1238,41 +1238,46 @@ class Path(BasePath):
         '''
         # with k = 100 then even with 10 M sources, each folder will have ~1,000 files
         k = 100
-        cat_id = int(kwargs['cat_id'])
+        if 'cat_id' in kwargs:
+            cat_id = int(kwargs['cat_id'])
+        elif 'catid' in kwargs:
+            cat_id = int(kwargs['catid'])
         return f"{(cat_id // k) % k:0>2.0f}/{cat_id % k:0>2.0f}"
 
     def component_default(self, filetype, **kwargs):
         ''' Return the component name, if given.
 
-        The component designates a stellar or planetary body following the 
+        The component designates a stellar or planetary body following the
         Washington Multiplicity Catalog, which was adopted by the XXIV meeting
         of the International Astronomical Union. When no component is given,
         the star is assumed to be without a discernible companion. When a
         component is given it follows the system (Hessman et al., arXiv:1012.0707):
 
-        – the brightest component is called “A”, whether it is initially resolved 
+        – the brightest component is called “A”, whether it is initially resolved
           into sub-components or not;
-        – subsequent distinct components not contained within “A” are labeled “B”, 
+        – subsequent distinct components not contained within “A” are labeled “B”,
           “C”, etc.;
-        – sub-components are designated by the concatenation of on or more suffixes 
-          with the primary label, starting with lowercase letters for the 2nd 
+        – sub-components are designated by the concatenation of on or more suffixes
+          with the primary label, starting with lowercase letters for the 2nd
           hierarchical level and then with numbers for the 3rd.
-        
+
         Parameters
         ----------
         filetype : str
-            File type parameter. This argument is not used here, but is required for 
+            File type parameter. This argument is not used here, but is required for
             all special functions in the `sdss_access` product.
         component : str [optional]
             The component name as given by the fields.
-        
+
         Returns
         -------
         component : str
             The component name if given, otherwise a blank string.
         '''
         # the (..) or '' resolves None to ''
-        return str(kwargs.get('component', '') or '')
+        # integer 0 resolves to '', i.e. 0 or '' evaluates as None; making check explicit
+        comp = kwargs.get('component', '')
+        return str(comp) if comp is not None else ''
 
     def apgprefix(self, filetype, **kwargs):
         ''' Returns APOGEE prefix using telescope/instrument.

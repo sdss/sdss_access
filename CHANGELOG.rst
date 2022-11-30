@@ -6,6 +6,10 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
+2.0.4 (2022-11-30)
+------------------
+- Fixing broken tests with MWM paths
+
 2.0.3 (2022-10-15)
 ------------------
 - Minor path fixes for MWM and Astra paths

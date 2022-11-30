@@ -98,13 +98,13 @@ class TestPath(object):
         assert out == exp
 
     @pytest.mark.parametrize('key, val, exp',
-                             [('catalogid', '213948712937684123', '41/23'),
-                              ('catalogid', 213948712937684123, '41/23'),
-                              ('catalogid', 106, '01/06')])
+                             [('catid', '213948712937684123', '41/23'),
+                              ('cat_id', 213948712937684123, '41/23'),
+                              ('cat_id', 106, '01/06')])
     def test_catalogid_groups(self, path, key, val, exp):
-        out = path.catalogid_groups('', **{key: val})
+        out = path.cat_id_groups('', **{key: val})
         assert out == exp
-    
+
 
     @pytest.mark.parametrize('key, val, exp',
                              [('component', None, ''),
@@ -114,9 +114,10 @@ class TestPath(object):
                               # If component not given, return ''
                               ('some_other_kwd', 'any_value', ''),
                               # This convention is against WMC, but the path
-                              # definition will be forgiving and resolve to string.                              
+                              # definition will be forgiving and resolve to string.
                               ('component', 1, '1'),
-                              ('component', 0, '0')])
+                              ('component', 0, '0'),
+                              ('component', None, '')])
     def test_component_default(self, path, key, val, exp):
         out = path.component_default('', **{key: val})
         assert out == exp
