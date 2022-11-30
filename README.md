@@ -2,7 +2,7 @@
 
 ![Versions](https://img.shields.io/badge/python->3.7-blue)
 [![Documentation Status](https://readthedocs.org/projects/sdss-access/badge/?version=latest)](https://sdss-access.readthedocs.io/en/latest/?badge=latest)
-[![Travis (.org)](https://img.shields.io/travis/sdss/sdss_access)](https://travis-ci.org/sdss/sdss_access)
+[![Build and Test](https://github.com/sdss/sdss_access/actions/workflows/build.yml/badge.svg)](https://github.com/sdss/sdss_access/actions/workflows/build.yml)
 [![codecov](https://codecov.io/gh/sdss/sdss_access/branch/master/graph/badge.svg)](https://codecov.io/gh/sdss/sdss_access)
 [![Coveralls](https://coveralls.io/repos/github/sdss/sdss_access/badge.svg)](https://coveralls.io/github/sdss/sdss_access)
 
