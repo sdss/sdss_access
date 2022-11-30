@@ -6,6 +6,10 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
+2.0.5 (2022-11-30)
+------------------
+- Bug fix for downloading IPL-1 products with sdss_access
+
 2.0.4 (2022-11-30)
 ------------------
 - Fixing broken tests with MWM paths
