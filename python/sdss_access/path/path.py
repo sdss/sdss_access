@@ -1362,6 +1362,28 @@ class Path(BasePath):
             return '0000XX'
         return '{:0>4d}XX'.format(int(configid) // 100)
 
+    def configsubmodule(self, filetype, **kwargs):
+        ''' Returns configuration summary submodule group subdirectory
+
+        Parameters
+        ----------
+        filetype : str
+            File type parameter.
+        configid : int or str
+            Configuration ID number.  Will be converted to int internally.
+
+        Returns
+        -------
+        configsubmodule : str
+            Configuration submodule directory in the format ``NNNXXX``.
+
+        '''
+
+        configid = kwargs.get('configid', None)
+        if not configid:
+            return '000XXX'
+        return '{:0>3d}XXX'.format(int(configid) // 1000)
+
     def isplate(self, filetype, **kwargs):
         ''' Returns the plate flag for BOSS idlspec2d run2d versions that utilize it
 

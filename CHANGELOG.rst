@@ -6,6 +6,11 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
+Next release
+------------
+
+- Adds new `configsubmodule` special function.
+
 2.0.5 (2022-11-30)
 ------------------
 - Bug fix for downloading IPL-1 products with sdss_access
@@ -179,4 +184,3 @@ Added
 Changed
 ^^^^^^^
 * Migrated sdss_access over into the cookiecutter model
-
