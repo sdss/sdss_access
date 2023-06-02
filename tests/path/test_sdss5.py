@@ -64,6 +64,12 @@ class TestSVPaths(object):
         full = path.full(name, **keys)
         assert exp in full
 
+    @pytest.mark.parametrize('name, keys', [('specLite', ['fieldid', 'catalogid', 'run2d', 'mjd']),
+                                            ('mwmStar', ['cat_id', 'apred', 'v_astra', 'component', 'run2d']),])
+    def test_lookup_keys(self, path, name, keys):
+        realkeys = path.lookup_keys(name)
+        assert set(keys) == set(realkeys)
+
     def test_netloc(self, path):
         assert path.netloc == 'data.sdss5.org'
 
