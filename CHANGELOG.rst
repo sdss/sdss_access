@@ -6,10 +6,10 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
-Next release
-------------
-
+2.0.6 (2023-06-02)
+------------------
 - Adds new `configsubmodule` special function.
+- Pins `tree` package to `<4.0`.
 
 2.0.5 (2022-11-30)
 ------------------
