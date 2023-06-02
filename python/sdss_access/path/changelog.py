@@ -41,9 +41,7 @@ def compute_changelog(new, old, pprint=None, to_list=None):
         A dictionary of relevant changes between the two releases
     '''
 
-    diffs = compute_path_changes(new, old, pprint=pprint, paths_only=True, to_list=to_list)
-
-    return diffs
+    return compute_path_changes(new, old, pprint=pprint, paths_only=True, to_list=to_list)
 
 
 def get_path_templates(name, public=None):

@@ -22,6 +22,9 @@ import tree.tree as treemod
 from sdss_access import RsyncAccess, HttpAccess, CurlAccess
 from sdss_access.path import Path
 
+pytest_plugins = 'sphinx.testing.fixtures'
+collect_ignore = ["roots"]
+
 
 # PYTEST MODIFIERS
 # -----------------
