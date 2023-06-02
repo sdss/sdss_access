@@ -28,8 +28,8 @@ class TestPath(object):
 
     def test_public(self):
         path = Path()
-        url = path.url('mangacube', drpver='v2_3_1', plate=8485, ifu='1901', wave='LOG')
-        assert 'mangawork' in url
+        url = path.url('specLite', mjd=61234, run2d='v6_0_9', catalogid='123456', fieldid=9876)
+        assert 'sdsswork/bhm' in url
 
         release = 'dr14'
         path = Path(public=True, release=release)
@@ -38,7 +38,7 @@ class TestPath(object):
 
     @pytest.mark.parametrize('place, exp', [('local', False), ('remote', True)])
     def test_existence(self, path, place, exp):
-        full = path.full('mangaimage', drpver='v2_5_3', plate=8116, ifu=1901, dir3d='mastar')
+        full = path.full('mangaimage', drpver='v3_1_1', plate=8116, ifu=1901, dir3d='mastar')
         exists = path.exists('', full=full, remote=(place == 'remote'), verify=False)
         assert exp == exists
 
@@ -57,9 +57,9 @@ class TestPath(object):
                               ('plateLines', '@platedir', {'plateid': 11002},
                                '0110XX/011002/plateLines-11002.png'),
                               ('spAll', '@spectrodir', {'run2d': 103},
-                               'sas/sdsswork/sdss/spectro'),
+                               'sas/dr17/sdss/spectro'),
                               ('spAll', '@spectrodir', {'run2d': 100},
-                               'sas/ebosswork/eboss/spectro')],
+                               'sas/dr17/eboss/spectro')],
                              ids=['platedir_p4', 'platedir_p5', 'spectrodir_r1', 'spectrodir_r2'])
     def test_special_function(self, path, name, special, keys, exp):
         assert special in path.templates[name]
@@ -126,22 +126,22 @@ class TestPath(object):
         name = 'mangacube'
         assert '$MANGA_SPECTRO_REDUX' in path.templates[name]
         full = path.full(name, drpver='v2_4_3', plate=8485, ifu=1901, wave='LOG')
-        exp = 'sas/mangawork/manga/spectro/redux/v2_4_3/8485'
+        exp = 'sas/dr17/manga/spectro/redux/v2_4_3/8485'
         assert exp in full
 
     @pytest.mark.parametrize('name, example, keys',
                              [('mangacube',
-                               'mangawork/manga/spectro/redux/v2_4_3/8485/stack/manga-8485-1901-LOGCUBE.fits.gz',
+                               'dr17/manga/spectro/redux/v2_4_3/8485/stack/manga-8485-1901-LOGCUBE.fits.gz',
                                {'drpver': 'v2_4_3', 'plate': '8485', 'ifu': '1901', 'wave': 'LOG'}),
-                              ('REJECT_MASK', 'ebosswork/eboss/lss/reject_mask/mask.html',
+                              ('REJECT_MASK', 'dr17/eboss/lss/reject_mask/mask.html',
                                {'type': 'mask', 'format': 'html'}),
-                              ('fpBIN', 'ebosswork/eboss/photo/redux/1/45/objcs/3/fpBIN-000045-g3-0123.fit',
+                              ('fpBIN', 'dr17/eboss/photo/redux/1/45/objcs/3/fpBIN-000045-g3-0123.fit',
                                {'rerun': '1', 'field': '0123', 'filter': 'g', 'camcol': '3', 'run': '000045'}),
-                              ('galaxy', 'ebosswork/eboss/lss/galaxy_DR12v1.0_1_n.fits.gz',
+                              ('galaxy', 'dr17/eboss/lss/galaxy_DR12v1.0_1_n.fits.gz',
                                {'sample': '1', 'dr': 'DR12', 'version': 'v1.0', 'ns': 'n'}),
-                              ('spec-lite', 'ebosswork/eboss/spectro/redux/v5_10_0/spectra/lite/3606/spec-3606-55182-0537.fits',
+                              ('spec-lite', 'dr17/eboss/spectro/redux/v5_10_0/spectra/lite/3606/spec-3606-55182-0537.fits',
                                {'fiberid': '0537', 'mjd': '55182', 'plateid': '3606', 'run2d': 'v5_10_0'}),
-                              ('apStar', 'apogeework/apogee/spectro/redux/r12/stars/apo25m/1234/apStar-r12-12345.fits',
+                              ('apStar', 'dr17/apogee/spectro/redux/r12/stars/apo25m/1234/apStar-r12-12345.fits',
                                {'apred': 'r12', 'apstar': 'stars', 'telescope': 'apo25m', 'field': '1234', 'prefix': 'ap', 'obj': '12345'})],
                              ids=['mangacube', 'reject', 'fpbin', 'galaxy', 'speclite', 'apstar'])
     def test_extract(self, path, name, example, keys):
@@ -161,7 +161,7 @@ class TestPath(object):
     def test_location(self, path):
         full = self.full(path)
         loc = path.location('', full=full)
-        assert 'mangawork/manga/spectro/redux/v2_4_3/8485/stack/manga-8485-*-LOGCUBE.fits.gz' in loc
+        assert 'dr17/manga/spectro/redux/v2_4_3/8485/stack/manga-8485-*-LOGCUBE.fits.gz' in loc
 
     def test_name(self, path):
         full = self.full(path)
@@ -171,12 +171,12 @@ class TestPath(object):
     def test_dir(self, path):
         full = self.full(path)
         d = path.dir('', full=full)
-        assert d.endswith('mangawork/manga/spectro/redux/v2_4_3/8485/stack')
+        assert d.endswith('dr17/manga/spectro/redux/v2_4_3/8485/stack')
 
     def test_url(self, path):
         full = self.full(path)
         url = path.url('', full=full)
-        assert 'https://data.sdss.org/sas/mangawork/manga/spectro/redux/' in url
+        assert 'https://data.sdss.org/sas/dr17/manga/spectro/redux/' in url
 
     @pytest.mark.parametrize('method', [('one'), ('random')])
     def test_onerandom(self, path, method):
@@ -209,7 +209,7 @@ class TestPath(object):
             assert re.search('8485-190[1-2]', item)
 
     @pytest.mark.parametrize('copydata',
-                             [('mangawork/manga/spectro/redux/v2_4_3/8485/stack/manga-8485-1901-LOGCUBE.fits.gz')],
+                             [('dr17/manga/spectro/redux/v2_4_3/8485/stack/manga-8485-1901-LOGCUBE.fits.gz')],
                              indirect=True, ids=['data'])
     def test_uncompress(self, copydata, monkeysas, path):
         ''' test to find unzipped files with zipped path templates '''
@@ -222,7 +222,7 @@ class TestPath(object):
             assert full.endswith('.fits')
 
     @pytest.mark.parametrize('copydata',
-                             [('mangawork/manga/spectro/redux/v2_5_3/8485/images/1901.png')],
+                             [('dr17/manga/spectro/redux/v2_5_3/8485/images/1901.png')],
                              indirect=True, ids=['data'])
     def test_compress(self, copydata, monkeysas, path):
         ''' test to find zipped files with non-zipped path templates '''
@@ -242,7 +242,7 @@ class TestPath(object):
         assert full.count('.gz') == 1
 
     @pytest.mark.parametrize('copymulti',
-                             [('mangawork/manga/spectro/redux/v2_4_3/8485/stack/manga-8485-*-LOGCUBE.fits.gz')],
+                             [('dr17/manga/spectro/redux/v2_4_3/8485/stack/manga-8485-*-LOGCUBE.fits.gz')],
                              indirect=True, ids=['data'])
     @pytest.mark.parametrize('plate, ifu', [(8888, '*'), (8888, 12345),
                                             (8485, 1901), (8485, '*')],
@@ -261,8 +261,8 @@ class TestPath(object):
             assert path.netloc == 'data.mirror.sdss.org'
             assert path.remote_base == 'https://data.mirror.sdss.org'
         else:
-            assert path.netloc == 'data.sdss.org'
-            assert path.remote_base == 'https://data.sdss.org'
+            assert path.netloc == 'data.sdss5.org'
+            assert path.remote_base == 'https://data.sdss5.org'
 
     def test_path_versions(self, path):
         ff = path.full('mangaimage', plate=8485, ifu=1901, drpver='v2_4_3')
@@ -276,27 +276,22 @@ class TestPath(object):
 
     def test_svn_paths(self, path):
         ff = path.full('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007')
-        assert 'mangapreim/trunk/data' in ff
+        assert 'mangapreim/v2_9/data' in ff
         assert not ff.startswith(os.getenv("SAS_BASE_DIR"))
         assert ff.startswith(os.getenv("PRODUCT_ROOT"))
         loc = path.location('', full=ff)
         assert loc.startswith('data')
 
-    @pytest.mark.parametrize('dr', [(True), (False)])
-    def test_svn_urls(self, dr):
-        if dr:
-            path = Path(release='DR15')
-        else:
-            path = Path()
+    def test_svn_urls(self):
+        path = Path(release='DR15')
         ff = path.full('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007')
         url = path.url('', full=ff)
         assert url.startswith('https://svn.sdss.org/')
-        if dr:
-            assert 'svn.sdss.org/public' in url
+        assert 'svn.sdss.org/public' in url
 
     def test_svn_tags(self, path):
         ff = path.full('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007')
-        assert 'mangapreim/trunk/data' in ff
+        assert 'mangapreim/v2_9/data' in ff
 
         path = Path(release='DR15')
         ff = path.full('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007')

@@ -31,7 +31,7 @@ class TestSVPaths(object):
                              [('apStar', '@healpixgrp',
                                {'apred': 'r12', 'apstar': 'stars', 'telescope': 'apo25m',
                                 'healpix': '12345', 'obj': '12345'},
-                               'r12/apo25m/12/12345/apStar-r12-apo25m-12345.fits')],
+                               'r12/stars/apo25m/12/12345/apStar-r12-apo25m-12345.fits')],
                              ids=['apStar'])
     def test_apogee_paths(self, path, name, special, keys, exp):
         assert special in path.templates[name]
