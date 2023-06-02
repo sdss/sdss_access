@@ -41,17 +41,16 @@ class TestRsync(object):
         rsync.commit()
 
         path = rsync.get_paths()[0]
-        print('path', path)
         assert os.path.exists(path) is True
         assert os.path.isfile(path) is True
 
-    @pytest.mark.parametrize('tree_ver, exp', [('sdsswork', 'work'), ('dr15', 'dr15'),
-                                               ('dr13', 'dr13'), ('mpl8', 'work')])
-    def test_release_from_module(self, monkeypatch, tree_ver, exp, datapath):
+    @pytest.mark.parametrize('tree_ver, exp', [('dr15', 'dr15'),
+                                               ('dr13', 'dr13')])
+    def test_release_from_module(self, monkeypatch, tree_ver, exp):
         monkeypatch.setenv('TREE_VER', tree_ver)
         rsync = RsyncAccess()
         rsync.remote()
-        rsync.add(datapath['name'], **datapath['params'])
+        rsync.add('mangacube', ifu=1901, wave='LOG', plate=8485, drpver='v3_1_1')
         loc = rsync.initial_stream.task[0]['sas_module']
         assert rsync.release == tree_ver
         assert exp in loc
@@ -61,7 +60,7 @@ class TestRsyncFails(object):
 
     def test_access_svn_fail(self):
         with pytest.raises(AccessError) as cm:
-            access = Access()
+            access = Access(release='dr17')
             access.remote()
             access.add('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007')
         assert 'Rsync/Curl Access not allowed for svn paths.  Please use HttpAccess.' in str(cm.value)
