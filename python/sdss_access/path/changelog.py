@@ -64,7 +64,7 @@ def get_path_templates(name, public=None):
     versions = {}
     for release in reversed(releases):
         release = 'sdsswork' if 'WORK' in release else release
-        tree = Tree(config=release)
+        tree = Tree(config=release.lower())
         versions[release] = tree.paths.get(name, None)
     return versions
 
