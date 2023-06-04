@@ -40,9 +40,6 @@ jobs:
         username: ${{ secrets.S5_USERNAME }}
         password: ${{ secrets.S5_PASSWORD }}
 
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3
-
     - name: Test with pytest
       run: |
         pip install pytest
