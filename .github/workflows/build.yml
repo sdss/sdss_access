@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python 3.9
       uses: actions/setup-python@v4
       with:
@@ -39,6 +39,9 @@ jobs:
         machine: data.sdss5.org
         username: ${{ secrets.S5_USERNAME }}
         password: ${{ secrets.S5_PASSWORD }}
+
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
 
     - name: Test with pytest
       run: |
