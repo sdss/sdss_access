@@ -22,6 +22,9 @@ import tree.tree as treemod
 from sdss_access import RsyncAccess, HttpAccess, CurlAccess
 from sdss_access.path import Path
 
+pytest_plugins = 'sphinx.testing.fixtures'
+collect_ignore = ["roots"]
+
 
 # PYTEST MODIFIERS
 # -----------------
@@ -40,14 +43,10 @@ def pytest_runtest_setup(item):
 @pytest.fixture()
 def path():
     ''' Fixture to create a generic Path object '''
-    path = Path()
+    path = Path(release='dr17')
     path.replant_tree()
     yield path
     path = None
-
-
-# releases to parametrize over
-releases = ['work', 'DR15']
 
 
 # read in test data parameters and also get paths
@@ -62,12 +61,6 @@ data = get_data()
 paths = data.get('paths')
 
 
-@pytest.fixture(scope='session', params=releases)
-def release(request):
-    ''' release fixture '''
-    return request.param
-
-
 @pytest.fixture(scope='session', params=paths)
 def datapath(request):
     ''' parametrizes over the paths in test data'''
@@ -75,13 +68,13 @@ def datapath(request):
 
 
 @pytest.fixture(scope='session')
-def expdata(release, datapath):
+def expdata(datapath):
     ''' fixture to yield expected source data based on test data '''
     remote = data.get('remote_base')
     # remote base
-    base = remote['work'] if release == 'work' else remote['public']
+    base = remote['work'] if 'work' in datapath['release'] else remote['public']
     # sas_module; a work or DR directory
-    sas_module = datapath['work'] if release == 'work' else release.lower()
+    sas_module = datapath['work'] if 'work' in datapath['release'] else datapath['release'].lower()
     # file location
     location = datapath['location']
     # full source file location
@@ -89,9 +82,9 @@ def expdata(release, datapath):
     # full final file location
     destination = os.path.join(os.getenv('SAS_BASE_DIR'), sas_module, location)
     # combined dict
-    result = {'name': datapath['name'], 'params': datapath['params'], 'base': base, 
-              'sas_module': sas_module, 'location': location, 'source': source, 
-              'destination': destination, 'release': release.lower()}
+    result = {'name': datapath['name'], 'params': datapath['params'], 'base': base,
+              'sas_module': sas_module, 'location': location, 'source': source,
+              'destination': destination, 'release': datapath['release'].lower()}
     yield result
     result = None
 
@@ -100,9 +93,7 @@ def expdata(release, datapath):
 def inittask(expdata):
     ''' fixture to yield expected initial stream task based on test data '''
 
-    #patch = '' if expdata['release'] == 'work' else expdata['release']
-    #loc = os.path.join(patch, expdata['location'])
-    task = [{'sas_module': expdata['sas_module'], 'location': expdata['location'], 
+    task = [{'sas_module': expdata['sas_module'], 'location': expdata['location'],
              'source': expdata['source'], 'destination': expdata['destination'], 'exists': None}]
     yield task
     task = None
@@ -112,20 +103,17 @@ def inittask(expdata):
 def finaltask(expdata):
     ''' fixture to yield expected final stream task based on test data '''
 
-    task = [{'sas_module': expdata['sas_module'], 'location': expdata['location'], 
+    task = [{'sas_module': expdata['sas_module'], 'location': expdata['location'],
              'source': expdata['source'], 'destination': expdata['destination'], 'exists': None}]
     yield task
     task = None
 
 
 @pytest.fixture(scope='session')
-def rsync(release):
+def rsync(datapath):
     ''' fixture to create generic rsync object - parametrized by release '''
 
-    if 'DR' in release:
-        rsync = RsyncAccess(label='test_rsync', public=True, release=release)
-    else:
-        rsync = RsyncAccess(label='test_rsync')
+    rsync = RsyncAccess(label='test_rsync', release=datapath['release'])
     rsync.remote()
     yield rsync
     # teardown
@@ -150,23 +138,17 @@ def rstream(radd):
 
 
 @pytest.fixture(scope='session')
-def http(release):
-    if 'DR' in release:
-        http = HttpAccess(public=True, release=release)
-    else:
-        http = HttpAccess()
+def http(datapath):
+    http = HttpAccess(release=datapath['release'])
     yield http
     http = None
 
 
 @pytest.fixture(scope='session')
-def curl(release):
+def curl(datapath):
     ''' fixture to create generic curl object - parametrized by release '''
 
-    if 'DR' in release:
-        curl = CurlAccess(label='test_curl', public=True, release=release)
-    else:
-        curl = CurlAccess(label='test_curl')
+    curl = CurlAccess(label='test_curl', release=datapath['release'])
     curl.remote()
     yield curl
     # teardown

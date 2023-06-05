@@ -6,6 +6,12 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
+3.0.0 (2023-06-05)
+------------------
+- Fixing sdss_access after `tree` updates.  "sdsswork" now references SDSS-V paths.
+- Pins `tree` package to `>4.0`
+- Adds new pattern for detecting required keywords in special functions
+
 2.0.6 (2023-06-02)
 ------------------
 - Adds new `configsubmodule` special function.

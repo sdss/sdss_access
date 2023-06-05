@@ -116,96 +116,6 @@ DR8
    :prog: DR8
    :templates:
 
-.. _mpl11:
-
-MPL11
------
-
-.. datamodel:: sdss_access.path.path:Path
-   :prog: MPL11
-   :templates:
-
-.. _mpl10:
-
-MPL10
------
-
-.. datamodel:: sdss_access.path.path:Path
-   :prog: MPL10
-   :templates:
-
-.. _mpl9:
-
-MPL9
-----
-
-.. datamodel:: sdss_access.path.path:Path
-   :prog: MPL9
-   :templates:
-
-.. _mpl8:
-
-MPL8
-----
-
-.. datamodel:: sdss_access.path.path:Path
-   :prog: MPL8
-   :templates:
-
-.. _mpl7:
-
-MPL7
-----
-
-.. datamodel:: sdss_access.path.path:Path
-   :prog: MPL7
-   :templates:
-
-.. _mpl6:
-
-MPL6
-----
-
-.. datamodel:: sdss_access.path.path:Path
-   :prog: MPL6
-   :templates:
-
-.. _mpl5:
-
-MPL5
-----
-
-.. datamodel:: sdss_access.path.path:Path
-   :prog: MPL5
-   :templates:
-
-.. _mpl4:
-
-MPL4
-----
-
-.. datamodel:: sdss_access.path.path:Path
-   :prog: MPL4
-   :templates:
-
-.. _mpl3:
-
-MPL3
-----
-
-.. datamodel:: sdss_access.path.path:Path
-   :prog: MPL3
-   :templates:
-
-.. _sdss5:
-
-SDSS-V
-------
-
-.. datamodel:: sdss_access.path.path:Path
-   :prog: sdss5
-   :templates:
-
 .. _ipl1:
 
 IPL1
@@ -213,4 +123,13 @@ IPL1
 
 .. datamodel:: sdss_access.path.path:Path
    :prog: IPL1
+   :templates:
+
+.. _ipl2:
+
+IPL2
+----
+
+.. datamodel:: sdss_access.path.path:Path
+   :prog: IPL2
    :templates:

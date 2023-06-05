@@ -41,9 +41,8 @@ def test_access(monkey_posix):
                     [('sdss5', 'data.sdss5.org'),
                      ('ipl1', 'data.sdss5.org'),
                      ('dr17', 'data.sdss.org'),
-                     ('sdsswork', 'data.sdss.org'),
-                     ('mpl9', 'data.sdss.org')],
-                    ids=['sdss5', 'ipl1', 'dr17', 'sdsswork', 'mpl9'])
+                     ('sdsswork', 'data.sdss5.org')],
+                    ids=['sdss5', 'ipl1', 'dr17', 'sdsswork'])
 def test_netloc(cfg, exp):
     a = RsyncAccess(release=cfg)
     assert a.netloc == exp
@@ -53,9 +52,8 @@ def test_netloc(cfg, exp):
                     [('sdss5', 'sdss5'),
                      ('ipl1', 'sdss5'),
                      ('dr17', ''),
-                     ('sdsswork', 'sdss'),
-                     ('mpl9', 'sdss')],
-                    ids=['sdss5', 'ipl1', 'dr17', 'sdsswork', 'mpl9'])
+                     ('sdsswork', 'sdss5')],
+                    ids=['sdss5', 'ipl1', 'dr17', 'sdsswork'])
 def test_remote_base(cfg, exp):
     a = RsyncAccess(release=cfg)
     a.remote()

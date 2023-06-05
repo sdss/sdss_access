@@ -58,41 +58,6 @@ Internal Product Launches (IPLs)
 
 .. changelog:: sdss_access.path.changelog:compute_changelog
    :prog: changes
-   :drs: ipl1, ipl1
+   :drs: ipl2, ipl1
 
-
-MaNGA Product Launches (MPLs)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. changelog:: sdss_access.path.changelog:compute_changelog
-   :prog: changes
-   :drs: mpl11, mpl10
-
-.. changelog:: sdss_access.path.changelog:compute_changelog
-   :prog: changes
-   :drs: mpl10, mpl9
-
-.. changelog:: sdss_access.path.changelog:compute_changelog
-   :prog: changes
-   :drs: mpl9, mpl8
-
-.. changelog:: sdss_access.path.changelog:compute_changelog
-   :prog: changes
-   :drs: mpl8, mpl7
-
-.. changelog:: sdss_access.path.changelog:compute_changelog
-   :prog: changes
-   :drs: mpl7, mpl6
-
-.. changelog:: sdss_access.path.changelog:compute_changelog
-   :prog: changes
-   :drs: mpl6, mpl5
-
-.. changelog:: sdss_access.path.changelog:compute_changelog
-   :prog: changes
-   :drs: mpl5, mpl4
-
-.. changelog:: sdss_access.path.changelog:compute_changelog
-   :prog: changes
-   :drs: mpl4, mpl3
 

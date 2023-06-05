@@ -100,7 +100,7 @@ class BasePath(object):
 
     _netloc = {"dtn": "dtn.sdss.org", "sdss": "data.sdss.org", "sdss5": "data.sdss5.org",
                "mirror": "data.mirror.sdss.org", "svn": "svn.sdss.org"}
-    _s5cfgs = ['sdss5', 'ipl1']  # list of collab-only SDSS-V releases/configs
+    _s5cfgs = ['sdsswork', 'sdss5', 'ipl1']  # list of collab-only SDSS-V releases/configs
 
     def __init__(self, release=None, public=False, mirror=False, verbose=False,
                  force_modules=None, preserve_envvars=None):
@@ -207,10 +207,16 @@ class BasePath(object):
             method = getattr(self, function[1:-1])
             # get source code of special method
             source = self._find_source(method)
-            fkeys = re.findall(r'kwargs\[(.*?)\]', source)
+
+            # matches on kwargs.get("xxx"), kwargs.get("xxx", None), or kwargs["xxx"]
+            # on either single or double quoted string, with or without a default value
+            patt = r"kwargs.get\(\W(\w+)\W,*\s*.*\)|kwargs\[\W(\w+)\W\]"
+            fkeys = re.findall(patt, source)
+
             if fkeys:
-                # evaluate to proper string
-                fkeys = [ast.literal_eval(k) for k in fkeys]
+                # condense gorups down to proper string list
+                fkeys = [str(i) for k in fkeys for i in k if i]
+
                 keys.extend(fkeys)
         return keys
 
@@ -1242,7 +1248,9 @@ class Path(BasePath):
         if 'cat_id' in kwargs:
             cat_id = int(kwargs['cat_id'])
         elif 'catid' in kwargs:
-            cat_id = int(kwargs['catid'])
+            # removing the undesired version as this messes up the lookup_keys method
+            kwargs['cat_id'] = kwargs.pop('catid')
+            cat_id = int(kwargs['cat_id'])
         return f"{(cat_id // k) % k:0>2.0f}/{cat_id % k:0>2.0f}"
 
     def component_default(self, filetype, **kwargs):
@@ -1299,14 +1307,19 @@ class Path(BasePath):
 
         '''
 
-        telescope = kwargs.get('telescope', None)
+        # since telescope or instrument already defined in the main
+        # template for all paths, we rename the kwargs dict so these keywords
+        # do not get picked up by the lookup_keys method.
+        newkw = kwargs.copy()
+
+        telescope = newkw.get('telescope', None)
         if telescope is not None:
             prefix = {'apo25m': 'ap', 'apo1m': 'ap', 'lco25m': 'as'}
             if telescope not in prefix:
                 raise ValueError(f'{telescope} not in allowed list of prefixes')
             return prefix[telescope]
 
-        instrument = kwargs.get('instrument', None)
+        instrument = newkw.get('instrument', None)
         if instrument is not None:
             prefix = {'apogee-n': 'ap', 'apogee-s': 'as'}
             if instrument not in prefix:

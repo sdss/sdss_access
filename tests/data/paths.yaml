@@ -1,14 +1,24 @@
 
 remote_base:
-  work: rsync://sdss@dtn.sdss.org
+  work: rsync://sdss5@dtn.sdss.org
   public: rsync://dtn.sdss.org
 
 paths:
   - name: mangacube
-    work: mangawork
+    release: DR15
+    url: data.sdss.org
+    work: dr15
     params: {drpver: v2_4_3, plate: 8485, ifu: 1901, wave: LOG}
     location: manga/spectro/redux/v2_4_3/8485/stack/manga-8485-1901-LOGCUBE.fits.gz
   - name: spec-lite
-    work: ebosswork
+    release: DR15
+    url: data.sdss.org
+    work: dr15
     params: {run2d: v5_10_0, plateid: 3606, mjd: 55182, fiberid: 537}
     location: eboss/spectro/redux/v5_10_0/spectra/lite/3606/spec-3606-55182-0537.fits
+  - name: specLite
+    release: sdsswork
+    url: data.sdss5.org
+    work: sdsswork
+    params: {mjd: 59221, run2d: v6_0_9, catalogid: 4375858477, fieldid: 15013}
+    location: bhm/boss/spectro/redux/v6_0_9/spectra/lite/015013/59221/spec-015013-59221-4375858477.fits

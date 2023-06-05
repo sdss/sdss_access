@@ -37,7 +37,7 @@ class TestHttp(object):
         name = http.release.lower() if http.release and 'dr' in http.release.lower() else datapath['work']
         path = http.url(datapath['name'], **datapath['params'])
         assert datapath['location'] in path
-        assert 'https://data.sdss.org' in path
+        assert f'https://{datapath["url"]}' in path
         assert name in path
 
     def test_svn_exist(self):
@@ -80,12 +80,12 @@ class TestHttp(object):
         assert http.auth.username is None
         assert http.auth.ready() is None
 
-    @pytest.mark.parametrize('tree_ver, exp', [('sdsswork', 'work'), ('dr15', 'dr15'),
-                                               ('dr13', 'dr13'), ('mpl8', 'work')])
-    def test_release_from_module(self, monkeypatch, tree_ver, exp, datapath):
+    @pytest.mark.parametrize('tree_ver, exp', [('dr15', 'dr15'),
+                                               ('dr13', 'dr13')])
+    def test_release_from_module(self, monkeypatch, tree_ver, exp):
         monkeypatch.setenv('TREE_VER', tree_ver)
         http = HttpAccess()
-        full = http.full(datapath['name'], **datapath['params'])
+        full = http.full('mangacube', ifu=1901, wave='LOG', plate=8485, drpver='v3_1_1')
         assert http.release == tree_ver
         assert exp in full
 

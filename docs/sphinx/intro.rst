@@ -7,6 +7,27 @@ Introduction to sdss_access
 SDSS Access provides a convenient way of navigating local and remote filesystem paths from the Science Archive Server (SAS).
 ``sdss_access`` uses the SDSS Tree product for all path look-ups.
 
+Concept
+-------
+
+SDSS Access works with abstract filepaths to data products, as a way of easily generating paths to specific data products.
+An abstract filepath is a generalized path that represents the path to the data product or `file_species`, and can be
+resolved to an example of any individual file of that "file_species".  A abstract path is defined by:
+
+* **path_name**: a reference name to the data product or `file_species`
+* **path_template**: a string filepath starting with an environment variable, and using {} templating for keyword variable replacement
+
+These paths are defined in the tree product as `path_name = path_template`. See
+`Defining New Paths <https://sdss-tree.readthedocs.io/en/latest/paths.html>`_ for more info.
+For example, the abstract path for the MaNGA cube data products is
+::
+
+    # path_name = path_template
+    mangacube = '$MANGA_SPECTRO_REDUX/{drpver}/{plate}/stack/manga-{plate}-{ifu}-{wave}CUBE.fits.gz'
+
+The variable names within the `{}` are specified at runtime to create a path to a specific file on disk.
+
+
 Path Generation
 ---------------
 
@@ -14,29 +35,29 @@ You can generate full paths to local files easily with `Path.full <.BasePath.ful
 ::
 
     # import the path
-    from sdss_access import SDSSPath
-    path = SDSSPath()
+    from sdss_access import Path
+    path = Path(release='dr17')
 
     # generate a file system path
-    path.full('mangacube', drpver='v2_3_1', plate='8485', ifu='1901', wave='LOG')
-    '/Users/Brian/Work/sdss/sas/mangawork/manga/spectro/redux/v2_3_1/8485/stack/manga-8485-1902-LOGCUBE.fits.gz'
+    path.full('mangacube', drpver='v3_1_1', plate='8485', ifu='1901', wave='LOG')
+    '/Users/Brian/Work/sdss/sas/dr17/manga/spectro/redux/v3_1_1/8485/stack/manga-8485-1901-LOGCUBE.fits.gz'
 
 Note that this only generates a path. The file may not actually exist locally.  If you want to generate a URL path to
 the file on the SAS at Utah, you can use `Path.url <.BasePath.url>`.
 ::
 
     # generate a http path to the file
-    path.url('mangacube', drpver='v2_3_1', plate='8485', ifu='1901', wave='LOG')
-    'https://data.sdss.org/sas/mangawork/manga/spectro/redux/v2_3_1/8485/stack/manga-8485-1902-LOGCUBE.fits.gz'
+    path.url('mangacube', drpver='v3_1_1', plate='8485', ifu='1901', wave='LOG')
+    'https://data.sdss.org/sas/dr17/manga/spectro/redux/v3_1_1/8485/stack/manga-8485-1901-LOGCUBE.fits.gz'
 
 You can also pass in the full path directly as a string in cases.  In those cases, the first argument passed in must
 be an empty string.
 ::
 
     # pass in the full path directly to path.url
-    full = path.full('mangacube', drpver='v2_3_1', plate='8485', ifu='1901', wave='LOG')
+    full = path.full('mangacube', drpver='v3_1_1', plate='8485', ifu='1901', wave='LOG')
     path.url('', full=full)
-    'https://data.sdss.org/sas/mangawork/manga/spectro/redux/v2_3_1/8485/stack/manga-8485-1902-LOGCUBE.fits.gz'
+    'https://data.sdss.org/sas/dr17/manga/spectro/redux/v3_1_1/8485/stack/manga-8485-1901-LOGCUBE.fits.gz'
 
 Path Names
 ----------
@@ -48,8 +69,8 @@ defined in the path ``$MANGA_SPECTRO_REDUX/{drpver}/{plate}/stack/manga-{plate}-
 are defined inside the SDSS ``tree`` product, within a `[PATHS]` section in the environment configuration files, e.g. `data/sdsswork.cfg`
 or `data/dr15.cfg`.  Within ``sdss_access``, all paths are available as a dictionary, ``path.templates``::
 
-    from sdss_access.path import SDSSPath
-    path = SDSSPath()
+    from sdss_access.path import Path
+    path = Path(release='dr17')
 
     # show the dictionary of available paths
     path.templates
@@ -77,12 +98,29 @@ the ``remote`` keyword argument
 ::
 
     # check for local path existence
-    path.exists('mangacube', drpver='v2_3_1', plate='8485', ifu='1901', wave='LOG')
+    path.exists('mangacube', drpver='v3_1_1', plate='8485', ifu='1901', wave='LOG')
     True
 
     # check for remote path existence on the SAS
-    path.exists('mangacube', drpver='v2_3_1', plate='8485', ifu='1901', wave='LOG', remote=True)
+    path.exists('mangacube', drpver='v3_1_1', plate='8485', ifu='1901', wave='LOG', remote=True)
     True
+
+Required Keywords
+-----------------
+
+All the keyword variables defined in a **path_template**, and returned by `Path.lookup_keys <.BasePath.lookup_keys>`,
+are required.  Not specifying all the keywords will result in an error raised.
+
+::
+
+    >>> path = Path(release='dr17')
+
+    >>> # see the required keys
+    >>> path.lookup_keys('mangacube')
+    ['plate', 'drpver', 'wave', 'ifu']
+
+    >>> path.full('mangacube', drpver='v3_1_1', plate='8485', ifu='1901')
+    KeyError: "Missing required keyword arguments: ['wave']"
 
 Environment Paths
 -----------------
@@ -96,23 +134,23 @@ paths relevant to that environment.
     >>> from sdss_access.path import Path
     >>> path = Path()
     >>> path
-    <Path(release="sdsswork", public=False, n_paths=358)
+    <Path(release="sdsswork", public=False, n_paths=233)
 
 To access paths from a different environment, you can change environments by passing in the ``release`` keyword argument.  The
 ``release`` acts as an indicator for both a valid data release, e.g. "DR15", and a valid environment configuration,
 e.g. "sdsswork".
 ::
 
-    >>> # load the sdss5 environment and paths
+    >>> # load the SDSS-V environment and paths
     >>> from sdss_access.path import Path
-    >>> path = Path(release='sdss5')
+    >>> path = Path(release='sdsswork')
     >>> path
-    <Path(release="sdss5", public=False, n_paths=97)
+    <Path(release="sdsswork", public=False, n_paths=233)
 
-    >>> # switch to the environment for public data release DR15
-    >>> path = Path(release='DR15')
+    >>> # switch to the environment for public data release DR17
+    >>> path = Path(release='DR17')
     >>> path
-    <Path(release="dr15", public=True, n_paths=325)
+    <Path(release="dr17", public=True, n_paths=420)
 
 When reloading a new ``tree`` environment configuration, ``sdss_access`` automatically updates the Python session
 ``os.environ`` with the relevant environment variables for the given release/configuration.  You can preserve your original
@@ -120,15 +158,15 @@ When reloading a new ``tree`` environment configuration, ``sdss_access`` automat
 entirety.
 ::
 
-    >>> # load the sdss5 environment but preserve your original os.environ
-    >>> path = Path(release='sdss5', preserve_envvars=True)
+    >>> # load the SDSS-V environment but preserve your original os.environ
+    >>> path = Path(release='sdsswork', preserve_envvars=True)
 
 Alternatively, you can preserve a subset of enviroment variables from your original ``os.environ`` by passing in a list of
 environment variables.
 ::
 
     >>> # preserve only a single environment variable
-    >>> path = Path(release='sdss5', preserve_envvars=['ROBOSTRATEGY_DATA'])
+    >>> path = Path(release='sdsswork', preserve_envvars=['ROBOSTRATEGY_DATA'])
 
 If you wish to permanently preserve your locally set environment variables, you can set the ``preserve_envvars`` parameter to
 ``true`` in a custom tree YAML configuration file located at ``~/.config/sdss/sdss_access.yml``.  For example
@@ -143,6 +181,23 @@ Alternatively, you can permanently set a subset of environment variables to pres
       - ROBOSTRATEGY_DATA
       - ALLWISE_DIR
 
+Extracting Keywords from Filepaths
+----------------------------------
+
+You can extract the keyword variables from a specific filepath, by using the `Path.extract <.BasePath.extract>` method
+and specifying the **path_name** reference, and the full filepath.  For the extraction to work, the path to the file
+must match the SAS directory structure, and have the relevant environment variable defined from the **path_template**.
+::
+
+    >>> # set a path to a file
+    >>> filepath = '/Users/Brian/Work/sdss/sas/dr17/manga/spectro/redux/v3_1_1/8485/stack/manga-8485-1901-LOGCUBE.fits.gz'
+
+    >>> # extract the keywords
+    >>> path = Path(release='dr17')
+    >>> path.extract('mangacube', filepath)
+    {'drpver': 'v3_1_1', 'plate': '8485', 'ifu': '1901', 'wave': 'LOG'}
+
+
 Downloading Files
 -----------------
 
@@ -150,7 +205,7 @@ You can download files from the SAS and place them in your local SAS.  ``sdss_ac
 that mimics the real SAS at Utah.  If you do not already have a `SAS_BASE_DIR` set, one will be defined in your
 home directory, as a new ``sas`` directory.
 
-``sdss_access`` requires valid authentication to download proprietary data.  See :ref:`auth` 
+``sdss_access`` requires valid authentication to download proprietary data.  See :ref:`auth`
 for more information.
 
 sdss_access has four classes designed to facilitate access to SAS data.
@@ -168,13 +223,13 @@ Using the `.HttpAccess` class.
 ::
 
     from sdss_access import HttpAccess
-    http_access = HttpAccess(verbose=True)
+    http_access = HttpAccess(release='DR17', verbose=True)
 
     # set to use remote
     http_access.remote()
 
     # get the file
-    http_access.get('mangacube', drpver='v2_3_1', plate='8485', ifu='1901', wave='LOG')
+    http_access.get('mangacube', drpver='v3_1_1', plate='8485', ifu='1901', wave='LOG')
 
 Using the `.RsyncAccess` class.  `.RsyncAccess` is generally much faster then `.HttpAccess` as it spreads multiple
 file downloads across multiple continuous rsync download streams.
@@ -183,14 +238,14 @@ file downloads across multiple continuous rsync download streams.
 
     # import the rsync class
     from sdss_access import RsyncAccess
-    rsync = RsyncAccess()
+    rsync = RsyncAccess(release='DR17')
 
     # sets a remote mode to the real SAS
     rsync.remote()
 
     # add all the file(s) you want to download
-    # let's download all MPL-6 MaNGA cubes for plate 8485
-    rsync.add('mangacube', drpver='v2_3_1', plate='8485', ifu='*', wave='LOG')
+    # let's download all DR17 MaNGA cubes for plate 8485
+    rsync.add('mangacube', drpver='v3_1_1', plate='8485', ifu='*', wave='LOG')
 
     # set the stream tasks
     rsync.set_stream()
@@ -198,21 +253,13 @@ file downloads across multiple continuous rsync download streams.
     # start the download(s)
     rsync.commit()
 
-The default mode of `.RsyncAccess` is for collaboration access.  You can also access data from publicly available
-SDSS data releases, by specifying the ``public`` and ``release`` keyword arguments on init.
-
-::
-
-    # setup rsync access to download public data from DR14
-    rsync = RsyncAccess(public=True, release='dr14')
-
 Using the `.CurlAccess` class.  `.CurlAccess` behaves exactly the same way as `.RsyncAccess`.  After importing and
 instantiating a `.CurlAccess` object, all methods and behavior are the same as in the `.RsyncAccess` class.
 ::
 
     # import the curl class
     from sdss_access import CurlAccess
-    curl = CurlAccess()
+    curl = CurlAccess(release='DR17')
 
 Using the `.Access` class.  Depending on your operating system, ``posix`` or not, Access will either create itself using
 `.RsyncAccess` or `.CurlAccess`, and behave as either object.  Via `.Acccess`, Windows machines will always use `.CurlAccess`,
@@ -221,7 +268,7 @@ while Linux or Macs will automatically utilize `.RsyncAccess`.
 
     # import the access class
     from sdss_access import Access
-    access = Access()
+    access = Access(release='DR17')
 
     # the access mode is automatically set to rsync.
     print(access)
@@ -230,7 +277,7 @@ while Linux or Macs will automatically utilize `.RsyncAccess`.
     # the class now behaves exactly like RsyncAccess.
     # download a MaNGA cube
     access.remote()
-    access.add('mangacube', drpver='v2_3_1', plate='8485', ifu='1901')
+    access.add('mangacube', drpver='v3_1_1', plate='8485', ifu='1901')
     access.set_stream()
     access.commit()
 
@@ -241,57 +288,61 @@ files within the temporary directory.
 Accessing SDSS-V Products
 -------------------------
 
-As of version 2.0.0, ``sdss_access`` has been updated to support downloading of 
-SDSS-V products.  The usage of ``sdss_access`` remains the same.  The only difference is SDSS-V 
-products are now delivered by the "data.sdss5.org" server instead of "data.sdss.org".  
+With SDSS-V, the usage of ``sdss_access`` remains the same.  The only difference is SDSS-V
+products are now delivered by the "data.sdss5.org" server instead of "data.sdss.org".
 When specifying ``release="sdss5"``, you may notice the new server location, e.g.
 ::
 
     >>> from sdss_access import Access
-    >>> access = Access(release='sdss5')
+    >>> access = Access()
     >>> access
     <Access(access_mode="rsync", using="data.sdss5.org")>
 
-As with SDSS-IV, ``sdss_access`` requires valid authentication to download 
+As with SDSS-IV, ``sdss_access`` requires valid authentication to download
 proprietary data for SDSS-V.  See :ref:`auth` for more information.  Here is an example accessing
 the robostrategy completeness files for SDSS-V.
 
 .. warning::
-    The below example contains large data, ~8 GB, and may take a while to download.    
+    The below example contains large data, ~8 GB, and may take a while to download.
 
 ::
 
     from sdss_access import Access
-    access = Access(release='sdss5')
+    access = Access()
     access.remote()
     access.add('rsCompleteness', observatory='apo', plan='epsilon-2-core-*')
     access.set_stream()
     access.commit()
 
+.. note::
+    As of ``version >= 3.0.0``, and ``tree >= 4.0.0`` the default config of "sdsswork" is for SDSS-V
+    data products.  In ``versions >2.0 - <3.0``, the "sdsswork" config is for SDSS-V data products, and SDSS-V
+    data products can be accessed using the "sdss5" config or release name.
 
 Accessing Public Data Products
 ------------------------------
 
 The default configuration of all ``sdss_access`` classes, i.e. ``Path``, ``Access``, ``RsyncAccess``, etc. is to use the
-``sdsswork`` environment configuration, for access to the most up-to-date filepaths.  To specify paths, or download files, of products from public
-data releases, specify the ``release`` keyword and/or the ``public`` keyword.  ``sdss_access`` will automatically set ``public=True`` when the
-input release contains ``DRXX``.  You can also explicitly set the ``public`` keyword.
+``sdsswork`` environment configuration, for access to proprietary data or up-to-date filepaths.  To specify paths,
+or download files, of products from public data releases, specify the ``release`` keyword.  ``sdss_access`` will
+automatically set ``public=True`` when the input release contains ``DRXX``.  You can also explicitly set
+the ``public`` keyword.
 ::
 
-    # import the path and set it to use the DR15 release
+    # import the path and set it to use the DR17 release
     from sdss_access.path import Path
-    path = Path(release='DR15')
+    path = Path(release='DR17')
 
     # check if a public path
     path.public
     True
 
     # generate a file system path
-    path.full('mangacube', drpver='v2_4_3', plate=8485, ifu=1901, wave='LOG')
-    '/Users/Brian/Work/sdss/sas/dr15/manga/spectro/redux/v2_4_3/8485/stack/manga-8485-1901-LOGCUBE.fits.gz'
+    path.full('mangacube', drpver='v3_1_1', plate=8485, ifu=1901, wave='LOG')
+    '/Users/Brian/Work/sdss/sas/dr17/manga/spectro/redux/v3_1_1/8485/stack/manga-8485-1901-LOGCUBE.fits.gz'
 
-    # setup rsync access to download public data from DR15
-    rsync = RsyncAccess(public=True, release='DR15')
+    # setup rsync access to download public data from DR17
+    rsync = RsyncAccess(public=True, release='DR17')
 
 .. _sdss-access-svn:
 
@@ -308,22 +359,13 @@ it uses the local path definition, and for urls, it uses the correct ``svn.sdss.
 
     from sdss_access.path import Path
 
-    # load the paths for sdsswork
-    path = Path()
+    # load the paths for DR17
+    path = Path(release='DR17')
     path.full('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007')
-    '/Users/Brian/Work/sdss/data/manga/mangapreim/trunk/data/D0084XX/8405/preimage-1-42007_irg.jpg'
+    '/Users/Brian/Work/sdss/data/manga/mangapreim/v2_9/data/D0084XX/8405/preimage-1-42007_irg.jpg'
 
     path.url('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007')
-    'https://svn.sdss.org/data/manga/mangapreim/trunk/data/D0084XX/tags/8405/preimage-1-42007_irg.jpg'
-
-
-    # load the paths for DR15
-    path = Path(release='DR15')
-    path.full('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007')
-    '/Users/Brian/Work/sdss/data/manga/mangapreim/v2_5/data/D0084XX/8405/preimage-1-42007_irg.jpg'
-
-    path.url('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007')
-    'https://svn.sdss.org/public/data/manga/mangapreim/tags/v2_5/data/D0084XX/8405/preimage-1-42007_irg.jpg'
+    'https://svn.sdss.org/public/data/manga/mangapreim/tags/v2_9/data/D0084XX/8405/preimage-1-42007_irg.jpg'
 
 As always, paths generated by ``tree`` and ``sdss_access`` use the directory structure as it exists on the SDSS
 Science Archive Server (SAS).  The same is true for paths defined for SVN data files, using the directory structure
@@ -337,15 +379,15 @@ the ``mangapreim`` SVN data product is installed locally.
     ----------------------------------------------------------- /Users/Brian/Work/sdss/data/modulefiles ------------------------------------------------------------
     mangapreim/trunk(default)
 
-However, the DR15 generated ``mangapreimg`` path will be the offical tag of the product for DR15, ``v2_5``, which does not
+However, the DR17 generated ``mangapreimg`` path will be the offical tag of the product for DR17, ``v2_9``, which does not
 exist locally.  You can always override the generated path to use your local module environment by setting
 the ``force_module`` keyword.
 ::
 
-    # load the paths for DR15
-    path = Path(release='DR15')
+    # load the paths for DR17
+    path = Path(release='DR17')
     path.full('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007')
-    '/Users/Brian/Work/sdss/data/manga/mangapreim/v2_5/data/D0084XX/8405/preimage-1-42007_irg.jpg'
+    '/Users/Brian/Work/sdss/data/manga/mangapreim/v2_9/data/D0084XX/8405/preimage-1-42007_irg.jpg'
 
     # Override the path to use my local module
     path.full('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007', force_module=True)
@@ -355,7 +397,7 @@ If you want to always override paths with any local modules found, you can set t
 instantiation.
 ::
 
-    path = Path(release='DR15', force_modules=True)
+    path = Path(release='DR17', force_modules=True)
     path.full('mangapreimg', designid=8405, designgrp='D0084XX', mangaid='1-42007')
     '/Users/Brian/Work/sdss/data/manga/mangapreim/trunk/data/D0084XX/8405/preimage-1-42007_irg.jpg'
 
