@@ -8,7 +8,7 @@ This document records the main changes to the sdss_access code.
 
 3.0.0 (unreleased)
 ------------------
-- Fixing sdss_access after `tree` updates
+- Fixing sdss_access after `tree` updates.  "sdsswork" now references SDSS-V paths.
 - Pins `tree` package to `>4.0`
 - Adds new pattern for detecting required keywords in special functions
 
