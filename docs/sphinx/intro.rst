@@ -105,6 +105,23 @@ the ``remote`` keyword argument
     path.exists('mangacube', drpver='v3_1_1', plate='8485', ifu='1901', wave='LOG', remote=True)
     True
 
+Required Keywords
+-----------------
+
+All the keyword variables defined in a **path_template**, and returned by `Path.lookup_keys <.BasePath.lookup_keys>`,
+are required.  Not specifying all the keywords will result in an error raised.
+
+::
+
+    >>> path = Path(release='dr17')
+
+    >>> # see the required keys
+    >>> path.lookup_keys('mangacube')
+    ['plate', 'drpver', 'wave', 'ifu']
+
+    >>> path.full('mangacube', drpver='v3_1_1', plate='8485', ifu='1901')
+    KeyError: "Missing required keyword arguments: ['wave']"
+
 Environment Paths
 -----------------
 
@@ -163,6 +180,23 @@ Alternatively, you can permanently set a subset of environment variables to pres
     preserve_envvars:
       - ROBOSTRATEGY_DATA
       - ALLWISE_DIR
+
+Extracting Keywords from Filepaths
+----------------------------------
+
+You can extract the keyword variables from a specific filepath, by using the `Path.extract <.BasePath.extract>` method
+and specifying the **path_name** reference, and the full filepath.  For the extraction to work, the path to the file
+must match the SAS directory structure, and have the relevant environment variable defined from the **path_template**.
+::
+
+    >>> # set a path to a file
+    >>> filepath = '/Users/Brian/Work/sdss/sas/dr17/manga/spectro/redux/v3_1_1/8485/stack/manga-8485-1901-LOGCUBE.fits.gz'
+
+    >>> # extract the keywords
+    >>> path = Path(release='dr17')
+    >>> path.extract('mangacube', filepath)
+    {'drpver': 'v3_1_1', 'plate': '8485', 'ifu': '1901', 'wave': 'LOG'}
+
 
 Downloading Files
 -----------------
