@@ -11,12 +11,12 @@ except:
 
 from os import makedirs
 from os.path import isfile, exists, dirname
-from sdss_access import SDSSPath
+from sdss_access import Path
 from sdss_access.sync.auth import Auth, AuthMixin
 from tqdm import tqdm
 
 
-class HttpAccess(AuthMixin, SDSSPath):
+class HttpAccess(AuthMixin, Path):
     """Class for providing HTTP access via urllib.request (python3) or urllib2 (python2) to SDSS SAS Paths
     """
 

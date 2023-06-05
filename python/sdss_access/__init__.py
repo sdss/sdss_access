@@ -26,9 +26,8 @@ log.debug("SDSS_ACCESS> Using {0}".format(tree))
 config = get_config(NAME)
 
 
-#__version__ = '1.0.0dev'
 __version__ = get_package_version(path=__file__, package_name=NAME)
 
 
-from .path import Path as SDSSPath, AccessError
+from .path import Path, AccessError
 from .sync import HttpAccess, Access, BaseAccess, RsyncAccess, CurlAccess
