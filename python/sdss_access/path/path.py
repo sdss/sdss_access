@@ -101,7 +101,7 @@ class BasePath(object):
     _netloc = {"dtn": "dtn.sdss.org", "sdss": "data.sdss.org", "sdss5": "data.sdss5.org",
                "mirror": "data.mirror.sdss.org", "svn": "svn.sdss.org"}
     _s5cfgs = ['sdsswork', 'sdss5', 'ipl1']  # list of collab-only SDSS-V releases/configs
-
+    #_s5cfgs = ['sdss', 'ipl'] # SDSS-V releases start with sdss or ipl.
     def __init__(self, release=None, public=False, mirror=False, verbose=False,
                  force_modules=None, preserve_envvars=None):
         # set release
