@@ -839,7 +839,8 @@ class BasePath(object):
         elif svn:
             return '{0}{1}'.format(self._netloc["svn"], "/public" if self.public else '')
         else:
-            return self._netloc["sdss5"] if self.release in self._s5cfgs else self._netloc["sdss"]
+            sdss5 = any([s5cfg for s5cfg in self._s5cfgs if self.release.startswith(s5cfg)])
+            return self._netloc["sdss5"] if sdss5 else self._netloc["sdss"]
 
     def set_netloc(self, netloc=None, sdss=None, sdss5=None, dtn=None, svn=None, mirror=None):
         ''' Set a url domain location
@@ -885,7 +886,8 @@ class BasePath(object):
         if self.public or scheme == "https":
             remote_base = "{scheme}://{netloc}".format(scheme=scheme, netloc=netloc)
         else:
-            user = "sdss5" if self.release in self._s5cfgs else "sdss"
+            sdss5 = any([s5cfg for s5cfg in self._s5cfgs if self.release.startswith(s5cfg)])
+            user = "sdss5" if sdss5 else "sdss"
             remote_base = "{scheme}://{user}@{netloc}".format(scheme=scheme, user=user, netloc=netloc)
         return remote_base
 
