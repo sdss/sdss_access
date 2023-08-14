@@ -35,8 +35,9 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, Path)):
         use_dtn = self.remote_scheme == 'rsync'
         # simplifies things to have a single sdss (or sdss5) machine in
         # .netrc for SDSS-IV  (or SDSS-V, respectively).
-        #sdss5 = ( self.release in self._s5cfgs )
         sdss5 = any([s5cfg for s5cfg in self._s5cfgs if self.release.startswith(s5cfg)])
+        # set sdss5 true if s5cfg (e.g. sdsswork or ipl-N) starts with
+        # values defined in self._s5cfgs (e.g. sdss or ipl).
         self.set_netloc(sdss=not sdss5, sdss5=sdss5)
         self.set_auth(username=username, password=password, inquire=inquire)
         if use_dtn:
