@@ -6,6 +6,10 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
+3.0.1 (2023-06-17)
+------------------
+- Bug fix for remote access to IPLs > IPL-1
+
 3.0.0 (2023-06-05)
 ------------------
 - Fixing sdss_access after `tree` updates.  "sdsswork" now references SDSS-V paths.
