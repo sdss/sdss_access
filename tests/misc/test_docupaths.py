@@ -18,11 +18,11 @@ def test_docupaths(app, status, warning):
     dmdoc = app.srcdir / "_build/html/contents.html"
     assert dmdoc.exists()
 
-    tt =  dmdoc.read_text()
+    tt = dmdoc.read_text()
 
     # check for datamodel directive stuff
     assert '<section id="datamodel">' in tt
-    assert '<h2>DR17<a class="headerlink" href="#dr17" title="Permalink to this heading">¶</a></h2>' in tt
+    assert '<h2>DR17<a class="headerlink" href="#dr17" title="Link to this heading">¶</a></h2>' in tt
     assert "<td><p>$MANGA_SPECTRO_REDUX/{drpver}/{plate}/stack/manga-{plate}-{ifu}-{wave}CUBE.fits.gz</p></td>" in tt
 
     # check for changelog directive stuff
