@@ -340,6 +340,26 @@ class TestPath(object):
 
         assert f1 == f2
 
+    @pytest.mark.parametrize('exist', [True, False])
+    def test_fzcomp(self, exist, path, monkeypatch, tmp_path):
+        """ test to test we recognize fz files """
+
+        d = tmp_path / "sas"
+        d.mkdir()
+
+        # create the file
+        if exist:
+            ff = d / "test.txt"
+            ff.touch()
+
+        monkeypatch.setitem(path.templates, 'test', str(d/'test.txt.fz'))
+        pp = path.full('test')
+        print(pp)
+
+        if exist:
+            assert pp.endswith('test.txt')
+        else:
+            assert pp.endswith('test.txt.fz')
 
 @pytest.fixture()
 def monkeyoos(monkeypatch, mocker):
