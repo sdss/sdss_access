@@ -345,6 +345,8 @@ class BasePath(object):
             template = re.sub('@component_default[|]', '{component_default}', template)
         if re.search('@cat_id_groups[|]', template):
             template = re.sub('@cat_id_groups[|]', '{cat_id_groups}', template)
+        if re.search('@sdss_id_groups[|]', template):
+            template = re.sub('@sdss_id_groups[|]', '{sdss_id_groups}', template)
 
         # check if template has any brackets
         haskwargs = re.search('[{}]', template)
@@ -1256,6 +1258,29 @@ class Path(BasePath):
             kwargs['cat_id'] = kwargs.pop('catid')
             cat_id = int(kwargs['cat_id'])
         return f"{(cat_id // k) % k:0>2.0f}/{cat_id % k:0>2.0f}"
+
+    def sdss_id_groups(self, filetype, **kwargs):
+        '''
+        Return a folder structure to group data together based on their SDSS
+        identifier so that we don't have too many files in any one folder.
+
+        Parameters
+        ----------
+        filetype : str
+            File type parameter.
+        sdss_id : int or str
+            SDSS-V identifier
+
+        Returns
+        -------
+        sdssid_groups : str
+            A set of folders.
+        '''        
+        # with k = 100 then even with 10 M sources, each folder will have ~1,000 files
+        k = 100
+        sdss_id = int(kwargs["sdss_id"])
+        return f"{(sdss_id // k) % k:0>2.0f}/{sdss_id % k:0>2.0f}"
+
 
     def component_default(self, filetype, **kwargs):
         ''' Return the component name, if given.
