@@ -1407,7 +1407,7 @@ class Path(BasePath):
         Parameters
         ---------
         filetype : str
-            File type paramter
+            File type parameter
         run2d : str
             BOSS idlspec2d run2d version
 
@@ -1430,7 +1430,7 @@ class Path(BasePath):
         Parameters
         ---------
         filetype : str
-            File type paramter
+            File type parameter
         run2d : str
             BOSS idlspec2d run2d version
         fieldid : str or int
@@ -1449,7 +1449,10 @@ class Path(BasePath):
             return ''
         if run2d in ['v6_0_1','v6_0_2', 'v6_0_3', 'v6_0_4']:
             return str(fieldid)
-        return str(fieldid).zfill(6)
+        if fieldid.isnumeric():
+            return str(fieldid).zfill(6)
+        else:
+            return fieldid
 
 
 class AccessError(Exception):
