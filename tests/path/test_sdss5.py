@@ -57,7 +57,7 @@ class TestSVPaths(object):
                                 'v6_0_8/001234/spFrame-b1-00005432.fits.gz'),
                               ('spFrame', '@pad_fieldid', {'run2d': 'v6_0_4', 'br': 'b', 'id': '1', 'frame': '5432', 'fieldid':'1234'},
                                 'v6_0_4/1234p/spFrame-b1-00005432.fits.gz'),
-                              ('spField', '@pad_fieldid', {'run2d': 'v6_0_8', 'mjd': '59630', 'fieldid': '*'},
+                              ('spField', '@pad_fieldid', {'run2d': 'v6_1_1', 'mjd': '59630', 'fieldid': '*'},
                                 'v6_1_1/*/spField-*-59630.fits')],
                              ids=['configgrp', 'apgprefix-apo', 'apgprefix-lco', 'apgprefix-ins',
                                   'isplate-v6_0_4','pad_fieldid-5','pad_fieldid-6', 'frame-pad', 'frame-nopadp', 'pad_fieldid-*'])
