@@ -1442,11 +1442,12 @@ class Path(BasePath):
             padd_fieldid in the form of N*'0' where N is the number of necessary zeros to pad fieldid
         '''
 
-        fieldid = str(kwargs.get('fieldid', None))
+        fieldid = kwargs.get('fieldid', None)
         run2d = kwargs.get('run2d', None)
 
         if (not run2d) & (not fieldid):
             return ''
+        fieldid = str(fieldid)
         if run2d in ['v6_0_1','v6_0_2', 'v6_0_3', 'v6_0_4']:
             return str(fieldid)
         if fieldid.isnumeric():
