@@ -67,7 +67,7 @@ class TestSVPaths(object):
         assert exp in full
 
     @pytest.mark.parametrize('name, keys', [('specLite', ['fieldid', 'catalogid', 'run2d', 'mjd']),
-                                            ('mwmStar', ['cat_id', 'apred', 'v_astra', 'component', 'run2d']),])
+                                            ('mwmStar', ['component', 'sdss_id', 'v_astra']),])
     def test_lookup_keys(self, path, name, keys):
         realkeys = path.lookup_keys(name)
         assert set(keys) == set(realkeys)
