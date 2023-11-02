@@ -6,9 +6,13 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
-3.0.2 (unreleased)
+3.0.3 (unreleased)
+------------------
+
+3.0.2 (11-2-2023)
 ------------------
 - Add support for .fz compression
+- Release for IPL-3
 
 3.0.1 (2023-06-17)
 ------------------

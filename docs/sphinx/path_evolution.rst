@@ -58,6 +58,10 @@ Internal Product Launches (IPLs)
 
 .. changelog:: sdss_access.path.changelog:compute_changelog
    :prog: changes
+   :drs: ipl3, ipl2
+
+.. changelog:: sdss_access.path.changelog:compute_changelog
+   :prog: changes
    :drs: ipl2, ipl1
 
 
