@@ -30,6 +30,7 @@ Internal SDSS Release Paths
 
 * :ref:`IPL-1 <ipl1>` - Internal Product Launch 1
 * :ref:`IPL-2 <ipl2>` - Internal Product Launch 2
+* :ref:`IPL-3 <ipl3>` - Internal Product Launch 3
 
 
 Latest Path Evolution

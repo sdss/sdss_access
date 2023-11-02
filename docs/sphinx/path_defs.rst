@@ -133,3 +133,12 @@ IPL2
 .. datamodel:: sdss_access.path.path:Path
    :prog: IPL2
    :templates:
+
+.. _ipl3:
+
+IPL3
+----
+
+.. datamodel:: sdss_access.path.path:Path
+   :prog: IPL3
+   :templates:
