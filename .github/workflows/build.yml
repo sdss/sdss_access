@@ -12,6 +12,8 @@ jobs:
     steps:
     - name: Clone sdss_access
       uses: actions/checkout@v4
+      with:
+        path: access
 
     - name: Clone tree
       uses: actions/checkout@v4
@@ -34,6 +36,7 @@ jobs:
     - name: Install access dependencies
       run: |
         python -m pip install --upgrade pip
+        cd access
         pip install .[dev]
 
     - name: Lint with flake8
