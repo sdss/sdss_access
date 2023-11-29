@@ -1275,7 +1275,7 @@ class Path(BasePath):
         -------
         sdssid_groups : str
             A set of folders.
-        '''        
+        '''
         # with k = 100 then even with 10 M sources, each folder will have ~1,000 files
         k = 100
         sdss_id = int(kwargs["sdss_id"])
@@ -1480,6 +1480,29 @@ class Path(BasePath):
         else:
             return fieldid
 
+    def tilegrp(self, filetype, **kwargs):
+        ''' Returns LVM tile id group subdirectory
+
+        Parameters
+        ----------
+        filetype : str
+            File type parameter.
+        tileid : int or str
+            LVM Tile ID number.  Will be converted to int internally.
+
+        Returns
+        -------
+        tileidgrp : str
+            Tile ID group directory in the format ``NNNNXX``.
+
+        '''
+
+        tileid = kwargs.get('tileid', None)
+        if not tileid:
+            return '0000XX'
+        elif '*' in str(tileid):
+            return '{0}XX'.format(tileid)
+        return '{:0>4d}XX'.format(int(tileid) // 1000)
 
 class AccessError(Exception):
     pass

@@ -58,9 +58,13 @@ class TestSVPaths(object):
                               ('spFrame', '@pad_fieldid', {'run2d': 'v6_0_4', 'br': 'b', 'id': '1', 'frame': '5432', 'fieldid':'1234'},
                                 'v6_0_4/1234p/spFrame-b1-00005432.fits.gz'),
                               ('spField', '@pad_fieldid', {'run2d': 'v6_1_1', 'mjd': '59630', 'fieldid': '*'},
-                                'v6_1_1/*/spField-*-59630.fits')],
+                                'v6_1_1/*/spField-*-59630.fits'),
+                              ('lvm_frame', '@tilegrp', {'drpver': 'master', 'mjd': 60235,
+                                                         'tileid': 1055360, 'kind': 'CFrame', 'expnum': 6817},
+                               '1055XX/1055360/60235/lvmCFrame-00006817.fits')],
                              ids=['configgrp', 'apgprefix-apo', 'apgprefix-lco', 'apgprefix-ins',
-                                  'isplate-v6_0_4','pad_fieldid-5','pad_fieldid-6', 'frame-pad', 'frame-nopadp', 'pad_fieldid-*'])
+                                  'isplate-v6_0_4','pad_fieldid-5','pad_fieldid-6', 'frame-pad', 'frame-nopadp',
+                                  'pad_fieldid-*', 'lvm-tileid'])
     def test_special_function(self, path, name, special, keys, exp):
         assert special in path.templates[name]
         full = path.full(name, **keys)
