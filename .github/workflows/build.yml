@@ -6,38 +6,36 @@ name: Build and Test
 on: [push, pull_request]
 
 jobs:
-  tree:
+  build:
     runs-on: ubuntu-latest
+
     steps:
+    - name: Clone sdss_access
+      uses: actions/checkout@v4
+
     - name: Clone tree
       uses: actions/checkout@v4
       with:
         repository: sdss/tree
         path: tree
+
     - name: Set up Python 3.9
       uses: actions/setup-python@v4
       with:
         python-version: 3.9
+
     - name: Install tree package
       run: |
         python -m pip install --upgrade pip
         cd tree
         pip install .
+        cd $GITHUB_WORKSPACE
 
-  build:
-    needs: tree
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.9
-    - name: Install dependencies
+    - name: Install access dependencies
       run: |
         python -m pip install --upgrade pip
         pip install .[dev]
+
     - name: Lint with flake8
       run: |
         pip install flake8
@@ -45,12 +43,14 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
     - name: Setup SDSS-IV netrc
       uses: extractions/netrc@v1
       with:
         machine: data.sdss.org
         username: ${{ secrets.S4_USERNAME }}
         password: ${{ secrets.S4_PASSWORD }}
+
     - name: Setup SDSS-V netrc
       uses: extractions/netrc@v1
       with:
