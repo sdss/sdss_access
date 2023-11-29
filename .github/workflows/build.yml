@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Clone sdss_access
+    - name: Clone access
       uses: actions/checkout@v4
       with:
         path: access

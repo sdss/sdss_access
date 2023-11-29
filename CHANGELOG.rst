@@ -8,6 +8,8 @@ This document records the main changes to the sdss_access code.
 
 3.0.3 (unreleased)
 ------------------
+- Add new ``tilegrp`` method for grouping LVM tile ids
+- Updates test action to use the latest tree git repo
 
 3.0.2 (11-2-2023)
 ------------------
