@@ -63,10 +63,11 @@ jobs:
 
     - name: Test with pytest
       run: |
+        cd access
         pip install pytest
         pytest
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:
-        file: ./coverage.xml
+        file: ./access/coverage.xml
