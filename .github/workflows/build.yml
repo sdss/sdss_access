@@ -6,12 +6,30 @@ name: Build and Test
 on: [push, pull_request]
 
 jobs:
-  build:
+  tree:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Clone tree
+      uses: actions/checkout@v4
+      with:
+        repository: sdss/tree
+        path: tree
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.9
+    - name: Install tree package
+      run: |
+        python -m pip install --upgrade pip
+        cd tree
+        pip install .
 
+  build:
+    needs: tree
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python 3.9
       uses: actions/setup-python@v4
       with:
