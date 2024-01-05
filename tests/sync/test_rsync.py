@@ -67,7 +67,7 @@ class TestRsync(object):
         # remote source is fully resolved path
         rsync.add("mwmAllStar", v_astra="0.5.0")
         rsync.set_stream()
-        source = rsync.initial_stream.task[0]['source']
+        source = rsync.stream.task[0]['source']
         assert source.endswith('0.5.0/summary/mwmAllStar-0.5.0.fits.gz')
 
 
