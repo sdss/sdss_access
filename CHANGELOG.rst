@@ -6,6 +6,10 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
+3.0.4 (unreleased)
+------------------
+- Fix issue `52` - rsync failure when remote file is compressed compared to template
+
 3.0.3 (11-29-2023)
 ------------------
 - Add new ``tilegrp`` method for grouping LVM tile ids

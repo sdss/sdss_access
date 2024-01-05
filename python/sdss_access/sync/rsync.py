@@ -13,9 +13,9 @@ class RsyncAccess(BaseAccess):
     remote_scheme = 'rsync'
     access_mode = 'rsync'
 
-    def __init__(self, label='sdss_rsync', stream_count=5, mirror=False, public=False, release=None, 
+    def __init__(self, label='sdss_rsync', stream_count=5, mirror=False, public=False, release=None,
                  verbose=False):
-        super(RsyncAccess, self).__init__(stream_count=stream_count, mirror=mirror, public=public, 
+        super(RsyncAccess, self).__init__(stream_count=stream_count, mirror=mirror, public=public,
                                           release=release, verbose=verbose)
         self.label = label
         self.auth = None
@@ -29,7 +29,7 @@ class RsyncAccess(BaseAccess):
 
     def get_task_out(self, task=None):
         if task:
-            command = "rsync -R %(source)s" % task
+            command = "rsync -R %(source)s*" % task
             if self.verbose:
                 print(command)
             status, out, err = self.stream.cli.foreground_run(command)
