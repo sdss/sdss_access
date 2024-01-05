@@ -1047,6 +1047,60 @@ class BasePath(object):
                 url = re.sub(r'(/v?[0-9._]+/)', r'/tags\1', url, count=1)
         return url
 
+    def add_temp_path(self, name: str, path: str, envvar_path: str = None):
+        """ Add a temporary path template in sdss_access
+
+        Add a path template temporarily into the local os environment
+        for use in sdss_access.  Define a template name and path.
+        The path must start with an environment variable definition.
+
+        This is useful for development of new paths before adding them to the
+        tree and tagging a new version.  This allows sdss_access to still
+        be used in the interim.  This is an alternative to checking out
+        the tree git repo and modifying paths there.  The recommended way
+        of adding new paths is through a PR on the tree product.
+
+        Parameters
+        ----------
+        name : str
+            the temporary file species name
+        path : str
+            the temporary template directory path
+        envvar_path : str, optional
+            the definition path of the environment variable, by default None
+
+        Raises
+        ------
+        ValueError
+            when the name does not match the correct syntax
+        ValueError
+            when the path does not start with an environment variable
+        ValueError
+            when the environment variable is not defined
+        """
+
+        # check name syntax
+        if not re.match(r"^[a-zA-Z_0-9\-]+$", name):
+            raise ValueError('Name can only consist of letters, numbers, dashes or underscores.')
+
+        # check if template path starts with an environment variable
+        envvar = path.split("/", 1)[0]
+        if not envvar.startswith("$"):
+            raise ValueError('Template path must start with an environment variable, $ENVVAR_NAME.')
+
+        # check envvar is in the local environment
+        if envvar[1:] not in os.environ:
+            if not envvar_path:
+                raise ValueError('Template path envvar not defined in local '
+                                 'environment. Please specify an envvar_path.')
+
+            # add the envvar
+            envvar_path = envvar_path.rstrip("/")
+            os.environ[envvar[1:]] = envvar_path
+
+        # add the temporary path template
+        self.templates[name] = path
+
 
 def _expandvars(template):
     ''' Recursively run os.path.expandvars

@@ -9,6 +9,7 @@ This document records the main changes to the sdss_access code.
 3.0.4 (unreleased)
 ------------------
 - Fix issue `52` - rsync failure when remote file is compressed compared to template
+- Issue `48` - Add support for adding temporary paths for use in local sdss_access
 
 3.0.3 (11-29-2023)
 ------------------
