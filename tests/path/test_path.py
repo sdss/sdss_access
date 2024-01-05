@@ -361,6 +361,28 @@ class TestPath(object):
         else:
             assert pp.endswith('test.txt.fz')
 
+    @pytest.mark.parametrize('name, temp, envvar, exp',
+                             [('testFile', '$LVM_DATA_S/test_file_{ver}.fits', None, 'sdsswork/data/lvm/lco'),
+                              ('testFile', '$TEST_DIR/test_file_{ver}.fits', '/tmp/test/path/', 'tmp/test/path')],
+                             ids=['withev', 'newev'])
+    def test_add_temp_path(self, path, name, temp, envvar, exp):
+        path.add_temp_path(name, temp, envvar_path=envvar)
+
+        full = path.full(name, ver='1.0')
+        assert full.endswith('test_file_1.0.fits')
+        assert exp in full
+
+
+    @pytest.mark.parametrize('name, temp, msg',
+                        [("testFile!", "/path/to/testfile.fits", 'Name can only consist of letters, numbers, dashes'),
+                         ("testFile", "/path/to/testfile.fits", 'Template path must start with an environment variable'),
+                         ("testFile", "$TEST_DI/testfile.fits", 'Template path envvar not defined in local environment')],
+                        ids=['badname', 'badpath', 'noenvvar'])
+    def test_add_temp_fails(self, path, name, temp, msg):
+        with pytest.raises(ValueError, match=msg):
+            path.add_temp_path(name, temp)
+
+
 @pytest.fixture()
 def monkeyoos(monkeypatch, mocker):
     ''' monkeypatch the original os environ from tree '''
