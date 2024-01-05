@@ -55,6 +55,22 @@ class TestRsync(object):
         assert rsync.release == tree_ver
         assert exp in loc
 
+    def test_remote_compression(self):
+        """ test we can find the correct file when the remote file is compressed """
+        rsync = RsyncAccess(release='ipl3')
+        rsync.remote()
+
+        # template path is not compressed
+        ff = rsync.templates["mwmAllStar"]
+        assert ff.endswith('summary/mwmAllStar-{v_astra}.fits')
+
+        # remote source is fully resolved path
+        rsync.add("mwmAllStar", v_astra="0.5.0")
+        rsync.set_stream()
+        source = rsync.stream.task[0]['source']
+        assert source.endswith('0.5.0/summary/mwmAllStar-0.5.0.fits.gz')
+
+
 
 class TestRsyncFails(object):
 
