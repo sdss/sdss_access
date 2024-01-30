@@ -285,6 +285,29 @@ In all all cases, successful ``sdss_access`` downloads will return a code of 0. 
 occurred.  If no verbose message is displayed, you may need to check the ``sdss_access_XX.log`` and ``sdss_access_XX.err``
 files within the temporary directory.
 
+Downloading with Resolved Paths
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you already have a list of resolved filepaths or urls that you wish to use ``sdss_access``
+to download, you can add them using the ``.add_file`` method, instead of the ``.add`` method.
+The ``.add`` method takes as input a ``path_name`` and set of path template keyword
+arguments, while ``.add_file`` takes either a fully resolved url, filepath, or location.
+The ``input_type`` keyword specifies the type of path input.
+::
+
+    from sdss_access import RsyncAccess
+    rsync = RsyncAccess(release='DR17')
+    rsync.remote()
+
+    # add a url to the stream for download
+    url = 'rsync://dtn.sdss.org/dr17/manga/spectro/redux/v3_1_1/8485/stack/manga-8485-1901-LOGCUBE.fits.gz'
+    rsync.add_file(f, input_type='url')
+
+    # add a file to the stream for download
+    path = '/Users/Brian/Work/sdss/sas/dr17/manga/spectro/redux/v3_1_1/8485/stack/manga-8485-1902-LOGCUBE.fits.gz'
+    rsync.add_file(path, input_type='filepath')
+
+
 Accessing SDSS-V Products
 -------------------------
 
