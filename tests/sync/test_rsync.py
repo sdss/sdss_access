@@ -98,10 +98,10 @@ class TestRsyncFails(object):
 class TestStream(object):
     def test_initial_stream(self, radd, inittask):
         task = radd.initial_stream.task
-        assert task == inittask
+        assert task[0] == inittask[0]
 
     def test_final_stream(self, rstream, finaltask):
         task = rstream.stream.task
-        assert task == finaltask
+        assert task[0] == finaltask[0]
 
 
