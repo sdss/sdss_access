@@ -103,16 +103,16 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, Path)):
         # determine stream task info
         if input_type == 'filepath':
             location = self.location('', full=path)
-            sas_module, location = location.split(sep, 1)
+            sas_module, location = location.split(sep, 1) if location else (None, location)
             source = self.url('', sasdir=sasdir, full=path)
             dest = path
         elif input_type == 'url':
             dest = path.replace(f'{self.remote_base}/{sasdir}', self.base_dir)
             source = path
             location = self.location('', full=dest)
-            sas_module, location = location.split(sep, 1)
+            sas_module, location = location.split(sep, 1) if location else (None, location)
         elif input_type == 'location':
-            sas_module, location = path.split(sep, 1)
+            sas_module, location = path.split(sep, 1) if path else (None, path)
             dest = join(self.base_dir, path)
             source = self.url('', sasdir=sasdir, full=dest)
 
