@@ -107,6 +107,7 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, Path)):
             source = self.url('', sasdir=sasdir, full=path)
             dest = path
         elif input_type == 'url':
+            self.set_base_dir()
             dest = path.replace(f'{self.remote_base}/{sasdir}', self.base_dir)
             source = path
             location = self.location('', full=dest)
