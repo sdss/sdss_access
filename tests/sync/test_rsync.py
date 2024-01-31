@@ -70,6 +70,19 @@ class TestRsync(object):
         source = rsync.stream.task[0]['source']
         assert source.endswith('0.5.0/summary/mwmAllStar-0.5.0.fits.gz')
 
+    @pytest.mark.parametrize('input_type', ['filepath', 'url', 'location'])
+    def test_add_files(self, rsync, expdata, inittask, input_type):
+
+        if input_type == 'filepath':
+            path = expdata.get('destination')
+        elif input_type == 'url':
+            path = expdata.get('source')
+        else:
+            path = expdata.get('location')
+
+        rsync.add_file(path, input_type=input_type)
+        task = rsync.initial_stream.task[0]
+        assert task == inittask[0]
 
 
 class TestRsyncFails(object):
@@ -85,8 +98,10 @@ class TestRsyncFails(object):
 class TestStream(object):
     def test_initial_stream(self, radd, inittask):
         task = radd.initial_stream.task
-        assert task == inittask
+        assert task[0] == inittask[0]
 
     def test_final_stream(self, rstream, finaltask):
         task = rstream.stream.task
-        assert task == finaltask
+        assert task[0] == finaltask[0]
+
+

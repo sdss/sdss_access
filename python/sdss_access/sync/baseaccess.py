@@ -69,6 +69,58 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, Path)):
         else:
             print("There is no file with filetype=%r to access in the tree module loaded" % filetype)
 
+    def add_file(self, path, input_type = None):
+        """ Adds a file into the list of tasks to download
+
+        Adds a full filepath, url, or location to the list of tasks to
+        download.  This takes advantage of ``sdss_access`` parallel streams
+        to download a list of files.
+
+        This is similar to the  ``.add`` method, except this takes
+        full filepaths or urls as input, whereas the ``.add`` method
+        is better when inputing a product name and path template kwargs.
+
+        Parameters
+        ----------
+        path : str
+            the filepath, url, or location
+        input_type : str, optional
+            the type of input, by default None
+        """
+
+        # check for input_type if none provided
+        if not input_type:
+            if path.startswith(('rsync', 'http')):
+                input_type = 'url'
+            elif path.startswith('/'):
+                input_type = 'filepath'
+            else:
+                input_type = 'location'
+
+        # use the right sasdir based on mode
+        sasdir = 'sas' if self.access_mode == 'curl' else ''
+
+        # determine stream task info
+        if input_type == 'filepath':
+            location = self.location('', full=path)
+            sas_module, location = location.split(sep, 1) if location else (None, location)
+            source = self.url('', sasdir=sasdir, full=path)
+            dest = path
+        elif input_type == 'url':
+            self.set_base_dir()
+            dest = path.replace(f'{self.remote_base}/{sasdir}', self.base_dir)
+            source = path
+            location = self.location('', full=dest)
+            sas_module, location = location.split(sep, 1) if location else (None, location)
+        elif input_type == 'location':
+            sas_module, location = path.split(sep, 1) if path else (None, path)
+            dest = join(self.base_dir, path)
+            source = self.url('', sasdir=sasdir, full=dest)
+
+        # append the task to the stream
+        self.initial_stream.append_task(sas_module=sas_module, location=location,
+                                        source=source, destination=dest)
+
     def set_stream(self):
         """ Sets the download streams """
 
