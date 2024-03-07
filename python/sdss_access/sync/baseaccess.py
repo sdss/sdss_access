@@ -223,10 +223,10 @@ class BaseAccess(six.with_metaclass(abc.ABCMeta, AuthMixin, Path)):
     def _get_stream_command(self):
         ''' gets the stream command used when committing the download '''
 
-    def commit(self, offset=None, limit=None):
+    def commit(self, offset=None, limit=None, follow_symlinks: bool = True):
         """ Start the download """
 
-        self.stream.command = self._get_stream_command()
+        self.stream.command = self._get_stream_command(follow_symlinks=follow_symlinks)
         self.stream.sas_module = self._get_sas_module()
         self.stream.append_tasks_to_streamlets(offset=offset, limit=limit)
         self.stream.commit_streamlets()

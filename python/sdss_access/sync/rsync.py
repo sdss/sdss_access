@@ -68,6 +68,7 @@ class RsyncAccess(BaseAccess):
         else: sas_module = None
         return sas_module
 
-    def _get_stream_command(self):
+    def _get_stream_command(self, follow_symlinks: bool = True):
         ''' gets the stream command used when committing the download '''
-        return "rsync -avRK --files-from={path} {source}/{sas_module} {destination}{sas_module}/"
+        base = f"rsync -avRK{'L' if follow_symlinks else ''}"
+        return base + " --files-from={path} {source}/{sas_module} {destination}{sas_module}/"
