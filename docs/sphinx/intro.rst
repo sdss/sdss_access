@@ -307,6 +307,23 @@ The ``input_type`` keyword specifies the type of path input.
     path = '/Users/Brian/Work/sdss/sas/dr17/manga/spectro/redux/v3_1_1/8485/stack/manga-8485-1902-LOGCUBE.fits.gz'
     rsync.add_file(path, input_type='filepath')
 
+Following Symlinks
+^^^^^^^^^^^^^^^^^^
+
+By default ``sdss_access`` will follow symlinks when downloading with rsync or curl.  This behaviour may result in a
+different directory structure from the SAS, and/or duplicated data downloads. To ensure an exact SAS structure, you
+can disable this behaviour by setting the ``follow_symlinks`` flag to False.
+::
+
+    from sdss_access import RsyncAccess
+    rsync = RsyncAccess(release='DR17')
+    rsync.remote()
+    rsync.add('mangacube', drpver='v3_1_1', plate='8485', ifu='*', wave='LOG')
+    rsync.set_stream()
+
+    # disable follow_symlinks
+    rsync.commit(follow_symlinks=False)
+
 
 Accessing SDSS-V Products
 -------------------------
