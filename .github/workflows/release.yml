@@ -11,6 +11,10 @@ jobs:
 
         runs-on: ubuntu-latest
 
+        permissions:
+          content: write
+          id-token: write
+
         steps:
 
             - name: Checkout code
@@ -43,7 +47,4 @@ jobs:
                 python setup.py sdist bdist_wheel --universal
 
             - name: Publish to PyPI
-              uses: pypa/gh-action-pypi-publish@master
-              with:
-                  user: __token__
-                  password: ${{ secrets.pypi_password }}
+              uses: pypa/gh-action-pypi-publish@release/v1
