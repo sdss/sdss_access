@@ -84,6 +84,15 @@ class TestRsync(object):
         task = rsync.initial_stream.task[0]
         assert task == inittask[0]
 
+    @pytest.mark.parametrize('followsym', [True, False])
+    def test_symlink(self, radd, followsym):
+        """ test the follow symlink option is added or not """
+        cmd = radd._get_stream_command(follow_symlinks=followsym)
+        if followsym:
+            assert "-avRKL" in cmd
+        else:
+            assert "-avRK" in cmd
+
 
 class TestRsyncFails(object):
 
@@ -103,5 +112,3 @@ class TestStream(object):
     def test_final_stream(self, rstream, finaltask):
         task = rstream.stream.task
         assert task[0] == finaltask[0]
-
-

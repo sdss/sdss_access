@@ -11,6 +11,7 @@ This document records the main changes to the sdss_access code.
 - Fix issue `52` - rsync failure when remote file is compressed compared to template
 - Issue `48` - Add support for adding temporary paths for use in local sdss_access
 - Issue `55` - Add support for adding resolved urls or filepaths into sdss_access remote download
+- PR `57` - Enables symlink following by default. Adds a ``follow_symlinks`` option to the ``commit`` method.
 
 3.0.3 (11-29-2023)
 ------------------

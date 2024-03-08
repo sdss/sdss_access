@@ -182,9 +182,10 @@ class CurlAccess(BaseAccess):
         ''' gets the sas module used when committing the download '''
         return "sas"
 
-    def _get_stream_command(self):
+    def _get_stream_command(self, follow_symlinks: bool = True):
         ''' gets the stream command used when committing the download '''
         auth = ''
         if self.auth.username and self.auth.password:
             auth = '-u {0}:{1}'.format(self.auth.username, self.auth.password)
-        return "curl {0} --create-dirs --fail -sSRLK {{path}}".format(auth)
+        opts = f"-sSRK{'L' if follow_symlinks else ''}"
+        return "curl {0} --create-dirs --fail {1} {{path}}".format(auth, opts)

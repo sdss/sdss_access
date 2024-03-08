@@ -42,3 +42,12 @@ class TestCurl(object):
         curl.add_file(path, input_type=input_type)
         task = curl.initial_stream.task[0]
         assert task == expout
+
+    @pytest.mark.parametrize('followsym', [True, False])
+    def test_symlink(self, cadd, followsym):
+        """ test the follow symlink option is added or not """
+        cmd = cadd._get_stream_command(follow_symlinks=followsym)
+        if followsym:
+            assert "-sSRKL" in cmd
+        else:
+            assert "-sSRK" in cmd
