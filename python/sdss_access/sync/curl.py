@@ -1,8 +1,8 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 # The line above will help with 2to3 support.
 
-import distutils.spawn
 import re
+import shutil
 import time
 from os import popen
 from os.path import exists, dirname, join, basename, getsize, getmtime, sep
@@ -28,7 +28,7 @@ class CurlAccess(BaseAccess):
     def __init__(self, label='sdss_curl', stream_count=5, mirror=False, public=False, release=None,
                  verbose=False):
 
-        if not distutils.spawn.find_executable('curl'):
+        if not shutil.which('curl'):
             msg = ('cURL does not appear to be installed. To install, the cURL '
                    'download wizard is located at: https://curl.haxx.se/dlwiz/. '
                    'Installation tutorials for cURL (software from https://curl.haxx.se) '
