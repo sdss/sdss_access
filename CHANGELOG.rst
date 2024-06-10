@@ -6,6 +6,10 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
+3.0.5 (unreleased)
+------------------
+- PR `62` - Fix issue `61`: removed use of ``disutils`` which has been Deprecated in Python 3.12. Also pin Sphinx to ``<7.3.0`` to address `this issue <https://github.com/sphinx-doc/sphinx/issues/12339>`.
+
 3.0.4 (03-08-2024)
 ------------------
 - Fix issue `52` - rsync failure when remote file is compressed compared to template
