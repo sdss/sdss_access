@@ -18,7 +18,7 @@ To install `sdss_access` for development locally:
 
 ```
 git clone https://github.com/sdss/sdss_access
-cd sdss_acccess
+cd sdss_access
 pip install -e ".[dev,docs]"
 ```
 
