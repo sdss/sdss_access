@@ -59,12 +59,22 @@ class TestSVPaths(object):
                                 'v6_0_4/1234p/spFrame-b1-00005432.fits.gz'),
                               ('spField', '@pad_fieldid', {'run2d': 'v6_1_1', 'mjd': '59630', 'fieldid': '*'},
                                 'v6_1_1/*/spField-*-59630.fits'),
-                              ('lvm_frame', '@tilegrp', {'drpver': 'master', 'mjd': 60235,
-                                                         'tileid': 1055360, 'kind': 'CFrame', 'expnum': 6817},
-                               '1055XX/1055360/60235/lvmCFrame-00006817.fits')],
+                              ('spCOADDS','@spcoaddfolder',{'run2d':'v6_2_0','survey':'BHM','coadd':'allepoch','phase':'SDSSV'},
+                                'v6_2_0/fields/SDSSV_BHM_COADDS.par'),
+                              ('spField','@sptypefolder',{'run2d':'v6_2_0','mjd': '59630', 'fieldid': '123456'},
+                                'v6_2_0/fields/123XXX/123456/spField-123456-59630.fits'),
+                              ('spField','@fieldgrp',{'run2d':'v6_2_0','mjd': '59630', 'fieldid': '123456'},
+                                'v6_2_0/fields/123XXX/123456/spField-123456-59630.fits'),
+                              ('spFullsky','@spcoaddobs',{'run2d':'v6_2_0','mjd': '59630','coadd':'allepoch','obs':'apo'},
+                                'v6_2_0/fields/allepoch/allepoch_apo/spFullsky-allepoch_apo-59630.fits'),
+                              ('spAll_epoch','@epochflag',{'run2d':'v6_2_0'},
+                                'v6_2_0/summary/epoch/spAll-v6_2_0-epsilon-epoch.fits.gz'),
+                              ('spAll_coadd','@spcoaddgrp',{'run2d':'v6_2_0','coadd':'allepoch'},
+                                'v6_2_0/summary/test/spAll-v6_2_0-epsilon-allepoch.fits.gz')],
                              ids=['configgrp', 'apgprefix-apo', 'apgprefix-lco', 'apgprefix-ins',
-                                  'isplate-v6_0_4','pad_fieldid-5','pad_fieldid-6', 'frame-pad', 'frame-nopadp',
-                                  'pad_fieldid-*', 'lvm-tileid'])
+                                  'isplate-v6_0_4','pad_fieldid-5','pad_fieldid-6', 'frame-pad',
+                                  'frame-nopadp', 'pad_fieldid-*','spcoaddfolder', 'sptypefolder',
+                                  'fieldgrp','spcoaddobs','epochflag','spcoaddgrp'])
     def test_special_function(self, path, name, special, keys, exp):
         assert special in path.templates[name]
         full = path.full(name, **keys)

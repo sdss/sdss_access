@@ -335,10 +335,22 @@ class BasePath(object):
             template = re.sub('@healpixgrp[|]', '{healpixgrp}', template)
         elif re.search('@configgrp[|]', template):
             template = re.sub('@configgrp[|]', '{configgrp}', template)
-        elif re.search('@isplate[|]', template):
+        if re.search('@isplate[|]', template):
             template = re.sub('@isplate[|]', '{isplate}', template)
-        elif re.search('@pad_fieldid[|]', template):
+        if re.search('@pad_fieldid[|]', template):
            template = re.sub('@pad_fieldid[|]', '{fieldid}', template)
+        if re.search('@spcoaddfolder[|]',template):
+           template = re.sub('@spcoaddfolder[|]', '{spcoaddfolder}', template)
+        if re.search('@sptypefolder[|]',template):
+           template = re.sub('@sptypefolder[|]', '{sptypefolder}', template)
+        if re.search('@epochflag[|]', template):
+           template = re.sub('@epochflag[|]', '{epochflag}', template)
+        if re.search('@spcoaddobs[|]',template):
+           template = re.sub('@spcoaddobs[|]', '{obs}', template)
+        if re.search('@spcoaddgrp[|]',template):
+           template = re.sub('@spcoaddgrp[|]', '{spcoaddgrp}', template)
+        if re.search('@fieldgrp[|]',template):
+           template = re.sub('@fieldgrp[|]', '{fieldgrp}', template)
         if re.search('@plateid6[|]', template):
             template = re.sub('@plateid6[|]', '{plateid:0>6}', template)
         if re.search('@component_default[|]', template):
@@ -386,12 +398,28 @@ class BasePath(object):
                             drval = re.match('^DR[1-9][0-9]', value).group(0)
                             otherval = value.split(drval)[-1]
                             pdict = {keys[0]: drval, keys[1]: otherval}
+                        elif keys == ['fieldid','isplate']:
+                            # for {fieldid}{isplate} as isplate is calculated automatically
+                            if value.endswith('p') and value[:-1].isdigit():
+                                value = value[:-1]
+                            pdict = {keys[0]:value}
+                        elif keys == ['run2d','epochflag']:
+                            # for {run2d}{epochflag} as epochflag is calculated automatically
+                            pdict = {keys[0]:value.replace('-epoch','')}
+                        elif keys == ['coadd', 'obs']:
+                            value = value.split('_')
+                            if len(value) == 1:
+                                value.append('')
+                            pdict = {keys[0]: value[0], keys[1]: value[1]}
                         elif keys[0] in ['rc', 'br', 'filter', 'camrow']:
                             # for {camrow}{camcol}, {filter}{camcol}, {br}{id}, etc
                             pdict = {keys[0]: value[0], keys[1]: value[1:]}
                         else:
                             raise ValueError('This case has not yet been accounted for.')
                         path_dict.update(pdict)
+                    elif keys[0] in ['sptypefolder','fieldgrp','spcoaddfolder','spcoaddgrp']:
+                        # supress the keys since they are automatically calculated
+                        continue
                     else:
                         path_dict[keys[0]] = value
         return path_dict
@@ -1529,34 +1557,200 @@ class Path(BasePath):
         fieldid = str(fieldid)
         if run2d in ['v6_0_1','v6_0_2', 'v6_0_3', 'v6_0_4']:
             return str(fieldid)
-        if fieldid.isnumeric():
+        elif fieldid.isnumeric():
             return str(fieldid).zfill(6)
         else:
             return fieldid
 
-    def tilegrp(self, filetype, **kwargs):
-        ''' Returns LVM tile id group subdirectory
+    def spcoaddfolder(self, filetype, **kwargs):
+        ''' Returns the reorganized subfolder structure for the BOSS idlspec2d run2d version
 
+        Parameters
+        ---------
+        filetype : str
+            File type parameter
+        run2d : str
+            BOSS idlspec2d run2d version
+        coadd : str
+            Name of the custom coadd schema
+        Returns
+        -------
+        sptypefolder : str
+        '''
+
+        run2d = kwargs.get('run2d', None)
+        coaddname = kwargs.get('coadd', None)
+        
+        if (not run2d):
+            return ''
+        elif (('v5' in run2d) or (str(run2d) in ['26','103','104']) or
+              ('v6_0' in run2d) or ('v6_1' in run2d)):
+            return ''
+        else:
+            if filetype.lower() in ['spall_coadd','spall-lite_coadd','spallline_coadd']:
+                return('summary')
+            elif filetype.lower() in ['speclite_coadd','specfull_coadd',
+                                     'spallfield_coadd','spalllinefield_coadd']:
+                return(coaddname)
+            else:
+                return('fields')
+
+
+    def spcoaddgrp(self, filetype, **kwargs):
+        ''' Returns the coadd group (field group analog) subfolder structure for the BOSS idlspec2d run2d version
+
+        Parameters
+        ---------
+        filetype : str
+            File type parameter
+        run2d : str
+            BOSS idlspec2d run2d version
+        coadd : str
+            Name of the custom coadd schema
+        Returns
+        -------
+        spcoaddgrp : str
+        '''
+        run2d = kwargs.get('run2d', None)
+        coaddname = kwargs.get('coadd', None)
+
+        if (not run2d):
+            return ''
+        elif (('v5' in run2d) or (str(run2d) in ['26','103','104']) or
+              ('v6_0' in run2d) or ('v6_1' in run2d)):
+            return ''
+        else:
+            return(coaddname)
+            
+    def sptypefolder(self, filetype, **kwargs):
+        ''' Returns the reorganized subfolder structure for the BOSS idlspec2d run2d version
+
+        Parameters
+        ---------
+        filetype : str
+            File type parameter
+        run2d : str
+            BOSS idlspec2d run2d version
+        Returns
+        -------
+        sptypefolder : str
+        '''
+
+        run2d = kwargs.get('run2d', None)
+        
+        if (not run2d):
+            return ''
+        elif ('v5' in run2d) or (str(run2d) in ['26','103','104']):
+            return ''
+        elif ('v6_0' in run2d) or ('v6_1' in run2d):
+            if filetype.lower() in ['speclite_epoch','specfull_epoch',
+                                    'spallfield_epoch','spalllinefield_epoch']:
+                return('epoch/spectra')
+            else:
+                return ''
+        else:
+            if filetype.lower() in ['fieldlist_epoch','spall_epoch',
+                                    'spall-lite_epoch','spallline_epoch']:
+                return('summary/epoch')
+            elif filetype.lower() in ['speclite_epoch','specfull_epoch',
+                                      'spallfield_epoch','spalllinefield_epoch']:
+                return('spectra/epoch')
+            elif filetype.lower() in ['conflist','fieldlist','spall',
+                                      'spall-lite','spallline']:
+                return('summary/daily')
+            elif filetype.lower() in ['speclite','specfull',
+                                     'spallfield','spalllinefield']:
+                return('daily')
+            else:
+                return('fields')
+                    
+    def spcoaddobs(self, filetype, **kwargs):
+        ''' Returns the formatted observatory flag for custom coadds for the BOSS idlspec2d
+        
         Parameters
         ----------
         filetype : str
-            File type parameter.
-        tileid : int or str
-            LVM Tile ID number.  Will be converted to int internally.
+            File type parameter
+        run2d : str
+            BOSS idlspec2d run2d version
+        obs : str
+            Observatory of observations: LCO, APO, ''(for merged)
+            
+        Returns
+        -------
+        obs : str
+        '''
+        
+        obs = kwargs.get('obs', None)
+        run2d = kwargs.get('run2d', None)
+        
+        if not obs:
+            return ''
+            
+        elif obs == '':
+            return ''
+        elif (('v6_0' in run2d) or ('v6_1' in run2d)) and obs.lower() == 'apo':
+            return ''
+        elif obs == '*':
+            return obs
+        else:
+            return '_{}'.format(obs.lower())
+            
+    def epochflag(self, filetype, **kwargs):
+        ''' Returns the flag for epoch coadds for the BOSS idlspec2d
+        
+        Parameters
+        ----------
+        filetype : str
+            File type parameter
+        run2d : str
+            BOSS idlspec2d run2d version
+            
+        Returns
+        -------
+        epochflag : str
+        '''
+        
+        run2d = kwargs.get('run2d', None)
+        
+        if (('v6_0' in run2d) or ('v6_1' in run2d)):
+            return ''
+        else:
+            return '-epoch'
+    
+    def fieldgrp(self, filetype, **kwargs):
+        ''' Returns the fieldid group for the BOSS idlspec2d run2d version
+
+        Parameters
+        ---------
+        filetype : str
+            File type parameter
+        run2d : str
+            BOSS idlspec2d run2d version
+        fieldid : str or int
+            Field ID number. Will be converted to str internally.
 
         Returns
         -------
-        tileidgrp : str
-            Tile ID group directory in the format ``NNNNXX``.
-
+        fieldgrp : str
         '''
 
-        tileid = kwargs.get('tileid', None)
-        if not tileid:
-            return '0000XX'
-        elif '*' in str(tileid):
-            return '{0}XX'.format(tileid)
-        return '{:0>4d}XX'.format(int(tileid) // 1000)
+        fieldid = kwargs.get('fieldid', None)
+        run2d = kwargs.get('run2d', None)
+
+        if (not fieldid):
+            return ''
+
+        if ('v5' in run2d) or (str(run2d) in ['26','103','104']):
+            return ''
+        elif ('v6_0' in run2d) or ('v6_1' in run2d):
+            return ''
+        else:
+            fieldid = str(fieldid)
+            if fieldid.isnumeric():
+                return '{:0>3d}XXX'.format(int(fieldid) // 1000)
+            else:
+                return(fieldid)
 
 class AccessError(Exception):
     pass
