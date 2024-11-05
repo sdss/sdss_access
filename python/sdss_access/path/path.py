@@ -1557,10 +1557,9 @@ class Path(BasePath):
         fieldid = str(fieldid)
         if run2d in ['v6_0_1','v6_0_2', 'v6_0_3', 'v6_0_4']:
             return str(fieldid)
-        elif fieldid.isnumeric():
+        if fieldid.isnumeric():
             return str(fieldid).zfill(6)
-        else:
-            return fieldid
+        return fieldid
 
     def spcoaddfolder(self, filetype, **kwargs):
         ''' Returns the reorganized subfolder structure for the BOSS idlspec2d run2d version
@@ -1583,17 +1582,15 @@ class Path(BasePath):
         
         if (not run2d):
             return ''
-        elif (('v5' in run2d) or (str(run2d) in ['26','103','104']) or
-              ('v6_0' in run2d) or ('v6_1' in run2d)):
+        if (('v5' in run2d) or (str(run2d) in ['26','103','104']) or
+            ('v6_0' in run2d) or ('v6_1' in run2d)):
             return ''
-        else:
-            if filetype.lower() in ['spall_coadd','spall-lite_coadd','spallline_coadd']:
-                return('summary')
-            elif filetype.lower() in ['speclite_coadd','specfull_coadd',
-                                     'spallfield_coadd','spalllinefield_coadd']:
-                return(coaddname)
-            else:
-                return('fields')
+        if filetype.lower() in ['spall_coadd','spall-lite_coadd','spallline_coadd']:
+            return 'summary'
+        if filetype.lower() in ['speclite_coadd','specfull_coadd',
+                                'spallfield_coadd','spalllinefield_coadd']:
+            return coaddname
+        return('fields')
 
 
     def spcoaddgrp(self, filetype, **kwargs):
@@ -1616,11 +1613,10 @@ class Path(BasePath):
 
         if (not run2d):
             return ''
-        elif (('v5' in run2d) or (str(run2d) in ['26','103','104']) or
-              ('v6_0' in run2d) or ('v6_1' in run2d)):
+        if (('v5' in run2d) or (str(run2d) in ['26','103','104']) or
+            ('v6_0' in run2d) or ('v6_1' in run2d)):
             return ''
-        else:
-            return(coaddname)
+        return coaddname
             
     def sptypefolder(self, filetype, **kwargs):
         ''' Returns the reorganized subfolder structure for the BOSS idlspec2d run2d version
@@ -1638,31 +1634,26 @@ class Path(BasePath):
 
         run2d = kwargs.get('run2d', None)
         
-        if (not run2d):
+        if (not run2d) or ('v5' in run2d) or (str(run2d) in ['26','103','104']):
             return ''
-        elif ('v5' in run2d) or (str(run2d) in ['26','103','104']):
-            return ''
-        elif ('v6_0' in run2d) or ('v6_1' in run2d):
+        if ('v6_0' in run2d) or ('v6_1' in run2d):
             if filetype.lower() in ['speclite_epoch','specfull_epoch',
                                     'spallfield_epoch','spalllinefield_epoch']:
-                return('epoch/spectra')
-            else:
-                return 'epoch'
-        else:
-            if filetype.lower() in ['fieldlist_epoch','spall_epoch',
-                                    'spall-lite_epoch','spallline_epoch']:
-                return('summary/epoch')
-            elif filetype.lower() in ['speclite_epoch','specfull_epoch',
-                                      'spallfield_epoch','spalllinefield_epoch']:
-                return('spectra/epoch')
-            elif filetype.lower() in ['conflist','fieldlist','spall',
-                                      'spall-lite','spallline']:
-                return('summary/daily')
-            elif filetype.lower() in ['speclite','specfull',
-                                     'spallfield','spalllinefield']:
-                return('daily')
-            else:
-                return('fields')
+                return 'epoch/spectra'
+            return 'epoch'
+        if filetype.lower() in ['fieldlist_epoch','spall_epoch',
+                                'spall-lite_epoch','spallline_epoch']:
+            return 'summary/epoch'
+        if filetype.lower() in ['speclite_epoch','specfull_epoch',
+                                'spallfield_epoch','spalllinefield_epoch']:
+            return 'spectra/epoch'
+        if filetype.lower() in ['conflist','fieldlist','spall',
+                                'spall-lite','spallline']:
+            return 'summary/daily'
+        if filetype.lower() in ['speclite','specfull',
+                                'spallfield','spalllinefield']:
+            return 'daily'
+        return 'fields'
                     
     def spcoaddobs(self, filetype, **kwargs):
         ''' Returns the formatted observatory flag for custom coadds for the BOSS idlspec2d
@@ -1684,17 +1675,13 @@ class Path(BasePath):
         obs = kwargs.get('obs', None)
         run2d = kwargs.get('run2d', None)
         
-        if not obs:
+        if not obs or obs == '':
             return ''
-            
-        elif obs == '':
+        if (('v6_0' in run2d) or ('v6_1' in run2d)) and obs.lower() == 'apo':
             return ''
-        elif (('v6_0' in run2d) or ('v6_1' in run2d)) and obs.lower() == 'apo':
-            return ''
-        elif obs == '*':
+        if obs == '*':
             return obs
-        else:
-            return '_{}'.format(obs.lower())
+        return '_{}'.format(obs.lower())
             
     def epochflag(self, filetype, **kwargs):
         ''' Returns the flag for epoch coadds for the BOSS idlspec2d
@@ -1712,11 +1699,11 @@ class Path(BasePath):
         '''
         
         run2d = kwargs.get('run2d', None)
-        
+        if ('v5' in run2d) or (str(run2d) in ['26','103','104']):
+            return ''
         if (('v6_0' in run2d) or ('v6_1' in run2d)):
             return ''
-        else:
-            return '-epoch'
+        return '-epoch'
     
     def fieldgrp(self, filetype, **kwargs):
         ''' Returns the fieldid group for the BOSS idlspec2d run2d version
@@ -1743,14 +1730,12 @@ class Path(BasePath):
 
         if ('v5' in run2d) or (str(run2d) in ['26','103','104']):
             return ''
-        elif ('v6_0' in run2d) or ('v6_1' in run2d):
+        if ('v6_0' in run2d) or ('v6_1' in run2d):
             return ''
-        else:
-            fieldid = str(fieldid)
-            if fieldid.isnumeric():
-                return '{:0>3d}XXX'.format(int(fieldid) // 1000)
-            else:
-                return(fieldid)
+        fieldid = str(fieldid)
+        if fieldid.isnumeric():
+            return '{:0>3d}XXX'.format(int(fieldid) // 1000)
+        return fieldid
 
 class AccessError(Exception):
     pass
