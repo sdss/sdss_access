@@ -1647,7 +1647,7 @@ class Path(BasePath):
                                     'spallfield_epoch','spalllinefield_epoch']:
                 return('epoch/spectra')
             else:
-                return ''
+                return 'epoch'
         else:
             if filetype.lower() in ['fieldlist_epoch','spall_epoch',
                                     'spall-lite_epoch','spallline_epoch']:
