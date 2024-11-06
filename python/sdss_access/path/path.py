@@ -706,7 +706,7 @@ class BasePath(object):
         if not skip_tag_check:
             template = re.sub(r'tags/(v?[0-9._]+)', r'\1', template, count=1)
 
-        return self._check_compression(template)
+        return self._check_compression(os.path.normpath(template))
 
     @staticmethod
     def check_modules(template, permanent=None):
