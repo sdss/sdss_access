@@ -1640,7 +1640,9 @@ class Path(BasePath):
             if filetype.lower() in ['speclite_epoch','specfull_epoch',
                                     'spallfield_epoch','spalllinefield_epoch']:
                 return 'epoch/spectra'
-            return 'epoch'
+            if 'epoch' in filetype.lower():
+                return 'epoch'
+            return ''
         if filetype.lower() in ['fieldlist_epoch','spall_epoch',
                                 'spall-lite_epoch','spallline_epoch']:
             return 'summary/epoch'
