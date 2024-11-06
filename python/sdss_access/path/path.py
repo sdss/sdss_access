@@ -325,15 +325,15 @@ class BasePath(object):
         # handle special functions; perform a drop in replacement
         if re.match('@spectrodir[|]', template):
             template = re.sub('@spectrodir[|]', os.environ['BOSS_SPECTRO_REDUX'], template)
-        elif re.search('@platedir[|]', template):
+        if re.search('@platedir[|]', template):
             template = re.sub('@platedir[|]', r'(.*)/{plateid:0>6}', template)
-        elif re.search('@definitiondir[|]', template):
+        if re.search('@definitiondir[|]', template):
             template = re.sub('@definitiondir[|]', '{designid:0>6}', template)
-        elif re.search('@apgprefix[|]', template):
+        if re.search('@apgprefix[|]', template):
             template = re.sub('@apgprefix[|]', '{prefix}', template)
-        elif re.search('@healpixgrp[|]', template):
+        if re.search('@healpixgrp[|]', template):
             template = re.sub('@healpixgrp[|]', '{healpixgrp}', template)
-        elif re.search('@configgrp[|]', template):
+        if re.search('@configgrp[|]', template):
             template = re.sub('@configgrp[|]', '{configgrp}', template)
         if re.search('@isplate[|]', template):
             template = re.sub('@isplate[|]', '{isplate}', template)
@@ -359,6 +359,8 @@ class BasePath(object):
             template = re.sub('@cat_id_groups[|]', '{cat_id_groups}', template)
         if re.search('@sdss_id_groups[|]', template):
             template = re.sub('@sdss_id_groups[|]', '{sdss_id_groups}', template)
+        if re.search('@tilegrp[|]', template):
+            template = re.sub('@tilegrp[|]', '{tilegrp}', template)
 
         # check if template has any brackets
         haskwargs = re.search('[{}]', template)
@@ -1737,6 +1739,30 @@ class Path(BasePath):
         if fieldid.isnumeric():
             return '{:0>3d}XXX'.format(int(fieldid) // 1000)
         return fieldid
+
+    def tilegrp(self, filetype, **kwargs):
+        ''' Returns LVM tile id group subdirectory
+
+        Parameters
+        ----------
+        filetype : str
+            File type parameter.
+        tileid : int or str
+            LVM Tile ID number.  Will be converted to int internally.
+
+        Returns
+        -------
+        tileidgrp : str
+            Tile ID group directory in the format ``NNNNXX``.
+
+        '''
+
+        tileid = kwargs.get('tileid', None)
+        if not tileid:
+            return '0000XX'
+        elif '*' in str(tileid):
+            return '{0}XX'.format(tileid)
+        return '{:0>4d}XX'.format(int(tileid) // 1000)
 
 class AccessError(Exception):
     pass

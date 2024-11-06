@@ -70,11 +70,14 @@ class TestSVPaths(object):
                               ('spAll_epoch','@epochflag',{'run2d':'v6_2_0'},
                                 'v6_2_0/summary/epoch/spAll-v6_2_0-epoch.fits'),
                               ('spAll_coadd','@spcoaddgrp',{'run2d':'v6_2_0','coadd':'allepoch'},
-                                'v6_2_0/summary/allepoch/spAll-v6_2_0-allepoch.fits')],
+                                'v6_2_0/summary/allepoch/spAll-v6_2_0-allepoch.fits'),
+                              ('lvm_frame', '@tilegrp', {'drpver': 'master', 'mjd': 60235,
+                                                         'tileid': 1055360, 'kind': 'CFrame', 'expnum': 6817},
+                               '1055XX/1055360/60235/lvmCFrame-00006817.fits')],
                              ids=['configgrp', 'apgprefix-apo', 'apgprefix-lco', 'apgprefix-ins',
                                   'isplate-v6_0_4','pad_fieldid-5','pad_fieldid-6', 'frame-pad',
                                   'frame-nopadp', 'pad_fieldid-*','spcoaddfolder', 'sptypefolder',
-                                  'fieldgrp','spcoaddobs','epochflag','spcoaddgrp'])
+                                  'fieldgrp','spcoaddobs','epochflag','spcoaddgrp','lvm-tileid'])
     def test_special_function(self, path, name, special, keys, exp):
         assert special in path.templates[name]
         full = os.path.normpath(path.full(name, **keys))
