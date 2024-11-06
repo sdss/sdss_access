@@ -1590,7 +1590,7 @@ class Path(BasePath):
         if filetype.lower() in ['speclite_coadd','specfull_coadd',
                                 'spallfield_coadd','spalllinefield_coadd']:
             return coaddname
-        return('fields')
+        return 'fields'
 
 
     def spcoaddgrp(self, filetype, **kwargs):
