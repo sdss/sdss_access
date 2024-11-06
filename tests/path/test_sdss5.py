@@ -70,7 +70,7 @@ class TestSVPaths(object):
                               ('spAll_epoch','@epochflag',{'run2d':'v6_2_0'},
                                 'v6_2_0/summary/epoch/spAll-v6_2_0-epoch.fits'),
                               ('spAll_coadd','@spcoaddgrp',{'run2d':'v6_2_0','coadd':'allepoch'},
-                                'v6_2_0/summary/test/spAll-v6_2_0-allepoch.fits')],
+                                'v6_2_0/summary/allepoch/spAll-v6_2_0-allepoch.fits')],
                              ids=['configgrp', 'apgprefix-apo', 'apgprefix-lco', 'apgprefix-ins',
                                   'isplate-v6_0_4','pad_fieldid-5','pad_fieldid-6', 'frame-pad',
                                   'frame-nopadp', 'pad_fieldid-*','spcoaddfolder', 'sptypefolder',
