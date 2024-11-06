@@ -1728,7 +1728,7 @@ class Path(BasePath):
         if (not fieldid):
             return ''
 
-        if (('v5' in run2d) or (str(run2d) in ['26','103','104']) of
+        if (('v5' in run2d) or (str(run2d) in ['26','103','104']) or
             ('v6_0' in run2d) or ('v6_1' in run2d)):
             return ''
         fieldid = str(fieldid)
