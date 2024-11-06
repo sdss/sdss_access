@@ -77,7 +77,7 @@ class TestSVPaths(object):
                                   'fieldgrp','spcoaddobs','epochflag','spcoaddgrp'])
     def test_special_function(self, path, name, special, keys, exp):
         assert special in path.templates[name]
-        full = path.full(name, **keys)
+        full = os.path.normpath(path.full(name, **keys))
         assert exp in full
 
     @pytest.mark.parametrize('name, keys', [('specLite', ['fieldid', 'catalogid', 'run2d', 'mjd']),
