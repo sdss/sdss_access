@@ -80,7 +80,7 @@ def expdata(datapath):
     # full source file location
     source = os.path.join(base, sas_module, location)
     # full final file location
-    destination = os.path.join(os.getenv('SAS_BASE_DIR'), sas_module, location)
+    destination = os.path.normpath(os.path.join(os.getenv('SAS_BASE_DIR'), sas_module, location))
     # combined dict
     result = {'name': datapath['name'], 'params': datapath['params'], 'base': base,
               'sas_module': sas_module, 'location': location, 'source': source,
