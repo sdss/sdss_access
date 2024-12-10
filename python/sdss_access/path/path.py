@@ -10,6 +10,7 @@ import datetime
 from glob import glob
 from os.path import join, sep
 from random import choice, sample
+from tree import Tree
 from sdss_access import tree, log, config
 from sdss_access import is_posix
 
@@ -63,7 +64,19 @@ def check_public_release(release: str = None, public: bool = False) -> bool:
         when tree does not have a valid release date for a DR tree config
     """
     today = datetime.datetime.now().date()
-    release_date = getattr(tree, 'release_date', None)
+
+    # get the release date from the tree
+    if release and release != tree.release:
+        # grab the release date from a new tree
+        t = Tree(release.lower())
+        release_date = getattr(t, 'release_date', None)
+    else:
+        # use the release from global tree
+        release_date = getattr(tree, 'release_date', None)
+
+    # always return false if input is a work release
+    if release in ('WORK', 'sdsswork'):
+        return False
 
     # check if tree has a valid release date attr
     if release_date is None and "DR" in tree.release:
@@ -833,7 +846,7 @@ class BasePath(object):
 
     def is_sdss5(self) -> bool:
         """ Checks if the release is an SDSS-V work or ipl release """
-        return any(s5cfg for s5cfg in self._s5cfgs if self.release.startswith(s5cfg))
+        return any(s5cfg for s5cfg in self._s5cfgs if self.release.startswith(s5cfg)) or ('dr' in self.release and not self.public)
 
     def get_netloc(self, netloc=None, sdss=None, sdss5=None, dtn=None, svn=None, mirror=None):
         ''' Get a net url domain
@@ -1581,7 +1594,7 @@ class Path(BasePath):
 
         run2d = kwargs.get('run2d', None)
         coaddname = kwargs.get('coadd', None)
-        
+
         if (not run2d):
             return ''
         if (('v5' in run2d) or (str(run2d) in ['26','103','104']) or
@@ -1619,7 +1632,7 @@ class Path(BasePath):
             ('v6_0' in run2d) or ('v6_1' in run2d)):
             return ''
         return coaddname
-            
+
     def sptypefolder(self, filetype, **kwargs):
         ''' Returns the reorganized subfolder structure for the BOSS idlspec2d run2d version
 
@@ -1635,7 +1648,7 @@ class Path(BasePath):
         '''
 
         run2d = kwargs.get('run2d', None)
-        
+
         if (not run2d) or ('v5' in run2d) or (str(run2d) in ['26','103','104']):
             return ''
         if ('v6_0' in run2d) or ('v6_1' in run2d):
@@ -1658,10 +1671,10 @@ class Path(BasePath):
                                 'spallfield','spalllinefield']:
             return 'daily'
         return 'fields'
-                    
+
     def spcoaddobs(self, filetype, **kwargs):
         ''' Returns the formatted observatory flag for custom coadds for the BOSS idlspec2d
-        
+
         Parameters
         ----------
         filetype : str
@@ -1670,15 +1683,15 @@ class Path(BasePath):
             BOSS idlspec2d run2d version
         obs : str
             Observatory of observations: LCO, APO, ''(for merged)
-            
+
         Returns
         -------
         obs : str
         '''
-        
+
         obs = kwargs.get('obs', None)
         run2d = kwargs.get('run2d', None)
-        
+
         if not obs or obs == '':
             return ''
         if (('v5' in run2d) or (str(run2d) in ['26','103','104']) or
@@ -1687,28 +1700,28 @@ class Path(BasePath):
         if obs == '*':
             return obs
         return '_{}'.format(obs.lower())
-            
+
     def epochflag(self, filetype, **kwargs):
         ''' Returns the flag for epoch coadds for the BOSS idlspec2d
-        
+
         Parameters
         ----------
         filetype : str
             File type parameter
         run2d : str
             BOSS idlspec2d run2d version
-            
+
         Returns
         -------
         epochflag : str
         '''
-        
+
         run2d = kwargs.get('run2d', None)
         if (('v5' in run2d) or (str(run2d) in ['26','103','104']) or
             ('v6_0' in run2d) or ('v6_1' in run2d)):
             return ''
         return '-epoch'
-    
+
     def fieldgrp(self, filetype, **kwargs):
         ''' Returns the fieldid group for the BOSS idlspec2d run2d version
 

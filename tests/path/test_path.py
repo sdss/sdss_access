@@ -396,7 +396,8 @@ def monkeyoos(monkeypatch, mocker):
 def test_public_release():
     tree.replant_tree('dr15')
     assert check_public_release('DR15') is True
-    assert check_public_release('MPL10') is False
+    assert check_public_release('DR17') is True
+    assert check_public_release('IPL3') is False
     assert check_public_release('sdsswork') is False
 
 def test_bad_release_old_tree(monkeypatch):
@@ -404,3 +405,20 @@ def test_bad_release_old_tree(monkeypatch):
     monkeypatch.setattr(tree.__class__, "release_date", None)
     with pytest.raises(AttributeError, match='Cannot find a valid release date in the sdss-tree product.  Try upgrading to min. version 3.1.0.'):
         check_public_release('DR15')
+
+
+@pytest.mark.parametrize('release, exp',
+                         [('sdsswork', True),
+                          ('IPL3', True),
+                          ('DR15', False),
+                          ('DR17', False),
+                          ('DR19', False)],
+                         ids=['sdsswork', 'IPL3', 'DR15', 'DR17', 'DR19'])
+def test_is_sdss5(release, exp):
+    ''' test which releases are correctly sdss5 '''
+    p = Path(release)
+
+    # this hack is to test when a DR release is not yet public, it should be sdss5
+    exp = True if 'DR' in release and p.public is False else exp
+
+    assert p.is_sdss5() is exp
