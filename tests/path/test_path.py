@@ -396,7 +396,8 @@ def monkeyoos(monkeypatch, mocker):
 def test_public_release():
     tree.replant_tree('dr15')
     assert check_public_release('DR15') is True
-    #assert check_public_release('MPL10') is False
+    assert check_public_release('DR17') is True
+    assert check_public_release('IPL3') is False
     assert check_public_release('sdsswork') is False
 
 def test_bad_release_old_tree(monkeypatch):
