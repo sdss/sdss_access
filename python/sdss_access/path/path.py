@@ -68,7 +68,7 @@ def check_public_release(release: str = None, public: bool = False) -> bool:
     # get the release date from the tree
     if release and release != tree.release:
         # grab the release date from a new tree
-        t = Tree(release)
+        t = Tree(release.lower())
         release_date = getattr(t, 'release_date', None)
     else:
         # use the release from global tree
