@@ -9,6 +9,7 @@ This document records the main changes to the sdss_access code.
 3.0.5 (unreleased)
 ------------------
 - PR `62` - Fix issue `61`: removed use of ``disutils`` which has been Deprecated in Python 3.12. Also pin Sphinx to ``<7.3.0`` to address `this issue <https://github.com/sphinx-doc/sphinx/issues/12339>`.
+- Adding `-i` to rsync stream command to accommodate issues with new Mac OS Sequoia
 
 3.0.4 (03-08-2024)
 ------------------
