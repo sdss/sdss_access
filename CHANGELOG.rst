@@ -6,7 +6,14 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
-3.0.5 (unreleased)
+3.0.7 (unreleased)
+------------------
+
+3.0.6 (04-16-2025)
+------------------
+- PR `75` - Fix an issue with Sequoia with rsync quotes in different shell environments
+
+3.0.5 (12-04-2024)
 ------------------
 - PR `62` - Fix issue `61`: removed use of ``disutils`` which has been Deprecated in Python 3.12. Also pin Sphinx to ``<7.3.0`` to address `this issue <https://github.com/sphinx-doc/sphinx/issues/12339>`.
 - Adding `-i` to rsync stream command to accommodate issues with new Mac OS Sequoia
