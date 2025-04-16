@@ -29,7 +29,7 @@ class RsyncAccess(BaseAccess):
 
     def get_task_out(self, task=None):
         if task:
-            command = "rsync -Ri %(source)s*" % task
+            command = "rsync -Rin --out-format='%B%16l %t %f' \"%(source)s*\"" % task
             if self.verbose:
                 print(command)
             status, out, err = self.stream.cli.foreground_run(command)
