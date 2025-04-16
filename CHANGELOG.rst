@@ -6,8 +6,12 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
-3.0.7 (unreleased)
+3.0.8 (unreleased)
 ------------------
+
+3.0.7 (04-16-2025)
+------------------
+- Fix to outdated github actions
 
 3.0.6 (04-16-2025)
 ------------------
