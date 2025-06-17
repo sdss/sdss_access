@@ -14,7 +14,7 @@ Current Working Paths
 
 Public Data Release Paths
 
-* :ref:`DR18 <dr19>` - paths defined for public data release 19
+* :ref:`DR19 <dr19>` - paths defined for public data release 19
 * :ref:`DR18 <dr18>`
 * :ref:`DR17 <dr17>`
 * :ref:`DR16 <dr16>`
