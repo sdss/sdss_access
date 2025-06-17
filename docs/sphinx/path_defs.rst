@@ -17,6 +17,15 @@ SDSSWORK
    :prog: sdsswork
    :templates:
 
+.. _dr19:
+
+DR19
+----
+
+.. datamodel:: sdss_access.path.path:Path
+   :prog: DR19
+   :templates:
+
 .. _dr18:
 
 DR18
