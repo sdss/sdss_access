@@ -12,6 +12,10 @@ Public Data Releases
 
 .. changelog:: sdss_access.path.changelog:compute_changelog
    :prog: changes
+   :drs: dr19, dr18
+
+.. changelog:: sdss_access.path.changelog:compute_changelog
+   :prog: changes
    :drs: dr18, dr17
 
 .. changelog:: sdss_access.path.changelog:compute_changelog
@@ -63,5 +67,3 @@ Internal Product Launches (IPLs)
 .. changelog:: sdss_access.path.changelog:compute_changelog
    :prog: changes
    :drs: ipl2, ipl1
-
-

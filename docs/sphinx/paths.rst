@@ -14,7 +14,8 @@ Current Working Paths
 
 Public Data Release Paths
 
-* :ref:`DR18 <dr18>` - paths defined for public data release 18
+* :ref:`DR18 <dr19>` - paths defined for public data release 19
+* :ref:`DR18 <dr18>`
 * :ref:`DR17 <dr17>`
 * :ref:`DR16 <dr16>`
 * :ref:`DR15 <dr15>`
@@ -42,5 +43,3 @@ the :ref:`complete path evolution <paths-evolution>` for a full list of changes 
 .. changelog:: sdss_access.path.changelog:compute_changelog
    :prog: changes
    :drs: latest
-
-
