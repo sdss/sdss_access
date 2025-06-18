@@ -6,8 +6,10 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
-3.0.8 (unreleased)
+3.0.8 (06-18-2025)
 ------------------
+- Basic maintenance
+- Prepare release for DR19
 
 3.0.7 (04-16-2025)
 ------------------
