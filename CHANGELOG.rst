@@ -6,6 +6,14 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
+3.0.10 (07-10-2025)
+-------------------
+- Update dependencies to require ``sdss-tree>=4.0.10``.
+
+3.0.9
+-----
+- This version was skipped by mistake.
+
 3.0.8 (06-18-2025)
 ------------------
 - Basic maintenance
