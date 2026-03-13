@@ -1777,7 +1777,7 @@ class Path(BasePath):
             return '{0}XX'.format(tileid)
         return '{:0>4d}XX'.format(int(tileid) // 1000)
 
-    def mos_target_num(self, filetype, zp: int | None = None, **kwargs):
+    def mos_target_num(self, filetype, zp: int | None = None, prefix: str = '-', **kwargs):
         """Returns the target filetype for a given MOS filetype
 
         File species of the type ``mos_target_XXX`` can be used to retrieve
@@ -1792,6 +1792,8 @@ class Path(BasePath):
         zp : int or None
             The number of digits to zero-pad the ``num`` keyword argument to.
             If None, no zero-padding is applied.
+        prefix : str
+            The prefix to use before the number. Default is '-'.
 
         Returns
         -------
@@ -1813,7 +1815,7 @@ class Path(BasePath):
             if num > 0:
                 if zp is not None:
                     num = f"{num:0>{zp}}"
-                return f"-{num}"
+                return f"{prefix}{num}"
 
         return ""
 
@@ -1834,6 +1836,16 @@ class Path(BasePath):
         """
 
         return self.mos_target_num(filetype, zp=3, **kwargs)
+
+    def mos_target_num_underscore(self, filetype, **kwargs):
+        """Returns the target filetype for a given MOS filetype
+
+        Same as ``mos_target_num`` but the number is prefixed with an underscore
+        instead of a dash.
+
+        """
+
+        return self.mos_target_num(filetype, zp=3, prefix='_', **kwargs)
 
 
 class AccessError(Exception):
