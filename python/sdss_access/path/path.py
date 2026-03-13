@@ -1845,7 +1845,7 @@ class Path(BasePath):
 
         """
 
-        return self.mos_target_num(filetype, zp=3, prefix='_', **kwargs)
+        return self.mos_target_num(filetype, prefix='_', **kwargs)
 
 
 class AccessError(Exception):
