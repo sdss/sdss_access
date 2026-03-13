@@ -1777,5 +1777,64 @@ class Path(BasePath):
             return '{0}XX'.format(tileid)
         return '{:0>4d}XX'.format(int(tileid) // 1000)
 
+    def mos_target_num(self, filetype, zp: int | None = None, **kwargs):
+        """Returns the target filetype for a given MOS filetype
+
+        File species of the type ``mos_target_XXX`` can be used to retrieve
+        both FITS files and Parquet files. This function encodes that logic.
+        This function zero-pads the ``num`` keyword argument to ``zp`` digits
+        if ``num`` is given and greater than 0.
+
+        Parameters
+        ----------
+        filetype : str
+            File type parameter.
+        zp : int or None
+            The number of digits to zero-pad the ``num`` keyword argument to.
+            If None, no zero-padding is applied.
+
+        Returns
+        -------
+        mos_target_filetype : str
+            The target filetype for a given MOS filetype
+
+        """
+
+        ftype = kwargs.get("ftype", "fits").lower()
+
+        if 'num' not in kwargs:
+            raise ValueError("Missing required keyword argument 'num'.")
+
+        num = int(kwargs['num'])
+
+        if ftype not in ["fits", "parquet"]:
+            raise ValueError("Invalid ftype. Must be 'fits' or 'parquet'.")
+        elif ftype == "fits":
+            if num > 0:
+                if zp is not None:
+                    num = f"{num:0>{zp}}"
+                return f"-{num}"
+
+        return ""
+
+    def mos_target_num2(self, filetype, **kwargs):
+        """Returns the target filetype for a given MOS filetype
+
+        Same as ``mos_target_num`` but zero-pads the number to 2 digits.
+
+        """
+
+        return self.mos_target_num(filetype, zp=2, **kwargs)
+
+    def mos_target_num3(self, filetype, **kwargs):
+        """Returns the target filetype for a given MOS filetype
+
+        Same as ``mos_target_num`` but zero-pads the number to 3 digits.
+
+        """
+
+        return self.mos_target_num(filetype, zp=3, **kwargs)
+
+
 class AccessError(Exception):
     pass
