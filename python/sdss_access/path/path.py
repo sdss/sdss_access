@@ -1777,14 +1777,7 @@ class Path(BasePath):
             return '{0}XX'.format(tileid)
         return '{:0>4d}XX'.format(int(tileid) // 1000)
 
-    def mos_target_num(
-        self,
-        filetype,
-        zp: int | None = None,
-        prefix: str = "-",
-        num: int | None = None,
-        **kwargs,
-    ):
+    def mos_target_num(self, filetype, zp: int | None = None, prefix: str = "-", **kwargs):
         """Returns the target filetype for a given MOS filetype
 
         File species of the type ``mos_target_XXX`` can be used to retrieve
@@ -1811,6 +1804,7 @@ class Path(BasePath):
 
         ftype = kwargs.get("ftype", "fits").lower()
 
+        num = kwargs.get("num", None)
         if num is None:
             raise ValueError("Missing required keyword argument 'num'.")
 
@@ -1820,8 +1814,7 @@ class Path(BasePath):
             raise ValueError("Invalid ftype. Must be 'fits' or 'parquet'.")
         elif ftype == "fits":
             if num > 0:
-                if zp is not None:
-                    num_zp = f"{num:0>{zp}}"
+                num_zp = f"{num:0>{zp}}" if zp is not None else str(num)
                 return f"{prefix}{num_zp}"
 
         return ""
@@ -1844,7 +1837,7 @@ class Path(BasePath):
 
         return self.mos_target_num(filetype, zp=3, **kwargs)
 
-    def mos_target_num_underscore(self, filetype, num: int | None = None, **kwargs):
+    def mos_target_num_underscore(self, filetype, **kwargs):
         """Returns the target filetype for a given MOS filetype
 
         Same as ``mos_target_num`` but the number is prefixed with an underscore
@@ -1852,10 +1845,10 @@ class Path(BasePath):
 
         """
 
-        if num is None:
-            num = 1
+        if "num" not in kwargs or kwargs["num"] is None:
+            kwargs["num"] = 1
 
-        return self.mos_target_num(filetype, prefix='_', num=num, **kwargs)
+        return self.mos_target_num(filetype, prefix='_', **kwargs)
 
 
 class AccessError(Exception):
