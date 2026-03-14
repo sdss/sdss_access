@@ -1805,15 +1805,14 @@ class Path(BasePath):
 
         ftype = kwargs.get("ftype", "fits").lower()
 
-        num = kwargs.get("num", None)
-        if num is None:
-            raise ValueError("Missing required keyword argument 'num'.")
-
-        num = int(num)
 
         if ftype not in ["fits", "parquet"]:
             raise ValueError("Invalid ftype. Must be 'fits' or 'parquet'.")
         elif ftype == "fits":
+            num = kwargs.get("num", None)
+            if num is None:
+                raise ValueError("Missing required keyword argument 'num'.")
+            num = int(num)
             if num > 0:
                 num_zp = f"{num:0>{zp}}" if zp is not None else str(num)
                 return f"{prefix}{num_zp}"
