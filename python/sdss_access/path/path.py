@@ -13,6 +13,7 @@ from random import choice, sample
 from tree import Tree
 from sdss_access import tree, log, config
 from sdss_access import is_posix
+from typing import Union
 
 pathlib = None
 try:
@@ -1777,7 +1778,7 @@ class Path(BasePath):
             return '{0}XX'.format(tileid)
         return '{:0>4d}XX'.format(int(tileid) // 1000)
 
-    def mos_target_num(self, filetype, zp: int | None = None, prefix: str = "-", **kwargs):
+    def mos_target_num(self, filetype, zp: Union[int, None] = None, prefix: str = "-", **kwargs):
         """Returns the target filetype for a given MOS filetype
 
         File species of the type ``mos_target_XXX`` can be used to retrieve
