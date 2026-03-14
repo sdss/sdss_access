@@ -18,7 +18,7 @@ import sphinx_bootstrap_theme
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
-from pkg_resources import parse_version
+import packaging.version
 
 try:
     from sdss_access import __version__
@@ -65,7 +65,7 @@ author = 'Brian Cherinka'
 # built documents.
 
 # The short X.Y version.
-version = parse_version(__version__).base_version
+version = packaging.version.parse(__version__).base_version
 # The full version, including alpha/beta/rc tags.
 release = __version__
 
