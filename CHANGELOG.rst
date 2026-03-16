@@ -9,6 +9,7 @@ This document records the main changes to the sdss_access code.
 Unreleased
 ----------
 - PR `84` - Add `Path.mos_target_num` method.
+- PR `85` - Replace `pkg_resources.parse_version` with `packaging.version.parse` in `conf.py`.
 
 3.0.10 (07-10-2025)
 -------------------
