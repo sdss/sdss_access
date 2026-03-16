@@ -13,6 +13,7 @@ from random import choice, sample
 from tree import Tree
 from sdss_access import tree, log, config
 from sdss_access import is_posix
+from typing import Union
 
 pathlib = None
 try:
@@ -1776,6 +1777,79 @@ class Path(BasePath):
         elif '*' in str(tileid):
             return '{0}XX'.format(tileid)
         return '{:0>4d}XX'.format(int(tileid) // 1000)
+
+    def mos_target_num(self, filetype, zp: Union[int, None] = None, prefix: str = "-", **kwargs):
+        """Returns the target filetype for a given MOS filetype
+
+        File species of the type ``mos_target_XXX`` can be used to retrieve
+        both FITS files and Parquet files. This function encodes that logic.
+        This function zero-pads the ``num`` keyword argument to ``zp`` digits
+        if ``num`` is given and greater than 0.
+
+        Parameters
+        ----------
+        filetype : str
+            File type parameter.
+        zp : int or None
+            The number of digits to zero-pad the ``num`` keyword argument to.
+            If None, no zero-padding is applied.
+        prefix : str
+            The prefix to use before the number. Default is '-'.
+
+        Returns
+        -------
+        mos_target_filetype : str
+            The target filetype for a given MOS filetype
+
+        """
+
+        ftype = kwargs.get("ftype", "fits").lower()
+
+
+        if ftype not in ["fits", "parquet"]:
+            raise ValueError("Invalid ftype. Must be 'fits' or 'parquet'.")
+        elif ftype == "fits":
+            num = kwargs.get("num", None)
+            if num is None:
+                raise ValueError("Missing required keyword argument 'num'.")
+            num = int(num)
+            if num > 0:
+                num_zp = f"{num:0>{zp}}" if zp is not None else str(num)
+                return f"{prefix}{num_zp}"
+
+        return ""
+
+    def mos_target_num2(self, filetype, **kwargs):
+        """Returns the target filetype for a given MOS filetype
+
+        Same as ``mos_target_num`` but zero-pads the number to 2 digits.
+
+        """
+
+        return self.mos_target_num(filetype, zp=2, **kwargs)
+
+    def mos_target_num3(self, filetype, **kwargs):
+        """Returns the target filetype for a given MOS filetype
+
+        Same as ``mos_target_num`` but zero-pads the number to 3 digits.
+
+        """
+
+        return self.mos_target_num(filetype, zp=3, **kwargs)
+
+    def mos_target_num_underscore(self, filetype, **kwargs):
+        """Returns the target filetype for a given MOS filetype
+
+        Same as ``mos_target_num`` but the number is prefixed with an underscore
+        instead of a dash.
+
+        """
+
+        if "num" not in kwargs or kwargs["num"] is None:
+            kwargs["num"] = 1
+
+        return self.mos_target_num(filetype, prefix='_', **kwargs)
+
 
 class AccessError(Exception):
     pass
