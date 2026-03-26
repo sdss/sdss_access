@@ -382,7 +382,7 @@ class BasePath(object):
         if re.search('@mos_target_num3[|]', template):
             template = re.sub('@mos_target_num3[|]', '{num}', template)
         if re.search('@mos_target_num_underscore[|]', template):
-            template = re.sub('@mos_target_num_underscore[|]', '{mos_target_num_underscore}', template)
+            template = re.sub('@mos_target_num_underscore[|]', '{num}', template)
 
         # check if template has any brackets
         haskwargs = re.search('[{}]', template)
