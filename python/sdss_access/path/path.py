@@ -375,6 +375,14 @@ class BasePath(object):
             template = re.sub('@sdss_id_groups[|]', '{sdss_id_groups}', template)
         if re.search('@tilegrp[|]', template):
             template = re.sub('@tilegrp[|]', '{tilegrp}', template)
+        if re.search('@mos_target_num[|]', template):
+            template = re.sub('@mos_target_num[|]', '{mos_target_num}', template)
+        if re.search('@mos_target_num2[|]', template):
+            template = re.sub('@mos_target_num2[|]', '{mos_target_num2}', template)
+        if re.search('@mos_target_num3[|]', template):
+            template = re.sub('@mos_target_num3[|]', '{num}', template)
+        if re.search('@mos_target_num_underscore[|]', template):
+            template = re.sub('@mos_target_num_underscore[|]', '{mos_target_num_underscore}', template)
 
         # check if template has any brackets
         haskwargs = re.search('[{}]', template)
@@ -398,8 +406,6 @@ class BasePath(object):
             values = tmatch.groups(0)
             keys = pmatch.groups(0)
             assert len(keys) == len(values), 'pattern and template matches must have same length'
-            keys = map(str, keys)
-            values = map(str, values)
             parts = zip(keys, values)
             # parse into dictionary
             for part in parts:
@@ -435,6 +441,10 @@ class BasePath(object):
                         else:
                             raise ValueError('This case has not yet been accounted for.')
                         path_dict.update(pdict)
+                    elif name.startswith('mos_target') and keys[0] == 'num' and value != "":
+                        # The num parameter in mos_target paths will be a zero-padded
+                        # suffix like "-010". We convert it to a valid integer.
+                        path_dict[keys[0]] = int(value[1:])
                     elif keys[0] in ['sptypefolder','fieldgrp','spcoaddfolder','spcoaddgrp']:
                         # supress the keys since they are automatically calculated
                         continue
