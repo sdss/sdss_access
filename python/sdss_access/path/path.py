@@ -441,10 +441,13 @@ class BasePath(object):
                         else:
                             raise ValueError('This case has not yet been accounted for.')
                         path_dict.update(pdict)
-                    elif name.startswith('mos_target') and keys[0] == 'num' and value != "":
+                    elif name.startswith('mos_target') and keys[0] == 'num':
                         # The num parameter in mos_target paths will be a zero-padded
-                        # suffix like "-010". We convert it to a valid integer.
-                        path_dict[keys[0]] = int(value[1:])
+                        # suffix like "-010". Strip expected prefixes and convert the
+                        # remaining numeric suffix to an integer when present.
+                        cleaned = value.lstrip('-_')
+                        if cleaned:
+                            path_dict[keys[0]] = int(cleaned)
                     elif keys[0] in ['sptypefolder','fieldgrp','spcoaddfolder','spcoaddgrp']:
                         # supress the keys since they are automatically calculated
                         continue
