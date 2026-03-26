@@ -398,6 +398,8 @@ class BasePath(object):
             values = tmatch.groups(0)
             keys = pmatch.groups(0)
             assert len(keys) == len(values), 'pattern and template matches must have same length'
+            keys = map(str, keys)
+            values = map(str, values)
             parts = zip(keys, values)
             # parse into dictionary
             for part in parts:
