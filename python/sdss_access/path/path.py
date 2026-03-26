@@ -376,9 +376,9 @@ class BasePath(object):
         if re.search('@tilegrp[|]', template):
             template = re.sub('@tilegrp[|]', '{tilegrp}', template)
         if re.search('@mos_target_num[|]', template):
-            template = re.sub('@mos_target_num[|]', '{mos_target_num}', template)
+            template = re.sub('@mos_target_num[|]', '{num}', template)
         if re.search('@mos_target_num2[|]', template):
-            template = re.sub('@mos_target_num2[|]', '{mos_target_num2}', template)
+            template = re.sub('@mos_target_num2[|]', '{num}', template)
         if re.search('@mos_target_num3[|]', template):
             template = re.sub('@mos_target_num3[|]', '{num}', template)
         if re.search('@mos_target_num_underscore[|]', template):
