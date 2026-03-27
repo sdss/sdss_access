@@ -59,11 +59,19 @@ class TestPath(object):
                               ('spAll', '@spectrodir', {'run2d': 103},
                                'sas/dr17/sdss/spectro'),
                               ('spAll', '@spectrodir', {'run2d': 100},
-                               'sas/dr17/eboss/spectro')],
-                             ids=['platedir_p4', 'platedir_p5', 'spectrodir_r1', 'spectrodir_r2'])
+                               'sas/dr17/eboss/spectro'),
+                              ('mos_target_sdss_id_flat', '@mos_target_num3',
+                               {'v_targ': '2.0.0', 'ftype': 'fits', 'num': 10},
+                               'sas/dr20/mos/target/2.0.0/fits/mos_sdss_id_flat-010.fits')],
+                             ids=['platedir_p4', 'platedir_p5', 'spectrodir_r1', 'spectrodir_r2', 'mos_target_num3'])
     def test_special_function(self, path, name, special, keys, exp):
-        assert special in path.templates[name]
-        full = path.full(name, **keys)
+        if name == 'mos_target_sdss_id_flat':
+            pp = Path(release='dr20')
+        else:
+            pp = path
+
+        assert special in pp.templates[name]
+        full = pp.full(name, **keys)
         assert exp in full
 
     @pytest.mark.parametrize('key, val, exp',
@@ -142,11 +150,18 @@ class TestPath(object):
                               ('spec-lite', 'dr17/eboss/spectro/redux/v5_10_0/spectra/lite/3606/spec-3606-55182-0537.fits',
                                {'fiberid': '0537', 'mjd': '55182', 'plateid': '3606', 'run2d': 'v5_10_0'}),
                               ('apStar', 'dr17/apogee/spectro/redux/r12/stars/apo25m/1234/apStar-r12-12345.fits',
-                               {'apred': 'r12', 'apstar': 'stars', 'telescope': 'apo25m', 'field': '1234', 'prefix': 'ap', 'obj': '12345'})],
-                             ids=['mangacube', 'reject', 'fpbin', 'galaxy', 'speclite', 'apstar'])
+                               {'apred': 'r12', 'apstar': 'stars', 'telescope': 'apo25m', 'field': '1234', 'prefix': 'ap', 'obj': '12345'}),
+                              ('mos_target_sdss_id_flat', 'dr20/mos/target/2.0.0/fits/mos_sdss_id_flat-010.fits',
+                               {'v_targ': '2.0.0', 'ftype': 'fits', 'num': 10})],
+                             ids=['mangacube', 'reject', 'fpbin', 'galaxy', 'speclite', 'apstar', 'mos_target_sdss_id_flat'])
     def test_extract(self, path, name, example, keys):
+        if name == 'mos_target_sdss_id_flat':
+            pp = Path(release='dr20')
+        else:
+            pp = path
+
         fullpath = os.path.join(os.environ['SAS_BASE_DIR'], example)
-        realkeys = path.extract(name, fullpath)
+        realkeys = pp.extract(name, fullpath)
         assert keys == realkeys
 
     def test_extract_source(self, path):
