@@ -375,6 +375,14 @@ class BasePath(object):
             template = re.sub('@sdss_id_groups[|]', '{sdss_id_groups}', template)
         if re.search('@tilegrp[|]', template):
             template = re.sub('@tilegrp[|]', '{tilegrp}', template)
+        if re.search('@mos_target_num[|]', template):
+            template = re.sub('@mos_target_num[|]', '{num}', template)
+        if re.search('@mos_target_num2[|]', template):
+            template = re.sub('@mos_target_num2[|]', '{num}', template)
+        if re.search('@mos_target_num3[|]', template):
+            template = re.sub('@mos_target_num3[|]', '{num}', template)
+        if re.search('@mos_target_num_underscore[|]', template):
+            template = re.sub('@mos_target_num_underscore[|]', '{num}', template)
 
         # check if template has any brackets
         haskwargs = re.search('[{}]', template)
@@ -433,6 +441,13 @@ class BasePath(object):
                         else:
                             raise ValueError('This case has not yet been accounted for.')
                         path_dict.update(pdict)
+                    elif name.startswith('mos_target') and keys[0] == 'num':
+                        # The num parameter in mos_target paths will be a zero-padded
+                        # suffix like "-010". Strip expected prefixes and convert the
+                        # remaining numeric suffix to an integer when present.
+                        cleaned = value.lstrip('-_')
+                        if cleaned:
+                            path_dict[keys[0]] = int(cleaned)
                     elif keys[0] in ['sptypefolder','fieldgrp','spcoaddfolder','spcoaddgrp']:
                         # supress the keys since they are automatically calculated
                         continue
@@ -1778,7 +1793,7 @@ class Path(BasePath):
             return '{0}XX'.format(tileid)
         return '{:0>4d}XX'.format(int(tileid) // 1000)
 
-    def mos_target_num(self, filetype, zp: Union[int, None] = None, prefix: str = "-", **kwargs):
+    def _mos_target_num_helper(self, filetype, zp: Union[int, None] = None, prefix: str = "-", **kwargs):
         """Returns the target filetype for a given MOS filetype
 
         File species of the type ``mos_target_XXX`` can be used to retrieve
@@ -1819,26 +1834,36 @@ class Path(BasePath):
 
         return ""
 
+    def mos_target_num(self, filetype, **kwargs):
+        """Returns the target filetype for a given MOS filetype.
+
+        No zero-padding is applied to the number.
+
+        """
+
+        return self._mos_target_num_helper(filetype, zp=None, **kwargs)
+
+
     def mos_target_num2(self, filetype, **kwargs):
-        """Returns the target filetype for a given MOS filetype
+        """Returns the target filetype for a given MOS filetype.
 
         Same as ``mos_target_num`` but zero-pads the number to 2 digits.
 
         """
 
-        return self.mos_target_num(filetype, zp=2, **kwargs)
+        return self._mos_target_num_helper(filetype, zp=2, **kwargs)
 
     def mos_target_num3(self, filetype, **kwargs):
-        """Returns the target filetype for a given MOS filetype
+        """Returns the target filetype for a given MOS filetype.
 
         Same as ``mos_target_num`` but zero-pads the number to 3 digits.
 
         """
 
-        return self.mos_target_num(filetype, zp=3, **kwargs)
+        return self._mos_target_num_helper(filetype, zp=3, **kwargs)
 
     def mos_target_num_underscore(self, filetype, **kwargs):
-        """Returns the target filetype for a given MOS filetype
+        """Returns the target filetype for a given MOS filetype.
 
         Same as ``mos_target_num`` but the number is prefixed with an underscore
         instead of a dash.
@@ -1848,7 +1873,7 @@ class Path(BasePath):
         if "num" not in kwargs or kwargs["num"] is None:
             kwargs["num"] = 1
 
-        return self.mos_target_num(filetype, prefix='_', **kwargs)
+        return self._mos_target_num_helper(filetype, zp=None, prefix='_', **kwargs)
 
 
 class AccessError(Exception):
