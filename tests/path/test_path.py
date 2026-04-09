@@ -59,19 +59,11 @@ class TestPath(object):
                               ('spAll', '@spectrodir', {'run2d': 103},
                                'sas/dr17/sdss/spectro'),
                               ('spAll', '@spectrodir', {'run2d': 100},
-                               'sas/dr17/eboss/spectro'),
-                              ('mos_target_sdss_id_flat', '@mos_target_num3',
-                               {'v_targ': '2.0.0', 'ftype': 'fits', 'num': 10},
-                               'sas/dr20/mos/target/2.0.0/fits/mos_sdss_id_flat-010.fits')],
-                             ids=['platedir_p4', 'platedir_p5', 'spectrodir_r1', 'spectrodir_r2', 'mos_target_num3'])
+                               'sas/dr17/eboss/spectro')],
+                             ids=['platedir_p4', 'platedir_p5', 'spectrodir_r1', 'spectrodir_r2'])
     def test_special_function(self, path, name, special, keys, exp):
-        if name == 'mos_target_sdss_id_flat':
-            pp = Path(release='dr20')
-        else:
-            pp = path
-
-        assert special in pp.templates[name]
-        full = pp.full(name, **keys)
+        assert special in path.templates[name]
+        full = path.full(name, **keys)
         assert exp in full
 
     @pytest.mark.parametrize('key, val, exp',

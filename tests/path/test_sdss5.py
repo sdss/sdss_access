@@ -20,7 +20,7 @@ from sdss_access import config
 
 @pytest.fixture(scope='module')
 def path():
-    pp = Path(release='sdss5')
+    pp = Path(release='dr20')
     yield pp
     pp = None
 
@@ -73,11 +73,16 @@ class TestSVPaths(object):
                                 'v6_2_0/summary/allepoch/spAll-v6_2_0-allepoch.fits'),
                               ('lvm_frame', '@tilegrp', {'drpver': 'master', 'mjd': 60235,
                                                          'tileid': 1055360, 'kind': 'CFrame', 'expnum': 6817},
-                               '1055XX/1055360/60235/lvmCFrame-00006817.fits')],
+                               '1055XX/1055360/60235/lvmCFrame-00006817.fits'),
+                              ('mos_target_sdss_id_flat', '@mos_target_num3',
+                               {'v_targ': '2.0.0', 'ftype': 'fits', 'num': 10}, 'mos/target/2.0.0/fits/mos_sdss_id_flat-010.fits'),
+                              ('mos_target_sdss_id_flat', '@mos_target_num3',
+                               {'v_targ': '2.0.0', 'ftype': 'fits', 'num': '*'}, 'mos/target/2.0.0/fits/mos_sdss_id_flat-*.fits')],
                              ids=['configgrp', 'apgprefix-apo', 'apgprefix-lco', 'apgprefix-ins',
                                   'isplate-v6_0_4','pad_fieldid-5','pad_fieldid-6', 'frame-pad',
                                   'frame-nopadp', 'pad_fieldid-*','spcoaddfolder', 'sptypefolder',
-                                  'fieldgrp','spcoaddobs','epochflag','spcoaddgrp','lvm-tileid'])
+                                  'fieldgrp','spcoaddobs','epochflag','spcoaddgrp','lvm-tileid',
+                                  'mos_target_num3', 'mos_target_num3-star'])
     def test_special_function(self, path, name, special, keys, exp):
         assert special in path.templates[name]
         full = os.path.normpath(path.full(name, **keys))
