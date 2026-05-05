@@ -4,7 +4,7 @@
 Introduction to sdss_access
 ===============================
 
-SDSS Access provides a convenient way of navigating local and remote filesystem paths from the Science Archive Server (SAS).
+SDSS Access provides a convenient way of navigating local and remote filesystem paths from the Science Archive Server (SAS). ``sdss_access`` can be used to download files from the SAS.
 ``sdss_access`` uses the SDSS Tree product for all path look-ups.
 
 Concept
