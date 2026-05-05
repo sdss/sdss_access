@@ -305,8 +305,8 @@ The ``input_type`` keyword specifies the type of path input.
 ::
 
     from sdss_access import RsyncAccess
-    rsync = RsyncAccess(release='DR17')
-    rsync.remote()
+    rsync_dr17 = RsyncAccess(release='DR17')
+    rsync_dr17.remote()
 
     # add a url to the stream for download
     url = 'rsync://dtn.sdss.org/dr17/manga/spectro/redux/v3_1_1/8485/stack/manga-8485-1901-LOGCUBE.fits.gz'
@@ -314,7 +314,7 @@ The ``input_type`` keyword specifies the type of path input.
 
     # add a file to the stream for download
     path = '/Users/Brian/Work/sdss/sas/dr17/manga/spectro/redux/v3_1_1/8485/stack/manga-8485-1902-LOGCUBE.fits.gz'
-    rsync.add_file(path, input_type='filepath')
+    rsync_dr17.add_file(path, input_type='filepath')
 
 Following Symlinks
 ^^^^^^^^^^^^^^^^^^
@@ -325,13 +325,13 @@ can disable this behaviour by setting the ``follow_symlinks`` flag to False.
 ::
 
     from sdss_access import RsyncAccess
-    rsync = RsyncAccess(release='DR17')
-    rsync.remote()
-    rsync.add('mangacube', drpver='v3_1_1', plate='8485', ifu='*', wave='LOG')
-    rsync.set_stream()
+    rsync_dr17 = RsyncAccess(release='DR17')
+    rsync_dr17.remote()
+    rsync_dr17.add('mangacube', drpver='v3_1_1', plate='8485', ifu='*', wave='LOG')
+    rsync_dr17.set_stream()
 
     # disable follow_symlinks
-    rsync.commit(follow_symlinks=False)
+    rsyn_dr17c.commit(follow_symlinks=False)
 
 
 Accessing SDSS-V Products
