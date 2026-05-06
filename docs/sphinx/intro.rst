@@ -243,7 +243,29 @@ while Linux or Macs will automatically utilize `.RsyncAccess`.
     myaccess.set_stream()
     myaccess.commit()
 
-In all all cases, successful ``sdss_access`` downloads will return a code of 0. Any other number indicates that a problem
+    # download a mos_target_product fits file
+    myaccess = Access(release="DR20")
+    myaccess.remote()
+    myaccess.add(mos_target_product, v_targ=V_TARG, ftype="fits", num="*")
+    myaccess.set_stream()
+    myaccess.commit()
+
+    # download a mos_target_sdss_id_flat fits file
+    myaccess = Access(release="DR20")
+    myaccess.remote()
+    myaccess.add("mos_target_sds_id_flat", v_targ=V_TARG, ftype="fits", num="*")
+    myaccess.set_stream()
+    myaccess.commit()
+
+    # download a mos_target_sdss_id_flat parquet file
+    myaccess = Access(release="DR20")
+    myaccess.remote()
+    myaccess.add("mos_target_sdss_id_flat", v_targ=V_TARG, ftype="parquet", num="*")
+    myaccess.set_stream()
+    myaccess.commit()
+
+
+In all cases, successful ``sdss_access`` downloads will return a code of 0. Any other number indicates that a problem
 occurred.  If no verbose message is displayed, you may need to check the ``sdss_access_XX.log`` and ``sdss_access_XX.err``
 files within the temporary directory.
 
