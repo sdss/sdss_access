@@ -243,13 +243,6 @@ while Linux or Macs will automatically utilize `.RsyncAccess`.
     myaccess.set_stream()
     myaccess.commit()
 
-    # download a mos_target_product fits file
-    myaccess = Access(release="DR20")
-    myaccess.remote()
-    myaccess.add(mos_target_product, v_targ=V_TARG, ftype="fits", num="*")
-    myaccess.set_stream()
-    myaccess.commit()
-
     # download a mos_target_sdss_id_flat fits file
     myaccess = Access(release="DR20")
     myaccess.remote()
