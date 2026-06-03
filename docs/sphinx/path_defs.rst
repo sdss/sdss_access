@@ -17,6 +17,15 @@ SDSSWORK
    :prog: sdsswork
    :templates:
 
+.. _dr20:
+
+DR20
+----
+
+.. datamodel:: sdss_access.path.path:Path
+   :prog: DR20
+   :templates:
+
 .. _dr19:
 
 DR19
@@ -150,4 +159,13 @@ IPL3
 
 .. datamodel:: sdss_access.path.path:Path
    :prog: IPL3
+   :templates:
+
+.. _ipl4:
+
+IPL4
+----
+
+.. datamodel:: sdss_access.path.path:Path
+   :prog: IPL4
    :templates:

@@ -14,7 +14,8 @@ Current Working Paths
 
 Public Data Release Paths
 
-* :ref:`DR19 <dr19>` - paths defined for public data release 19
+* :ref:`DR20 <dr20>` - paths defined for public data release 20
+* :ref:`DR19 <dr19>`
 * :ref:`DR18 <dr18>`
 * :ref:`DR17 <dr17>`
 * :ref:`DR16 <dr16>`
@@ -32,6 +33,7 @@ Internal SDSS Release Paths
 * :ref:`IPL-1 <ipl1>` - Internal Product Launch 1
 * :ref:`IPL-2 <ipl2>` - Internal Product Launch 2
 * :ref:`IPL-3 <ipl3>` - Internal Product Launch 3
+* :ref:`IPL-4 <ipl4>` - Internal Product Launch 4
 
 
 Latest Path Evolution
