@@ -6,10 +6,13 @@ Change Log
 
 This document records the main changes to the sdss_access code.
 
-Unreleased
+3.0.11 (06-03-2026)
 ----------
 - PR `84` - Add `Path.mos_target_num` method.
 - PR `85` - Replace `pkg_resources.parse_version` with `packaging.version.parse` in `conf.py`.
+- PR `87` - Fix `extract` method for MOS paths
+- PR `88` - Support `*` wildcard in MOS paths
+- PR `90` - Doc edits
 
 3.0.10 (07-10-2025)
 -------------------
