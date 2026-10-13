@@ -11,14 +11,14 @@
 # Modified By: Brian Cherinka
 
 
-from __future__ import print_function, division, absolute_import
+from __future__ import absolute_import, division, print_function
 
 from tree import Tree
 from tree.changelog import compute_changelog as compute_path_changes
 
 
 def compute_changelog(new, old, pprint=None, to_list=None):
-    ''' Compute the difference between two Tree PATH sections
+    """Compute the difference between two Tree PATH sections
 
     Compares two tree PATH ini sections from the given environment
     configurations and returns  adictionary with keys `new`, and `updated`,
@@ -39,13 +39,15 @@ def compute_changelog(new, old, pprint=None, to_list=None):
 
     Returns:
         A dictionary of relevant changes between the two releases
-    '''
+    """
 
-    return compute_path_changes(new, old, pprint=pprint, paths_only=True, to_list=to_list)
+    return compute_path_changes(
+        new, old, pprint=pprint, paths_only=True, to_list=to_list
+    )
 
 
 def get_path_templates(name, public=None):
-    ''' Return the path templates for all releases
+    """Return the path templates for all releases
 
     Produces a dictionary of path templates for a given
     path name for all releases.  Set public keyword to toggle only
@@ -59,21 +61,21 @@ def get_path_templates(name, public=None):
 
     Returns:
         A dictionary of the path template per release
-    '''
+    """
     releases = Tree.get_available_releases(public=public)
     versions = {}
     for release in reversed(releases):
-        release = 'sdsswork' if 'WORK' in release else release
+        release = "sdsswork" if "WORK" in release else release
         tree = Tree(config=release.lower())
         versions[release] = tree.paths.get(name, None)
     return versions
 
 
 def get_available_releases(public=None):
-    ''' Get the available releases
+    """Get the available releases
 
     Parameters:
         public (bool):
             If True, only return public data releases
-    '''
+    """
     return Tree.get_available_releases(public=public)

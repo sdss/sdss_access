@@ -8,34 +8,37 @@
 # @Last modified by:   Brian Cherinka
 # @Last Modified time: 2017-12-05 10:53:56
 
-from __future__ import print_function, division, absolute_import
-from docutils import nodes
-from docutils.parsers import rst
-from docutils.parsers.rst import directives
-from docutils import statemachine
-import traceback
+from __future__ import absolute_import, division, print_function
+
 import importlib
 import re
+import traceback
+
+from docutils import nodes, statemachine
+from docutils.parsers import rst
+from docutils.parsers.rst import directives
+
 from sdss_access.path.changelog import get_available_releases
+
 
 # This file is a basic example of how to write a Sphinx plugin to document
 # custom data.
 
 
 def _indent(text, level=1):
-    ''' Does a proper indenting for Sphinx rst '''
+    """Does a proper indenting for Sphinx rst"""
 
-    prefix = ' ' * (4 * level)
+    prefix = " " * (4 * level)
 
     def prefixed_lines():
         for line in text.splitlines(True):
             yield (prefix + line if line.strip() else line)
 
-    return ''.join(prefixed_lines())
+    return "".join(prefixed_lines())
 
 
 def _format_templates(name, command, templates):
-    ''' Creates a list-table directive
+    """Creates a list-table directive
 
     for a set of defined environment variables
 
@@ -50,45 +53,45 @@ def _format_templates(name, command, templates):
     Yields:
         A string rst-formated list-table directive
 
-    '''
+    """
 
-    yield '.. list-table:: {0} path definitions'.format(name)
-    yield _indent(':widths: 20 100 70')
-    yield _indent(':header-rows: 1')
-    yield ''
-    yield _indent('* - Name')
-    yield _indent('  - Template')
-    yield _indent('  - Kwargs')
+    yield ".. list-table:: {0} path definitions".format(name)
+    yield _indent(":widths: 20 100 70")
+    yield _indent(":header-rows: 1")
+    yield ""
+    yield _indent("* - Name")
+    yield _indent("  - Template")
+    yield _indent("  - Kwargs")
     for key, var in templates.items():
         kwargs = command.lookup_keys(key)
-        yield _indent('* - {0}'.format(key))
-        yield _indent('  - {0}'.format(var))
-        yield _indent('  - {0}'.format(', '.join(kwargs)))
-    yield ''
+        yield _indent("* - {0}".format(key))
+        yield _indent("  - {0}".format(var))
+        yield _indent("  - {0}".format(", ".join(kwargs)))
+    yield ""
 
 
 def _format_changelog(changes):
-    ''' Format a changelog for a sdss_access Paths '''
+    """Format a changelog for a sdss_access Paths"""
 
-    yield '.. role:: maroon'
+    yield ".. role:: maroon"
 
     # yield lines from the PATHS section
 
     # list mode
     for line in changes:
-        if 'Changes' in line:
-            yield f'**{line}**'
-            yield ''
-        elif 'New' in line or 'Updated' in line:
-            yield '* ' + _indent(f'**{line.strip()}**')
-        elif re.search('[a-z]', line):
+        if "Changes" in line:
+            yield f"**{line}**"
+            yield ""
+        elif "New" in line or "Updated" in line:
+            yield "* " + _indent(f"**{line.strip()}**")
+        elif re.search("[a-z]", line):
             # nested list From To
-            if line.strip().startswith(('from', 'to')):
-                line = line.replace('to:', '**To:**').replace('from:', '**From:**')
-                yield _indent('    * ' + line, level=2)
+            if line.strip().startswith(("from", "to")):
+                line = line.replace("to:", "**To:**").replace("from:", "**From:**")
+                yield _indent("    * " + line, level=2)
             else:
-                name, template = line.split(':', 1)
-                yield _indent(f'    * :maroon:`{name}`: {template}')
+                name, template = line.split(":", 1)
+                yield _indent(f"    * :maroon:`{name}`: {template}")
 
 
 def load_module(module_path, error=None, products=None):
@@ -101,7 +104,7 @@ def load_module(module_path, error=None, products=None):
     # so we ensure module path is a string here.
     module_path = str(module_path)
     try:
-        module_name, attr_name = module_path.split(':', 1)
+        module_name, attr_name = module_path.split(":", 1)
     except ValueError:  # noqa
         raise error('"{0}" is not of format "module:object"'.format(module_path))
 
@@ -111,10 +114,11 @@ def load_module(module_path, error=None, products=None):
     except (Exception, SystemExit) as exc:
         err_msg = 'Failed to import module "{0}". '.format(module_name)
         if isinstance(exc, SystemExit):
-            err_msg += 'The module appeared to call sys.exit()'
+            err_msg += "The module appeared to call sys.exit()"
         else:
-            err_msg += 'The following exception was raised:\n{0}'.format(
-                traceback.format_exc())
+            err_msg += "The following exception was raised:\n{0}".format(
+                traceback.format_exc()
+            )
 
         raise error(err_msg)
 
@@ -125,19 +129,21 @@ def load_module(module_path, error=None, products=None):
         module = mod
 
     if not hasattr(module, attr_name):
-        raise error('Module "{0}" has no attribute "{1}"'.format(module_name, attr_name))
+        raise error(
+            'Module "{0}" has no attribute "{1}"'.format(module_name, attr_name)
+        )
 
     return getattr(module, attr_name)
 
 
 class PathDirective(rst.Directive):
-    ''' The directive which instructs Sphinx how to format the Tree config documentation '''
+    """Directive which instructs Sphinx how to format the Tree config documentation"""
 
     has_content = False
     required_arguments = 1
     option_spec = {
-        'prog': directives.unchanged_required,
-        'templates': directives.flag,
+        "prog": directives.unchanged_required,
+        "templates": directives.flag,
     }
 
     def _generate_nodes(self, name, command, templates=None):
@@ -164,10 +170,11 @@ class PathDirective(rst.Directive):
 
         # Title
         section = nodes.section(
-            '',
+            "",
             nodes.title(text=name),
             ids=[nodes.make_id(name)],
-            names=[nodes.fully_normalize_name(name)])
+            names=[nodes.fully_normalize_name(name)],
+        )
 
         # Summarize
         result = statemachine.ViewList()
@@ -187,16 +194,16 @@ class PathDirective(rst.Directive):
 
         command = load_module(self.arguments[0])
 
-        if 'prog' in self.options:
-            prog_name = self.options.get('prog')
+        if "prog" in self.options:
+            prog_name = self.options.get("prog")
         else:
-            raise self.error(':prog: must be specified')
+            raise self.error(":prog: must be specified")
 
         # get instance
-        path = command(release=prog_name, public='DR' in prog_name)
+        path = command(release=prog_name, public="DR" in prog_name)
 
         # get options
-        templates = 'templates' in self.options
+        templates = "templates" in self.options
 
         # add a new section for paths
         return self._generate_nodes(prog_name, path, templates=templates)
@@ -206,9 +213,9 @@ class PathChangeDirective(rst.Directive):
     has_content = False
     required_arguments = 1
     option_spec = {
-        'prog': directives.unchanged_required,
-        'title': directives.unchanged,
-        'drs': directives.unchanged_required,
+        "prog": directives.unchanged_required,
+        "title": directives.unchanged,
+        "drs": directives.unchanged_required,
     }
 
     def run(self):
@@ -216,18 +223,18 @@ class PathChangeDirective(rst.Directive):
 
         command = load_module(self.arguments[0])
 
-        if 'prog' in self.options:
-            prog_name = self.options.get('prog')
+        if "prog" in self.options:
+            self.options.get("prog")
         else:
-            raise self.error(':prog: must be specified')
+            raise self.error(":prog: must be specified")
 
         # get drs
-        drs = self.options.get('drs').replace(' ', '')
-        if drs == 'latest':
+        drs = self.options.get("drs").replace(" ", "")
+        if drs == "latest":
             releases = get_available_releases(public=True)
             old, new = releases[-2:]
         else:
-            new, old = drs.split(',')
+            new, old = drs.split(",")
 
         # compute and format the changelog lines
         lines = command(new, old, to_list=True)
@@ -240,10 +247,11 @@ class PathChangeDirective(rst.Directive):
 
         # Title
         section = nodes.section(
-            '',
+            "",
             nodes.title(text=source_name),
             ids=[nodes.make_id(source_name)],
-            names=[nodes.fully_normalize_name(source_name)])
+            names=[nodes.fully_normalize_name(source_name)],
+        )
 
         result = statemachine.ViewList()
         for line in lines:
@@ -255,8 +263,5 @@ class PathChangeDirective(rst.Directive):
 
 
 def setup(app):
-    app.add_directive('datamodel', PathDirective)
-    app.add_directive('changelog', PathChangeDirective)
-
-
-
+    app.add_directive("datamodel", PathDirective)
+    app.add_directive("changelog", PathChangeDirective)

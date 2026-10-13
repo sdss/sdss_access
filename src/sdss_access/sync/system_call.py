@@ -3,16 +3,26 @@
 #
 # $Id: system_call.py 157318 2014-06-29 12:10:03Z weaver $
 #
-"""
-"""
+""" """
+
 #
 # This will help with 2to3 support.
 #
 from __future__ import absolute_import, division, print_function, unicode_literals
+
+
 #
 #
 #
-def system_call(command,test=False,logger=None,logall=False,message=None,outname=None,errname=None):
+def system_call(
+    command,
+    test=False,
+    logger=None,
+    logall=False,
+    message=None,
+    outname=None,
+    errname=None,
+):
     """A convenient wrapper to log and perform system calls.
 
     Parameters
@@ -46,16 +56,17 @@ def system_call(command,test=False,logger=None,logall=False,message=None,outname
     >>> status,out,err = transfer.common.system_call('date')
     """
     from math import log10
-    from sys import exit
-    from subprocess import Popen
     from shlex import split
+    from subprocess import Popen
+    from sys import exit
     from tempfile import TemporaryFile
-    from time import time, sleep
+    from time import sleep, time
+
     if logger is not None:
         logger.debug(command)
     status = 0
-    out = ''
-    err = ''
+    out = ""
+    err = ""
     # if test, return early
     if test:
         return (status, out, err)
@@ -64,11 +75,11 @@ def system_call(command,test=False,logger=None,logall=False,message=None,outname
     if outname is None:
         outfile = TemporaryFile()
     else:
-        outfile = open(outname, 'w+')
+        outfile = open(outname, "w+")
     if errname is None:
         errfile = TemporaryFile()
     else:
-        errfile = open(errname, 'w+')
+        errfile = open(errname, "w+")
     proc = Popen(split(str(command)), stdout=outfile, stderr=errfile)
     tstart = time()
     while proc.poll() is None:
@@ -77,7 +88,7 @@ def system_call(command,test=False,logger=None,logall=False,message=None,outname
             message = "Process still running after more than 5 days!"
             proc.kill()
             break
-        tsleep = 10**(int(log10(elapsed)) - 1)
+        tsleep = 10 ** (int(log10(elapsed)) - 1)
         if tsleep < 1:
             tsleep = 1
         sleep(tsleep)
@@ -92,15 +103,15 @@ def system_call(command,test=False,logger=None,logall=False,message=None,outname
     if logger is not None:
         if status == 0 and logall:
             if len(out) > 0:
-                logger.debug('STDOUT = \n' + out)
+                logger.debug("STDOUT = \n" + out)
             if len(err) > 0:
-                logger.debug('STDERR = \n' + err)
+                logger.debug("STDERR = \n" + err)
         if status != 0:
-            logger.error('status = {0}'.format(status))
+            logger.error("status = {0}".format(status))
             if len(out) > 0:
-                logger.error('STDOUT = \n' + out)
+                logger.error("STDOUT = \n" + out)
             if len(err) > 0:
-                logger.error('STDERR = \n' + err)
+                logger.error("STDERR = \n" + err)
             if message is not None:
                 logger.critical(message)
                 exit(status)

@@ -1,1 +1,1 @@
-from .path import BasePath, Path, AccessError
+from .path import AccessError, BasePath, Path

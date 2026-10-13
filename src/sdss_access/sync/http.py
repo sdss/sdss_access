@@ -1,27 +1,29 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
-# The line above will help with 2to3 support.
-
-import sys
-try:
-    from urllib2 import HTTPPasswordMgrWithDefaultRealm, HTTPBasicAuthHandler, build_opener, install_opener, urlopen
-    from urllib2 import HTTPError
-except:
-    from urllib.request import HTTPPasswordMgrWithDefaultRealm, HTTPBasicAuthHandler, build_opener, install_opener, urlopen
-    from urllib.error import HTTPError
 
 from os import makedirs
-from os.path import isfile, exists, dirname
-from sdss_access import Path
-from sdss_access.sync.auth import Auth, AuthMixin
+from os.path import dirname, exists, isfile
+from urllib.error import HTTPError
+from urllib.request import (
+    HTTPBasicAuthHandler,
+    HTTPPasswordMgrWithDefaultRealm,
+    build_opener,
+    install_opener,
+    urlopen,
+)
+
 from tqdm import tqdm
+
+from sdss_access import Path
+from sdss_access.sync.auth import AuthMixin
 
 
 class HttpAccess(AuthMixin, Path):
-    """Class for providing HTTP access via urllib.request (python3) or urllib2 (python2) to SDSS SAS Paths
-    """
+    """Class for providing HTTP access via urllib.request to SDSS SAS Paths"""
 
-    def __init__(self, verbose=None, public=None, release=None, label='sdss_http'):
-        super(HttpAccess, self).__init__(public=public, release=release, verbose=verbose)
+    def __init__(self, verbose=None, public=None, release=None, label="sdss_http"):
+        super(HttpAccess, self).__init__(
+            public=public, release=release, verbose=verbose
+        )
         self.verbose = verbose
         self.label = label
         self._remote = False
@@ -45,14 +47,15 @@ class HttpAccess(AuthMixin, Path):
         self.set_auth(username=username, password=password)
         if self.auth.ready():
             passman = HTTPPasswordMgrWithDefaultRealm()
-            passman.add_password(None, self.remote_base, self.auth.username, self.auth.password)
+            passman.add_password(
+                None, self.remote_base, self.auth.username, self.auth.password
+            )
             authhandler = HTTPBasicAuthHandler(passman)
             opener = build_opener(authhandler)
             install_opener(opener)
 
     def local(self):
-        """Configures back to local access
-        """
+        """Configures back to local access"""
         self._remote = False
 
     def get(self, filetype, **kwargs):
@@ -77,7 +80,10 @@ class HttpAccess(AuthMixin, Path):
             if self._remote:
                 self.download_url_to_path(self.url(filetype, **kwargs), path)
         else:
-            print("There is no file with filetype=%r to access in the tree module loaded" % filetype)
+            print(
+                "There is no file with filetype=%r to access in the tree module loaded"
+                % filetype
+            )
 
     def download_url_to_path(self, url, path, force=False):
         """
@@ -95,7 +101,6 @@ class HttpAccess(AuthMixin, Path):
 
         path_exists = isfile(path)
         if not path_exists or force:
-
             dir = dirname(path)
             if not exists(dir):
                 if self.verbose:
@@ -106,24 +111,34 @@ class HttpAccess(AuthMixin, Path):
                 u = urlopen(url)
             except HTTPError as e:
                 u = None
-                print("HTTP error code %r.  Please check you ~/.netrc has the correct authorization" % e.code)
+                print(
+                    f"HTTP error code {e.code}.  Please check you ~/.netrc has the "
+                    "correct authorization"
+                )
 
             if u:
-                with open(path, 'wb') as file:
+                with open(path, "wb") as file:
                     meta = u.info()
-                    meta_func = meta.getheaders \
-                        if hasattr(meta, 'getheaders') else meta.get_all
+                    meta_func = (
+                        meta.getheaders if hasattr(meta, "getheaders") else meta.get_all
+                    )
                     meta_length = meta_func("Content-Length")
                     file_size = None
                     if meta_length:
                         file_size = int(meta_length[0])
                     if self.verbose:
-                        print("Downloading: {0} Bytes: {1}".format(url, file_size))
+                        print(f"Downloading: {url} Bytes: {file_size}")
 
                     file_size_dl = 0
                     block_sz = 8192
                     # set up progress bar
-                    with tqdm(total=file_size, unit='B', unit_scale=True, unit_divisor=1024, desc='Progress') as pbar:
+                    with tqdm(
+                        total=file_size,
+                        unit="B",
+                        unit_scale=True,
+                        unit_divisor=1024,
+                        desc="Progress",
+                    ) as pbar:
                         while True:
                             buffer = u.read(block_sz)
                             if not buffer:
@@ -134,10 +149,9 @@ class HttpAccess(AuthMixin, Path):
 
                 if self.verbose:
                     if path_exists:
-                        print("OVERWRITING %s" % path)
+                        print(f"OVERWRITING {path}")
                     else:
-                        print("CREATE %s" % path)
+                        print(f"CREATE {path}")
 
         elif self.verbose:
-            print("FOUND %s (already downloaded)" % path)
-
+            print(f"FOUND {path} (already downloaded)")

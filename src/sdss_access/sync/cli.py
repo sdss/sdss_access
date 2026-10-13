@@ -1,31 +1,31 @@
 from __future__ import print_function
 
-from os import getenv, makedirs
-from os.path import exists, join, basename
-from math import log10
-from sys import exit
-from subprocess import Popen, STDOUT
-from shlex import split
-from tempfile import TemporaryFile
-from time import time, sleep
-from glob import iglob
 from datetime import datetime
-from sdss_access import is_posix
-from tempfile import gettempdir
+from glob import iglob
+from math import log10
+from os import getenv, makedirs
+from os.path import basename, exists, join
+from shlex import split
+from subprocess import STDOUT, Popen
+from sys import exit
+from tempfile import TemporaryFile, gettempdir
+from time import sleep, time
+
 from tqdm import tqdm
+
+from sdss_access import is_posix
 
 
 class Cli(object):
-    """Class for providing command line interface (cli) sync scripts, and logs to local disk
-    """
+    """Class for providing command line interface sync scripts and logs to local disk"""
 
-    #tmp_dir = '/tmp'
+    # tmp_dir = '/tmp'
     tmp_dir = gettempdir()
     tmp_exists = exists(tmp_dir)
 
     def __init__(self, label=None, data_dir=None, verbose=False):
-        self.label = label if label else 'sdss_access'
-        self.data_dir = data_dir if data_dir else getenv('SDSS_ACCESS_DATA_DIR')
+        self.label = label if label else "sdss_access"
+        self.data_dir = data_dir if data_dir else getenv("SDSS_ACCESS_DATA_DIR")
         self.ready = exists(self.data_dir) if self.data_dir else False
         if not self.ready and self.tmp_exists:
             self.data_dir = self.tmp_dir
@@ -42,10 +42,13 @@ class Cli(object):
                 dirname = basename(dir)
                 try:
                     dirnumber = int(dirname[position:])
-                except:
+                except Exception:
                     dirnumber = 0
                 maxnumber = max(maxnumber, dirnumber)
-            self.dir = join(label_dir, "{now}_{number:03d}".format(now=self.now, number=maxnumber + 1))
+            self.dir = join(
+                label_dir,
+                "{now}_{number:03d}".format(now=self.now, number=maxnumber + 1),
+            )
             if not exists(self.dir):
                 if self.verbose:
                     print("SDSS_ACCESS> CREATE {dir}".format(dir=self.dir))
@@ -56,13 +59,17 @@ class Cli(object):
     def get_path(self, index=None):
         try:
             index = int(index)
-        except:
+        except Exception:
             index = 0
-        return join(self.dir, "{label}_{index:02d}".format(label=self.label, index=index)) if self.dir and self.label else None
+        return (
+            join(self.dir, "{label}_{index:02d}".format(label=self.label, index=index))
+            if self.dir and self.label
+            else None
+        )
 
     def write_lines(self, path=None, lines=None):
         if path and lines:
-            with open(path, 'w') as file:
+            with open(path, "w") as file:
                 file.write("\n".join(lines) + "\n")
 
     def get_background_process(self, command=None, logfile=None, errfile=None, pause=1):
@@ -71,31 +78,47 @@ class Cli(object):
                 print("SDSS_ACCESS> [background]$ %r" % command)
             stdout = logfile if logfile else STDOUT
             stderr = errfile if errfile else STDOUT
-            background_process = Popen(split(str(command), posix=is_posix), env=self.env if 'rsync -' in command else None, stdout=stdout, stderr=stderr)
+            background_process = Popen(
+                split(str(command), posix=is_posix),
+                env=self.env if "rsync -" in command else None,
+                stdout=stdout,
+                stderr=stderr,
+            )
             if pause:
                 sleep(pause)
         else:
             background_process = None
         return background_process
 
-    def wait_for_processes(self, processes, pause=5, n_tasks=None, tasks_per_stream=None):
+    def wait_for_processes(
+        self, processes, pause=5, n_tasks=None, tasks_per_stream=None
+    ):
         running_processes = [process.poll() is None for process in processes]
         pause_count = 0
-        postfix = {'n_files': n_tasks, 'n_streams': len(processes)} if n_tasks else {}
+        postfix = {"n_files": n_tasks, "n_streams": len(processes)} if n_tasks else {}
 
         # set a progress bar to monitor files/streams
-        with tqdm(total=n_tasks, unit='files', desc='Progress', postfix=postfix) as pbar:
+        with tqdm(
+            total=n_tasks, unit="files", desc="Progress", postfix=postfix
+        ) as pbar:
             while any(running_processes):
                 running_count = sum(running_processes)
-                finished_files = sum([tasks_per_stream[i]
-                                      for i, r in enumerate(running_processes) if r is False])
+                finished_files = sum(
+                    [
+                        tasks_per_stream[i]
+                        for i, r in enumerate(running_processes)
+                        if r is False
+                    ]
+                )
                 running_files = n_tasks - finished_files
 
                 if self.verbose:
-                    tqdm.write("SDSS_ACCESS> syncing... please wait for {0} rsync streams ({1} "
-                               "files) to complete [running for {2} seconds]".format(running_count,
-                                                                                     running_files,
-                                                                                     pause_count * pause))
+                    tqdm.write(
+                        "SDSS_ACCESS> syncing.. please wait for {0} rsync streams ({1} "
+                        "files) to complete [running for {2} seconds]".format(
+                            running_count, running_files, pause_count * pause
+                        )
+                    )
 
                 # update the process polling
                 sleep(pause)
@@ -103,8 +126,13 @@ class Cli(object):
                 pause_count += 1
 
                 # count the number of downloaded files
-                done_files = sum([tasks_per_stream[i]
-                                  for i, r in enumerate(running_processes) if r is False])
+                done_files = sum(
+                    [
+                        tasks_per_stream[i]
+                        for i, r in enumerate(running_processes)
+                        if r is False
+                    ]
+                )
                 new_files = done_files - finished_files
 
                 # update the progress bar
@@ -112,7 +140,16 @@ class Cli(object):
 
         self.returncode = tuple([process.returncode for process in processes])
 
-    def foreground_run(self, command, test=False, logger=None, logall=False, message=None, outname=None, errname=None):
+    def foreground_run(
+        self,
+        command,
+        test=False,
+        logger=None,
+        logall=False,
+        message=None,
+        outname=None,
+        errname=None,
+    ):
         """A convenient wrapper to log and perform system calls.
 
         Parameters
@@ -148,8 +185,8 @@ class Cli(object):
         if logger is not None:
             logger.debug(command)
         status = 0
-        out = ''
-        err = ''
+        out = ""
+        err = ""
 
         # if test, return early
         if test:
@@ -159,11 +196,11 @@ class Cli(object):
         if outname is None:
             outfile = TemporaryFile()
         else:
-            outfile = open(outname, 'w+')
+            outfile = open(outname, "w+")
         if errname is None:
             errfile = TemporaryFile()
         else:
-            errfile = open(errname, 'w+')
+            errfile = open(errname, "w+")
         proc = Popen(split(str(command)), stdout=outfile, stderr=errfile, env=self.env)
         tstart = time()
         while proc.poll() is None:
@@ -172,7 +209,7 @@ class Cli(object):
                 message = "Process still running after more than 5 days!"
                 proc.kill()
                 break
-            tsleep = 10**(int(log10(elapsed)) - 1)
+            tsleep = 10 ** (int(log10(elapsed)) - 1)
             if tsleep < 1:
                 tsleep = 1
             sleep(tsleep)
@@ -187,15 +224,15 @@ class Cli(object):
         if logger is not None:
             if status == 0 and logall:
                 if len(out) > 0:
-                    logger.debug('STDOUT = \n' + out)
+                    logger.debug("STDOUT = \n" + out)
                 if len(err) > 0:
-                    logger.debug('STDERR = \n' + err)
+                    logger.debug("STDERR = \n" + err)
             if status != 0:
-                logger.error('status = {0}'.format(status))
+                logger.error("status = {0}".format(status))
                 if len(out) > 0:
-                    logger.error('STDOUT = \n' + out)
+                    logger.error("STDOUT = \n" + out)
                 if len(err) > 0:
-                    logger.error('STDERR = \n' + err)
+                    logger.error("STDERR = \n" + err)
                 if message is not None:
                     logger.critical(message)
                     exit(status)
