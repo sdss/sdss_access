@@ -1,7 +1,7 @@
 [project]
 name = "sdss_access"
-version = "0.1.0a1"
-description = "downloading sdss data products"
+version = "4.0.0a1"
+description = "Package to dynamically build filepaths and access all SDSS SAS products"
 authors = [
     { name = "Brian Cherinka", email = "bcherinka@stsci.edu" },
 ]
@@ -29,6 +29,7 @@ docs = [
     "sphinx-copybutton>=0.4.0",
     "sphinx-autodoc-typehints>=1.23.2",
     "sphinx_inline_tabs>=2025.12.21.14",
+    "sphinx_markdown_builder>=0.6.0",
 ]
 test = [
     "pytest>=5.2.2",
