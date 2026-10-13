@@ -1,27 +1,38 @@
+.. role:: header_no_toc
+  :class: class_header_no_toc
 
-sdss_access
-===========
+.. title:: Welcome to sdss_access's documentation!
 
-This is the documentation for the ``sdss_access`` Python package.
+:tocdepth: 2
+
+.. rubric:: :header_no_toc:`Welcome to sdss_access's documentation!`
+
+This is the Sphinx documentation for the SDSS Python product sdss_access
 
 Contents
 --------
 
 .. toctree::
-  :maxdepth: 2
+  :maxdepth: 1
 
-  Changelog <changelog>
+  Installation <installation>
+  Introduction to sdss_access <intro>
+  Available sdss-access paths <paths>
+  Collaboration Authentication <auth>
 
+Reference
+---------
 
-Links
------
+.. toctree::
+   :maxdepth: 1
 
-* `Repository <https://github.com/sdss/sdss_access>`__
-* `Issue tracking <https://github.com/sdss/sdss_access/issues>`__
-
+   api
+   CHANGELOG
+   path_evolution
+   path_defs
 
 Indices and tables
-------------------
+==================
 
 * :ref:`genindex`
 * :ref:`modindex`

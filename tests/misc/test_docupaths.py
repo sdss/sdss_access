@@ -24,8 +24,8 @@ def test_docupaths(app, status, warning):
     # check for datamodel directive stuff
     assert '<section id="datamodel">' in tt
     assert (
-        '<h2>DR17<a class="headerlink" href="#dr17" title="Link to '+
-        'this heading">¶</a></h2>'
+        '<h2>DR17<a class="headerlink" href="#dr17" title="Link to '
+        + 'this heading">¶</a></h2>'
         in tt
     )
     assert (
@@ -38,7 +38,7 @@ def test_docupaths(app, status, warning):
     assert "Changes: DR17 from DR16" in tt
     assert "<dt><strong>New Paths:</strong></dt><dd><ul>" in tt
     assert (
-        '<li><p><span class="maroon">apogee_astronn</span>:  '+
-        '$APOGEE_ASTRONN/apogee_astroNN-{release}.fits</p></li>'
+        '<li><p><span class="maroon">apogee_astronn</span>:  '
+        + "$APOGEE_ASTRONN/apogee_astroNN-{release}.fits</p></li>"
         in tt
     )

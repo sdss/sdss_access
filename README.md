@@ -60,3 +60,9 @@ This will start a local docs server on a random port. You should see something l
 It should open the site automatically in a new browser window.  If `127.0.0.1:[port]` fails to load, try `localhost:[port]`.
 
 Additional information on how to build the documentation can be found in the [docs](https://sdss-python-template.readthedocs.io/en/latest/index.html#package-documentation) section of the documentation.
+
+## Creating Releases
+
+New releases of `sdss-access` are created automatically, and pushed to [PyPi](https://pypi.org/project/sdss-access/), when new tags are pushed to Github.  See the [Create Release](.github/workflows/release.yml) Github Action and [Releases](https://github.com/sdss/sdss_access/releases) for the list.
+
+New tag names follow the Python semantic versioning syntax, i.e. `X.Y.Z`.

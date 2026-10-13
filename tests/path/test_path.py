@@ -583,7 +583,7 @@ def test_bad_release_old_tree(monkeypatch):
     monkeypatch.setattr(tree.__class__, "release_date", None)
     with pytest.raises(
         AttributeError,
-        match="Cannot find a valid release date in the sdss-tree product. " \
+        match="Cannot find a valid release date in the sdss-tree product. "
         "Try upgrading to min. version 3.1.0.",
     ):
         check_public_release("DR15")

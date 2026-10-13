@@ -20,6 +20,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "myst_parser",
     "sphinx_copybutton",
+    "sphinx_markdown_builder",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
