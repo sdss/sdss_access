@@ -40,7 +40,7 @@ except ModuleNotFoundError:
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon', 'sphinx.ext.autosummary',
               'sphinx.ext.todo', 'sphinx.ext.viewcode', 'sphinx.ext.mathjax',
               'sphinx.ext.intersphinx', 'sdss_access.misc.docupaths', 'recommonmark',
-              'sphinx_issues']
+              'sphinx_issues', 'sphinx_markdown_builder']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -120,6 +120,10 @@ autodoc_member_order = 'groupwise'
 
 napoleon_use_rtype = False
 napoleon_use_ivar = True
+
+markdown_anchor_sections = True
+markdown_anchor_signatures = True
+markdown_flavor = "github"
 
 rst_epilog = """
 .. |numpy_array| replace:: Numpy array
