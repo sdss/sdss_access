@@ -232,7 +232,7 @@ class TestSVPaths(object):
         assert set(keys) == set(realkeys)
 
     def test_netloc(self, path):
-        assert path.netloc == "data.sdss5.org"
+        assert path.netloc == "data.sdss.org"
 
     def assert_orig_sdss5_envvars(self):
         assert os.getenv("ROBOSTRATEGY_DATA") == "/tmp/robodata"
