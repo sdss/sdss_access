@@ -1312,6 +1312,7 @@ dependencies = [
     { name = "requests" },
     { name = "sdss-tree" },
     { name = "sdsstools" },
+    { name = "six" },
     { name = "tqdm" },
 ]
 
@@ -1345,6 +1346,7 @@ requires-dist = [
     { name = "requests", specifier = ">=2.10.0" },
     { name = "sdss-tree", specifier = ">=4.1" },
     { name = "sdsstools", specifier = ">=1.9.2" },
+    { name = "six", specifier = ">=1.17" },
     { name = "tqdm", specifier = ">=4.46.0" },
 ]
 
@@ -1405,6 +1407,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/42/d9/f949043b2854f37948c185d154b65e53bdd24388ab1a303506a4934e383a/sdsstools-1.9.9.tar.gz", hash = "sha256:af3f0e3ab73706a4e80edb7230673a6f62b87c1c563545e998426695038afbd4", size = 52214, upload-time = "2026-10-02T17:22:47.48Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/93/59/268de551e9f2ad50a22ffa6a9db8f46dee27275b2d15746d19e62665da86/sdsstools-1.9.9-py3-none-any.whl", hash = "sha256:c19cb8e10080d22c09870dbe7c40fd940a9e7b28c9847586021af0286bbd2c3d", size = 59816, upload-time = "2026-10-02T17:22:45.855Z" },
+]
+
+[[package]]
+name = "six"
+version = "1.17.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/94/e7/b2c673351809dca68a0e064b6af791aa332cf192da575fd474ed7d6f16a2/six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81", size = 34031, upload-time = "2024-12-04T17:35:28.174Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274", size = 11050, upload-time = "2024-12-04T17:35:26.475Z" },
 ]
 
 [[package]]

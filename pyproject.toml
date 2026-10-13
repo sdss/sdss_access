@@ -15,6 +15,7 @@ dependencies = [
     "sdss-tree>=4.1",
     "tqdm>=4.46.0",
     "requests>=2.10.0",
+    "six>=1.17",
 ]
 
 [dependency-groups]

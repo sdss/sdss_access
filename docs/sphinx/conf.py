@@ -18,6 +18,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.mathjax",
     "sphinx.ext.intersphinx",
+    "sdss_access.misc.docupaths",
     "myst_parser",
     "sphinx_copybutton",
     "sphinx_markdown_builder",
@@ -97,7 +98,9 @@ pygments_style = "sphinx"
 todo_include_todos = False
 
 # Intersphinx mappings
-intersphinx_mapping = {}
+intersphinx_mapping = {"python": ("https://docs.python.org/3.14", None),
+                       "astropy": ("http://docs.astropy.org/en/latest", None),
+                       "numpy": ("http://docs.scipy.org/doc/numpy/", None)}
 
 autodoc_mock_imports = ["_tkinter"]
 autodoc_member_order = "groupwise"
