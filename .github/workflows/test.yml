@@ -43,7 +43,7 @@ jobs:
       - name: Test with pytest
         run: |
           uv sync --frozen --group test
-          uv run pytest
+          uv run --with six pytest
 
       # - name: Upload coverage to Codecov
       #   uses: codecov/codecov-action@v5
