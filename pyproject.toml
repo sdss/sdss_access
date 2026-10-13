@@ -12,7 +12,9 @@ requires-python = ">=3.11,<4"
 
 dependencies = [
     "sdsstools>=1.9.2",
-    "sdss-tree>=4.1"
+    "sdss-tree>=4.1",
+    "tqdm>=4.46.0",
+    "requests>=2.10.0",
 ]
 
 [dependency-groups]

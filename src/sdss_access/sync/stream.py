@@ -6,7 +6,7 @@ from os.path import join, sep
 from random import shuffle
 
 from sdss_access import is_posix
-from sdss_access.sync import Cli
+from sdss_access.sync.cli import Cli
 
 
 class Stream(object):

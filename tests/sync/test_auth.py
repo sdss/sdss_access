@@ -12,7 +12,6 @@ from __future__ import absolute_import, division, print_function
 import importlib
 
 import pytest
-import six.moves
 
 import sdss_access
 from sdss_access.path import AccessError
@@ -71,11 +70,11 @@ class TestAuth(object):
     def test_user_inquire(self, monkeypatch, prompt, exp):
         """test username input prompt"""
 
-        # mock the six.moves.input
+        # mock the built-in input
         def mockinput(value):
             return prompt
 
-        monkeypatch.setattr(six.moves, "input", mockinput)
+        monkeypatch.setattr("builtins.input", mockinput)
         # reload the auth module
         importlib.reload(sdss_access.sync.auth)
         from sdss_access.sync.auth import Auth

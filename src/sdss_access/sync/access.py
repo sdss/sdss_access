@@ -3,7 +3,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from sdss_access import is_posix
 
 # The line above will help with 2to3 support.
-from sdss_access.sync import CurlAccess, RsyncAccess
+from sdss_access.sync.curl import CurlAccess
+from sdss_access.sync.rsync import RsyncAccess
 
 
 Base = RsyncAccess if is_posix else CurlAccess

@@ -11,7 +11,6 @@ from random import choice, sample
 from typing import Union
 
 import requests
-import six
 
 from sdss_access import config, is_posix, log, tree
 from tree import Tree
@@ -315,7 +314,7 @@ class BasePath(object):
             name (str):
                 The path name to lookup
         """
-        assert isinstance(name, six.string_types), "name must be a string"
+        assert isinstance(name, str), "name must be a string"
         return name in self.lookup_names()
 
     def extract(self, name, example):
@@ -348,7 +347,7 @@ class BasePath(object):
         # ensure example is a string
         if isinstance(example, pathlib.Path):
             example = str(example)
-        assert isinstance(example, six.string_types), "example file must be a string"
+        assert isinstance(example, str), "example file must be a string"
 
         # get the template
         assert name in self.lookup_names(), "{0} must be a valid template name".format(

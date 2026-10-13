@@ -3,8 +3,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from os import environ
 from os.path import join
 
-from six.moves import input
-
 from sdss_access import is_posix
 from sdss_access.path import AccessError
 
