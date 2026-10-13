@@ -56,7 +56,7 @@ jobs:
 
       - name: Test with pytest
         run: |
-          uv sync --frozen --group test
+          uv sync --frozen --group test --group docs
           uv run --with six pytest
 
       # - name: Upload coverage to Codecov
