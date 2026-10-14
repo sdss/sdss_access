@@ -41,14 +41,14 @@ jobs:
           uv sync --python ${{ matrix.python-version }} --no-dev --frozen
 
       - name: Setup SDSS-IV netrc
-        uses: extractions/netrc@v1
+        uses: extractions/netrc@v3
         with:
           machine: data.sdss.org
           username: ${{ secrets.S4_USERNAME }}
           password: ${{ secrets.S4_PASSWORD }}
 
       - name: Setup SDSS-V netrc
-        uses: extractions/netrc@v1
+        uses: extractions/netrc@v3
         with:
           machine: data.sdss5.org
           username: ${{ secrets.S5_USERNAME }}
