@@ -1,0 +1,38 @@
+name: Lint
+
+on:
+  push:
+    paths-ignore:
+      - 'docs/**'
+      - 'CHANGELOG.md'
+      - 'README.md'
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - 'CHANGELOG.md'
+      - 'README.md'
+
+jobs:
+  lint:
+    name: Lint
+
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Lint with ruff
+        run: |
+          uv tool install ruff
+          ruff check src/ tests/
+          ruff format --check src/ tests/

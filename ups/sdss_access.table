@@ -1,5 +1,0 @@
-setupRequired(sdss4tools)
-setupOptional(tree)
-
-envPrepend(PATH, ${PRODUCT_DIR}/bin)
-envPrepend(PYTHONPATH, ${PRODUCT_DIR}/python)

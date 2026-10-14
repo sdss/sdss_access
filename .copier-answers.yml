@@ -1,0 +1,16 @@
+# Changes here will be overwritten by Copier
+_commit: 3.0.0
+_src_path: gh:sdss/python_template
+author_email: bcherinka@stsci.edu
+author_name: Brian Cherinka
+build_docker_image: false
+framework_deps: false
+github_organization: sdss
+github_username: havok2063
+license: BSD-3-Clause
+minimum_python_version: '3.11'
+package_name: sdss_access
+project_description: Package to dynamically build filepaths and access all SDSS SAS products
+project_name: sdss_access
+push_to_github: false
+sync_project: false
