@@ -1,0 +1,101 @@
+#!/usr/bin/env python
+
+from __future__ import absolute_import, division, print_function, unicode_literals
+# The line above will help with 2to3 support.
+
+from sdss_access.path import Path
+sdss_path = Path()
+
+print("="*80)
+print('Example - Individual vs Full Keyword(s)')
+print(sdss_path.dir('mangacube', drpver='v1_5_1', plate=8485, ifu=1901))
+full = sdss_path.full('mangacube', drpver='v1_5_1', plate=8485, ifu='1901')
+print(sdss_path.dir('', full=full))
+
+print("="*80)
+print('Example - Does File Exist')
+full = sdss_path.full('mangacube', drpver='v1_5_1', plate=8485, ifu='1901')
+print(sdss_path.exists('', full=full))
+
+print("="*80)
+print('Example - Expand Full Filepaths around IFUs')
+for i in sdss_path.expand('mangacube', drpver='v1_5_1', plate=8485, ifu='*'):
+    print(i)
+print('\nNow using full keyword')
+full = sdss_path.full('mangacube', drpver='v1_5_1', plate=8485, ifu='*')
+for i in sdss_path.expand('', full=full):
+    print(i)
+
+print("="*80)
+print('Example - Do any Files exist in this Expansion')
+full = sdss_path.full('mangacube', drpver='v1_5_1', plate=8485, ifu='*')
+print(sdss_path.any('', full=full))
+
+print("="*80)
+print('Example - Return one random string path from Expansion')
+full = sdss_path.full('mangacube', drpver='v1_5_1', plate=8485, ifu='*')
+print(sdss_path.one('', full=full))
+
+print("="*80)
+print('Example - Return one random string path from Expansion as URL')
+full = sdss_path.full('mangacube', drpver='v1_5_1', plate=8485, ifu='*')
+print(sdss_path.one('', full=full, as_url=True))
+
+print("="*80)
+print('Example - Return random 5 files from Expansion')
+full = sdss_path.full('mangacube', drpver='v1_5_1', plate=8485, ifu='*')
+for i in sdss_path.random('', full=full, num=5):
+    print(i)
+
+print("="*80)
+print('Example - Return random 5 files from Expansion, as URLs')
+full = sdss_path.full('mangacube', drpver='v1_5_1', plate=8485, ifu='*')
+for i in sdss_path.random('', full=full, num=5, as_url=True):
+    print(i)
+
+print("="*80)
+print('Example - Return random 5 files around IFU')
+full = sdss_path.full('mangacube', drpver='v1_5_1', plate=8485, ifu='*')
+for i in sdss_path.random('', full=full, num=5):
+    print(i)
+
+print("="*80)
+print('Example - Return random 5 files around Plate for IFU 1901')
+full = sdss_path.full('mangacube', drpver='v1_5_1', plate='*', ifu='1901')
+for i in sdss_path.random('', full=full, num=5):
+    print(i)
+
+print("="*80)
+print('Example - Return random 5 files around DRPVER for Plate 8485, any IFU')
+full = sdss_path.full('mangacube', drpver='*', plate=8485, ifu='*')
+for i in sdss_path.random('', full=full, num=5):
+    print(i)
+
+print("="*80)
+print('Example - Refine an expansion - filter out 7XX images')
+full = sdss_path.full('mangaimage', drpver='v1_5_1', plate=8485, ifu='*', dir3d='stack')
+files = sdss_path.expand('', full=full)
+for i in sdss_path.refine(files, '\d{4,5}.png'):
+    print(i)
+
+print("="*80)
+print('Example - Refine an expansion - filter out all other images besides 7XX images')
+full = sdss_path.full('mangaimage', drpver='v1_5_1', plate=8485, ifu='*', dir3d='stack')
+files = sdss_path.expand('', full=full)
+for i in sdss_path.refine(files, '\d{4,5}.png', filterdir='in'):
+    print(i)
+
+print("="*80)
+print('Example - Inline refine a random sample')
+full = sdss_path.full('mangaimage', drpver='v1_5_1', plate='*', ifu='*', dir3d='stack')
+for i in sdss_path.random('', full=full, num=5, refine='\d{4,5}.png'):
+    print(i)
+
+print("="*80)
+print('Example - Attempt to expand without a wildcard')
+full = sdss_path.full('mangacube', drpver='v1_5_1', plate=8485, ifu='1901')
+print(sdss_path.any('', full=full))
+
+
+
+

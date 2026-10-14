@@ -1,0 +1,13 @@
+#!/usr/bin/env python
+from sdss_access import Access, AccessError
+access = Access(label='mangamap',verbose=True)
+
+#works if you have the sdss username in your ~/.netrc (or you will be prompted)
+access.remote()
+#the alternative to setting the password in ~/.netrc is not recommended!
+#access.remote(username='sdss',password='***-******')
+#mangamap = $MANGA_SPECTRO_ANALYSIS/{drpver}/{dapver}/full/{plate}/{ifu}/manga-{plate}-{ifu}-LOGCUBE_MAPS-{bintype}-{n:0>3}.fits.gz
+
+access.add('mangamap', drpver = 'v1_5_1', dapver='1.1.1', plate=8485, ifu=1901, bintype='NONE', n='*')
+access.set_stream()
+access.commit()

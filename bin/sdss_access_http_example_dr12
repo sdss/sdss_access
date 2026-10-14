@@ -1,0 +1,13 @@
+#!/usr/bin/env python
+
+# DR12 example that does not require a username/password
+# $ module load tree/dr12 sdss_access
+
+from sdss_access import HttpAccess
+http_access = HttpAccess(verbose=True)
+
+#works with or without a ~/.netrc
+http_access.remote()
+
+http_access.get('spec-lite', run2d='v5_7_0', plateid=3606, mjd=55182, fiberid=537)
+
