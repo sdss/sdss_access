@@ -1,0 +1,66 @@
+name: Test
+
+on:
+  push:
+    paths-ignore:
+      - 'docs/**'
+      - 'CHANGELOG.md'
+      - 'README.md'
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - 'CHANGELOG.md'
+      - 'README.md'
+
+jobs:
+  test:
+    name: Test
+
+    runs-on: ubuntu-24.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.11, 3.12, 3.13, 3.14]
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: |
+          uv sync --python ${{ matrix.python-version }} --no-dev --frozen
+
+      - name: Setup SDSS-IV netrc
+        uses: extractions/netrc@v3
+        with:
+          machine: data.sdss.org
+          username: ${{ secrets.S4_USERNAME }}
+          password: ${{ secrets.S4_PASSWORD }}
+
+      - name: Setup SDSS-V netrc
+        uses: extractions/netrc@v3
+        with:
+          machine: data.sdss5.org
+          username: ${{ secrets.S5_USERNAME }}
+          password: ${{ secrets.S5_PASSWORD }}
+
+      - name: Test with pytest
+        run: |
+          uv sync --frozen --group test --group docs
+          uv run --with six pytest
+
+      # - name: Upload coverage to Codecov
+      #   uses: codecov/codecov-action@v5
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     files: ./coverage.xml

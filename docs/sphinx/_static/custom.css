@@ -1,111 +1,43 @@
-body { color: #444444 !important; }
-
-div.custom-warning {
-    background-color: #f7c589;
-    border-color: #f7c589;
-}
-
-div.custom-warning {
-    background-color: #f7c589;
-    border-color: #f7c589;
-}
+/* This is the custom CSS for alabaster. The theme does not allow for it to be set differently. */
 
 .red {
-        color: red;
+  color: red;
 }
 
 .green {
-        color: green;
+  color: green;
 }
 
 .pink {
-        color: pink;
-}
-
-.maroon {
-    color: maroon;
+  color: pink;
 }
 
 .orange {
-        color: orange;
+  color: orange;
 }
 
 .purple {
-        color: purple;
+  color: purple;
 }
 
-dl.attribute, dl.method {
-    display: block;
-    margin-left: 50px;
+a.reference > em {
+  font-style: normal !important;
 }
 
-footer a{
-
-    color: #4c72b0 !important;
+a.reference > code {
+  font-weight: inherit !important;
+  color: inherit;
+  background-color: inherit;
 }
+
+ul, ol {
+  margin: 0px 0 0px 30px;
+}
+
 a.reference {
-    color: #4c72b0 !important;
+  border-bottom: 0px;
 }
 
-blockquote p {
-    font-size: 14px !important;
+td.field-body > ul > li > em {
+    font-style: normal !important;
 }
-
-blockquote {
-    padding-top: 4px !important;
-    padding-bottom: 4px !important;
-    margin: 0 0 0px !important;
-}
-
-code {
-    color: #49759c !important;
-    background-color: #ffffff !important;
-}
-
-.alert-info {
-    background-color: #adb8cb !important;
-    border-color: #adb8cb !important;
-    color: #2c3e50 !important;
-}
-
-code.descname, code.descclassname {
-    color: #c42850 !important;
-}
-
-code.descclassname + code.descname {
-    margin-left: -4px;
-    padding-left: 0px;
-}
-
-span.sig-paren ~ em {
-    font-weight: 600;
-    font-family: sans-serif;
-    font-size: 9.5pt;
-}
-
-em.property {
-    font-weight: 600;
-    font-family: sans-serif;
-    font-size: 9.5pt;
-}
-
-/* .function dt {
-    padding-top: 150px;
-    margin-top: -150px;
-    -webkit-background-clip: content-box;
-    background-clip: content-box;
-} */
-
-.rubric > .class-header-no-toc {
-  font-size: 240%;
-  font-weight: 400;
-  /* padding-bottom: 20px; */
-  display: inline-block;
-}
-
-h1 { font-size: 200%; }
-h2 { font-size: 160%; }
-h3 { font-size: 130%; }
-h4 { font-size: 100%; }
-h5 { font-size: 80%; }
-h6 { font-size: 70%; }

@@ -11,11 +11,16 @@
 # Modified By: Brian Cherinka
 
 
-from __future__ import print_function, division, absolute_import
-import pytest
-from sdss_access.sync import CurlAccess, RsyncAccess
-import sdss_access
+from __future__ import absolute_import, division, print_function
+
 import sys
+
+import pytest
+
+import sdss_access
+from sdss_access.sync import CurlAccess, RsyncAccess
+
+
 if sys.version_info.major == 2:
     import imp as importlib
 else:
@@ -23,12 +28,12 @@ else:
 
 
 is_posix = [True, False]
-exp = {True: (RsyncAccess, 'rsync'), False: (CurlAccess, 'curl')}
+exp = {True: (RsyncAccess, "rsync"), False: (CurlAccess, "curl")}
 
 
 @pytest.fixture(params=is_posix, ids=["is_posix", "is_not_posix"])
 def monkey_posix(monkeypatch, request):
-    monkeypatch.setattr(sdss_access, 'is_posix', request.param)
+    monkeypatch.setattr(sdss_access, "is_posix", request.param)
 
 
 def test_access(monkey_posix):
@@ -37,26 +42,31 @@ def test_access(monkey_posix):
     assert Access.access_mode == mode
     assert issubclass(Access, core)
 
-@pytest.mark.parametrize('cfg, exp',
-                    [('sdss5', 'data.sdss5.org'),
-                     ('ipl1', 'data.sdss5.org'),
-                     ('dr17', 'data.sdss.org'),
-                     ('sdsswork', 'data.sdss5.org')],
-                    ids=['sdss5', 'ipl1', 'dr17', 'sdsswork'])
+
+@pytest.mark.parametrize(
+    "cfg, exp",
+    [
+        ("sdss5", "data.sdss5.org"),
+        ("ipl1", "data.sdss5.org"),
+        ("dr17", "data.sdss.org"),
+        ("sdsswork", "data.sdss5.org"),
+    ],
+    ids=["sdss5", "ipl1", "dr17", "sdsswork"],
+)
 def test_netloc(cfg, exp):
     a = RsyncAccess(release=cfg)
     assert a.netloc == exp
-    assert a.remote_base == f'https://{exp}'
+    assert a.remote_base == f"https://{exp}"
 
-@pytest.mark.parametrize('cfg, exp',
-                    [('sdss5', 'sdss5'),
-                     ('ipl1', 'sdss5'),
-                     ('dr17', ''),
-                     ('sdsswork', 'sdss5')],
-                    ids=['sdss5', 'ipl1', 'dr17', 'sdsswork'])
+
+@pytest.mark.parametrize(
+    "cfg, exp",
+    [("sdss5", "sdss5"), ("ipl1", "sdss5"), ("dr17", ""), ("sdsswork", "sdss5")],
+    ids=["sdss5", "ipl1", "dr17", "sdsswork"],
+)
 def test_remote_base(cfg, exp):
     a = RsyncAccess(release=cfg)
     a.remote()
-    assert a.netloc == 'dtn.sdss.org'
-    exp = exp if cfg == 'dr17' else f'{exp}@'
-    assert a.remote_base == f'rsync://{exp}dtn.sdss.org'
+    assert a.netloc == "dtn.sdss.org"
+    exp = exp if cfg == "dr17" else f"{exp}@"
+    assert a.remote_base == f"rsync://{exp}dtn.sdss.org"

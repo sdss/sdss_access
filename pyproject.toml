@@ -1,3 +1,90 @@
+[project]
+name = "sdss_access"
+version = "4.0.0a1"
+description = "Package to dynamically build filepaths and access all SDSS SAS products"
+authors = [
+    { name = "Brian Cherinka", email = "bcherinka@stsci.edu" },
+]
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+readme = "README.md"
+requires-python = ">=3.11,<4"
+
+dependencies = [
+    "sdsstools>=1.9.2",
+    "sdss-tree>=4.1",
+    "tqdm>=4.46.0",
+    "requests>=2.10.0",
+    "six>=1.17",
+]
+
+[dependency-groups]
+dev = [
+    "ipython>=8.0.0",
+    "ipdb>=0.12.3",
+    "ruff>=0.14.10",
+]
+docs = [
+    "furo>=2025.12.19",
+    "myst-parser>=2.0.0",
+    "nox>=2025.11.12",
+    "sphinx-autobuild>=2021.3.14",
+    "sphinx-copybutton>=0.4.0",
+    "sphinx-autodoc-typehints>=1.23.2",
+    "sphinx_inline_tabs>=2025.12.21.14",
+    "sphinx_markdown_builder>=0.6.0",
+]
+test = [
+    "pytest>=5.2.2",
+    "pytest-asyncio>=0.10.0",
+    "pytest-cov>=2.8.1",
+    "pytest-mock>=1.13.0",
+    "pytest-sugar>=0.9.2",
+]
+
+[project.urls]
+Homepage = "https://github.com/sdss/sdss_access"
+Repository = "https://github.com/sdss/sdss_access"
+
+[tool.uv]
+package = true
+
+[tool.ruff]
+line-length = 88
+target-version = 'py313'
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+unfixable = ["F841"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F403", "E402", "F401"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["sdss_access"]
+lines-after-imports = 2
+section-order = ["future", "standard-library", "typing", "third-party", "sdss", "first-party", "local-folder"]
+
+[tool.ruff.lint.isort.sections]
+typing = ["typing"]
+sdss = ["sdsstools", "sdssdb", "clu", "tree", "sdss_access", "datamodel", "coordio"]
+
+[tool.pytest.ini_options]
+addopts = "--cov sdss_access --cov-report xml --cov-report html --cov-report term -W ignore"
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.coverage.run]
+branch = true
+include = ["src/sdss_access/*"]
+omit = []
+
+[tool.coverage.report]
+exclude_lines = [
+    "if TYPE_CHECKING:",
+    "# pragma: no cover"
+]
+
 [build-system]
-requires = ["setuptools>=61", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["uv_build>=0.9.20,<0.10.0"]
+build-backend = "uv_build"
